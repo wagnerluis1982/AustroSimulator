@@ -135,11 +135,14 @@ def instruction_words(opcode, op1=None, op2=None):
                     return ((opcode.lineno, i_word), DataWord(op2.value))
         # All other instructions
         elif opname in others:
+            if opname in ('IADD', 'ICMP', 'IDIV', 'IMOD', 'IMUL', 'ISUB',):
+                i_word.flags = 0b100  # signed instructions
+
             if op1.type == 'NAME' and op2.type == 'NAME':
                 try:
                     i_word.operand = REGISTERS[op1.value.upper()] << 4
                     i_word.operand |= REGISTERS[op2.value.upper()]
-                    i_word.flags = 0
+                    # flag x00 - no needs to set
                 except KeyError, e:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
@@ -147,7 +150,7 @@ def instruction_words(opcode, op1=None, op2=None):
             elif op1.type == 'NAME' and op2.type == 'REFERENCE':
                 try:
                     i_word.operand = REGISTERS[op1.value.upper()]
-                    i_word.flags = 1
+                    i_word.flags |= 0b001  # flag x01
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
@@ -155,7 +158,7 @@ def instruction_words(opcode, op1=None, op2=None):
             elif op1.type == 'NAME' and op2.type == 'NUMBER':
                 try:
                     i_word.operand = REGISTERS[op1.value.upper()]
-                    i_word.flags = 2
+                    i_word.flags |= 0b010  # flag x10
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
@@ -163,7 +166,7 @@ def instruction_words(opcode, op1=None, op2=None):
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
                 try:
                     i_word.operand = REGISTERS[op2.value.upper()]
-                    i_word.flags = 3
+                    i_word.flags |= 0b011  # flag x11
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
