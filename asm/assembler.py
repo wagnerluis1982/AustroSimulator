@@ -167,3 +167,107 @@ def instruction_words(opcode, op1=None, op2=None):
                 return ((opcode.lineno, i_word), DataWord(op1.value))
 
     return None
+
+
+def assemble(code):
+    """Analyzes assembly code and returns a dict of labels and memory words
+
+    The returned dict is in the following format:
+
+        {'labels': {
+                'loop': 1,  # loop is a label and 1 the associated address
+                'rept': 2,
+                ...
+            }
+         'words': [
+                (1, InstructionWord(5, 7, 46)),
+                DataWord(2028),
+                ...
+            ]
+        }
+
+    As can be seen, the labels itself are another dict where the key is a
+    label name and the value the following instruction associated address.
+
+    The 'words' key is a mixed list of tuples representing 16-bit words, that is
+    intended to be a kind of Austro Simulator assembler, and int values
+    representing data operand-only words.
+
+    The tuples are instruction words in the following format:
+
+        (line, opcode, flags, operand,)
+
+    where line is the associated line number in the assembly file.
+    """
+    lexer.input(code)
+
+    # Structures to store labels and memory words
+    labels = {}
+    words = []
+
+    opcode = None
+    pend_labels = []
+    tok = lexer.token()
+    while tok:
+        if tok.type == 'LABEL':
+            pend_labels.append(tok)
+
+        elif tok.type == 'OPCODE':
+            # Verify if has any label pending an address
+            while pend_labels:
+                lbl = pend_labels.pop()
+                if labels.has_key(lbl.value):
+                    raise Exception("Error: symbol '%s' is already defined." % \
+                            lbl.value, lbl.lineno)
+                # Point the label to the next word pending attribution
+                labels[lbl.value] = len(words)
+                del lbl
+
+            # Store opcode
+            opcode = tok
+
+            # Get first operator if available
+            tok = lexer.token()
+            if tok.lineno != opcode.lineno:
+                words.extend(instruction_words(opcode))  # non-arg opcode
+                continue
+            op1 = tok
+
+            # Comma
+            tok = lexer.token()
+            if tok.lineno != opcode.lineno:
+                words.extend(instruction_words(opcode, op1))  # 1-arg opcode
+                continue
+            elif tok.type != 'COMMA':
+                raise Exception("Invalid token", tok.lineno)
+
+            # Get second operator if available
+            tok = lexer.token()
+            if tok.lineno != opcode.lineno:
+                raise Exception("Invalid syntax", opcode.lineno)
+            op2 = tok
+
+            words.extend(instruction_words(opcode, op1, op2))  # 2-arg opcode
+
+        # At start of line, only labels and opcodes are allowed
+        else:
+            raise Exception("Invalid token", tok.lineno)
+
+        tok = lexer.token()
+
+    return {'labels': labels, 'words': words}
+
+
+if __name__ == "__main__":
+    import sys
+    import os
+    try:
+        filename = sys.argv[1]
+        f = open(filename)
+        data = f.read()
+        f.close()
+    except IndexError:
+        data = sys.stdin.read()
+
+    from pprint import pprint
+    pprint(assemble(data))
