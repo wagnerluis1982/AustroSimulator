@@ -6,9 +6,10 @@ instructions = [
         'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ', 'MOD', 'MOV', 'MUL', 'NOP',
         'NOT', 'OR', 'SHL', 'SHR', 'SUB', 'XOR',
     ]
-tokens = ["LABEL", "OPCODE", "NAME", "REFERENCE", "NUMBER", "COMMA"]
+tokens = ["LABEL", "OPCODE", "NAME", "REFERENCE", "NUMBER", "COMMA", "COMMENT"]
 
 t_ignore = ' \t'
+t_ignore_COMMENT = r'\#.*'
 t_COMMA = ','
 
 def get_base(t_name):
