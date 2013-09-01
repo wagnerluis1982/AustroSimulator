@@ -65,7 +65,10 @@ def instruction_words(opcode, op1=None, op2=None):
         ((1, InstructionWord(2, 2, 8)), DataWord(234))
     """
     opname = opcode.value.upper()
-    i_word = InstructionWord(OPCODES[opname])
+    try:
+        i_word = InstructionWord(OPCODES[opname])
+    except KeyError:
+        raise Exception("Invalid instruction '%s'" % opname, opcode.lineno)
 
     # zero-operand instructions
     if op1 is None:
