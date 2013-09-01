@@ -1,4 +1,5 @@
 aplicacao.pro
 aplicacao.pro.user
 *.autosave
-*.pyc
+*.py[co]
+*.swp
