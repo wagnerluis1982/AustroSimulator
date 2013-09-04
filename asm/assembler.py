@@ -17,13 +17,17 @@ class InstructionWord(ctypes.Structure):
                 ('flags', ctypes.c_ubyte, 3),
                 ('operand', ctypes.c_ubyte, 8)]
 
+    def __init__(self, opcode=0, flags=0, operand=0, lineno=0):
+        ctypes.Structure.__init__(self, opcode, flags, operand)
+        self.lineno = lineno
+
     @property
     def value(self):
         return (self.opcode << 3 | self.flags) << 8 | self.operand
 
     def __repr__(self):
-        return 'InstructionWord(%d, %d, %d)' % (self.opcode, self.flags,
-                                                self.operand)
+        return 'InstructionWord(%d, %d, %d, lineno=%d)' % (self.opcode,
+                                        self.flags, self.operand, self.lineno)
 
 class DataWord(ctypes.Structure):
     """Represent the memory data word"""
@@ -63,18 +67,18 @@ def instruction_words(opcode, op1=None, op2=None):
         >>> o1 = LT('NAME', 'ax', ln=1)
         >>> o2 = LT('NUMBER', 234, ln=1)
         >>> instruction_words(op, o1, o2)
-        ((1, InstructionWord(2, 2, 8)), DataWord(234))
+        (InstructionWord(2, 2, 8, lineno=1), DataWord(234))
     """
     opname = opcode.value.upper()
     try:
-        i_word = InstructionWord(OPCODES[opname])
+        instr_word = InstructionWord(OPCODES[opname], lineno=opcode.lineno)
     except KeyError:
         raise Exception("Invalid instruction '%s'" % opname, opcode.lineno)
 
     # zero-operand instructions
     if op1 is None:
         if opname in ('NOP', 'HALT'):
-            return ((opcode.lineno, i_word),)
+            return (instr_word,)
 
     # 1-operand instructions
     elif op2 is None:
@@ -85,33 +89,33 @@ def instruction_words(opcode, op1=None, op2=None):
         if opname in jumps:
             if op1.type == 'NAME':
                 try:
-                    i_word.operand = REGISTERS[op1.value.upper()]
-                    i_word.flags = 0
+                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.flags = 0
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return ((opcode.lineno, i_word),)
+                return (instr_word,)
             elif op1.type == 'REFERENCE':
-                i_word.operand = op1.value
-                i_word.flags = 1
-                return ((opcode.lineno, i_word),)
+                instr_word.operand = op1.value
+                instr_word.flags = 1
+                return (instr_word,)
             elif op1.type == 'NUMBER':
-                i_word.flags = 2
-                return ((opcode.lineno, i_word), DataWord(op1.value))
+                instr_word.flags = 2
+                return (instr_word, DataWord(op1.value))
         # INC, DEC and NOT instructions
         elif opname in others:
             if op1.type == 'NAME':
                 try:
-                    i_word.operand = REGISTERS[op1.value.upper()]
-                    i_word.flags = 0
+                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.flags = 0
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return ((opcode.lineno, i_word),)
+                return (instr_word,)
             elif op1.type == 'REFERENCE':
-                i_word.operand = op1.value
-                i_word.flags = 1
-                return ((opcode.lineno, i_word),)
+                instr_word.operand = op1.value
+                instr_word.flags = 1
+                return (instr_word,)
 
     # 2-operand instructions
     else:
@@ -123,55 +127,55 @@ def instruction_words(opcode, op1=None, op2=None):
             if op2.type == 'NUMBER':
                 if op1.type == 'NAME':
                     try:
-                        i_word.operand = REGISTERS[op1.value.upper()]
-                        i_word.flags = 0
+                        instr_word.operand = REGISTERS[op1.value.upper()]
+                        instr_word.flags = 0
                     except KeyError:
                         raise Exception("Error: bad register name '%s'" % \
                                 e.args)
 
-                    return ((opcode.lineno, i_word), DataWord(op2.value))
+                    return (instr_word, DataWord(op2.value))
                 elif op1.type == 'REFERENCE':
-                    i_word.operand = op1.value
-                    i_word.flags = 1
-                    return ((opcode.lineno, i_word), DataWord(op2.value))
+                    instr_word.operand = op1.value
+                    instr_word.flags = 1
+                    return (instr_word, DataWord(op2.value))
         # All other instructions
         elif opname in others:
             if opname in ('IADD', 'ICMP', 'IDIV', 'IMOD', 'IMUL', 'ISUB',):
-                i_word.flags = 0b100  # signed instructions
+                instr_word.flags = 0b100  # signed instructions
 
             if op1.type == 'NAME' and op2.type == 'NAME':
                 try:
-                    i_word.operand = REGISTERS[op1.value.upper()] << 4
-                    i_word.operand |= REGISTERS[op2.value.upper()]
+                    instr_word.operand = REGISTERS[op1.value.upper()] << 4
+                    instr_word.operand |= REGISTERS[op2.value.upper()]
                     # flag x00 - no needs to set
                 except KeyError, e:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return ((opcode.lineno, i_word),)
+                return (instr_word,)
             elif op1.type == 'NAME' and op2.type == 'REFERENCE':
                 try:
-                    i_word.operand = REGISTERS[op1.value.upper()]
-                    i_word.flags |= 0b001  # flag x01
+                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.flags |= 0b001  # flag x01
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return ((opcode.lineno, i_word), DataWord(op2.value))
+                return (instr_word, DataWord(op2.value))
             elif op1.type == 'NAME' and op2.type == 'NUMBER':
                 try:
-                    i_word.operand = REGISTERS[op1.value.upper()]
-                    i_word.flags |= 0b010  # flag x10
+                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.flags |= 0b010  # flag x10
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return ((opcode.lineno, i_word), DataWord(op2.value))
+                return (instr_word, DataWord(op2.value))
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
                 try:
-                    i_word.operand = REGISTERS[op2.value.upper()]
-                    i_word.flags |= 0b011  # flag x11
+                    instr_word.operand = REGISTERS[op2.value.upper()]
+                    instr_word.flags |= 0b011  # flag x11
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return ((opcode.lineno, i_word), DataWord(op1.value))
+                return (instr_word, DataWord(op1.value))
 
     return None
 
