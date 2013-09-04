@@ -9,8 +9,9 @@ from asm_lexer import lexer
 class InstructionWord(ctypes.Structure):
     """Represent the memory instruction word
 
-        >>> print bin(InstructionWord(0b00001, 0b010, 0b00000011).value)
-        0b101000000011
+        >>> iw = InstructionWord(0b00001, 0b010, 0b00000011)
+        >>> bin(iw.value)
+        '0b101000000011'
     """
     _fields_ = [('opcode', ctypes.c_ubyte, 5),
                 ('flags', ctypes.c_ubyte, 3),
@@ -58,9 +59,9 @@ def instruction_words(opcode, op1=None, op2=None):
         ...     def __init__(s, t, v, ln, lp=0):
         ...         s.type, s.value, s.lineno, s.lexpos = t, v, ln, lp
 
-        >>> op = LT('OPCODE', 'mov', 1)
-        >>> o1 = LT('NAME', 'ax', 1)
-        >>> o2 = LT('NUMBER', 234, 1)
+        >>> op = LT('OPCODE', 'mov', ln=1)
+        >>> o1 = LT('NAME', 'ax', ln=1)
+        >>> o2 = LT('NUMBER', 234, ln=1)
         >>> instruction_words(op, o1, o2)
         ((1, InstructionWord(2, 2, 8)), DataWord(234))
     """
