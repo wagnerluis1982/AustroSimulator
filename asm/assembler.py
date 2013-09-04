@@ -186,12 +186,12 @@ def assemble(code):
     The returned dict is in the following format:
 
         {'labels': {
-                'loop': 1,  # loop is a label and 1 the associated address
-                'rept': 2,
+                'loop': 6,  # loop is a label and 1 the associated address
+                'rept': 8,
                 ...
             }
          'words': [
-                (1, InstructionWord(5, 7, 46)),
+                InstructionWord(5, 7, 46, lineno=1),
                 DataWord(2028),
                 ...
             ]
@@ -200,15 +200,12 @@ def assemble(code):
     As can be seen, the labels itself are another dict where the key is a
     label name and the value the following instruction associated address.
 
-    The 'words' key is a mixed list of tuples representing 16-bit words, that is
-    intended to be a kind of Austro Simulator assembler, and int values
-    representing data operand-only words.
+    The 'words' key is a mixed list of InstructionWord and DataWord objects,
+    representing 16-bit words, that is intended to be a kind of Austro Simulator
+    assembler.
 
-    The tuples are instruction words in the following format:
-
-        (line, opcode, flags, operand,)
-
-    where line is the associated line number in the assembly file.
+    The InstructionWord object carry lineno attribute that is the associated
+    line number in assembly file.
     """
     lexer.input(code)
 
