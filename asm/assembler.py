@@ -55,18 +55,27 @@ REGISTERS = {
         'SP': 0b1100, 'BP': 0b1101, 'SI': 0b1110, 'DI': 0b1111,
     }
 
-def instruction_words(opcode, op1=None, op2=None):
-    """Construct the memory words using InstructionWord class
+def memory_words(opcode, op1=None, op2=None):
+    """Construct memory words using InstructionWord and DataWord classes
+
+    The output of this function is a tuple of one or two elements.
+
+    If compounded of one element, this element is a InstructionWord object.
+
+    If compounded of two elements, then
+    - first is a InstructionWord object and
+    - second is a DataWord object.
 
         >>> from ply.lex import LexToken
-        >>> class LT(LexToken):
-        ...     def __init__(s, t, v, ln, lp=0):
-        ...         s.type, s.value, s.lineno, s.lexpos = t, v, ln, lp
+        >>> def lexToken(tp, val, line, lxpos=0):
+        ...     lt = LexToken()
+        ...     lt.type, lt.value, lt.lineno, lt.lexpos = tp, val, line, lxpos
+        ...     return lt
 
-        >>> op = LT('OPCODE', 'mov', ln=1)
-        >>> o1 = LT('NAME', 'ax', ln=1)
-        >>> o2 = LT('NUMBER', 234, ln=1)
-        >>> instruction_words(op, o1, o2)
+        >>> opc = lexToken('OPCODE', 'mov', line=1)
+        >>> op1 = lexToken('NAME', 'ax', line=1)
+        >>> op2 = lexToken('NUMBER', 234, line=1)
+        >>> memory_words(opc, op1, op2)
         (InstructionWord(2, 2, 8, lineno=1), DataWord(234))
     """
     opname = opcode.value.upper()
@@ -237,14 +246,14 @@ def assemble(code):
             # Get first operator if available
             tok = lexer.token()
             if tok.lineno != opcode.lineno:
-                words.extend(instruction_words(opcode))  # non-arg opcode
+                words.extend(memory_words(opcode))  # non-arg opcode
                 continue
             op1 = tok
 
             # Comma
             tok = lexer.token()
             if tok.lineno != opcode.lineno:
-                words.extend(instruction_words(opcode, op1))  # 1-arg opcode
+                words.extend(memory_words(opcode, op1))  # 1-arg opcode
                 continue
             elif tok.type != 'COMMA':
                 raise Exception("Invalid token", tok.lineno)
@@ -255,7 +264,7 @@ def assemble(code):
                 raise Exception("Invalid syntax", opcode.lineno)
             op2 = tok
 
-            words.extend(instruction_words(opcode, op1, op2))  # 2-arg opcode
+            words.extend(memory_words(opcode, op1, op2))  # 2-arg opcode
 
         # At start of line, only labels and opcodes are allowed
         else:
