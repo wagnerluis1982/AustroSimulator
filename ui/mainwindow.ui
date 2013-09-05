@@ -242,9 +242,6 @@
            <bool>false</bool>
           </property>
           <widget class="QTabWidget" name="mainTabWidget">
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
            <widget class="QWidget" name="tabPrg">
             <attribute name="icon">
              <iconset theme="document-edit">
@@ -284,11 +281,6 @@
                </property>
                <property name="horizontalScrollBarPolicy">
                 <enum>Qt::ScrollBarAsNeeded</enum>
-               </property>
-               <property name="source">
-                <url>
-                 <string>file:///home/wagner/Faculdade/Ciência da Computação, UFS/2013-1/Arquitetura de Computadores/Trabalho 2/aplicacao/qml/computer.qml</string>
-                </url>
                </property>
               </widget>
              </item>
