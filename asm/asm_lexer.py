@@ -24,6 +24,7 @@ def get_base(t_name):
         base = 10
     return base
 
+
 number = r'(0b[01]+|0[0-7]+|0o[0-7]+|0x[0-9a-fA-F]+|\d+)'
 reference = r'\[\s*' + number + r'\s*\]'
 

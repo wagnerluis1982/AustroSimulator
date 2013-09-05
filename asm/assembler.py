@@ -1,6 +1,6 @@
 # Austro Simulator Assembler
 
-# NOTE: This was intended to be a parser, but it isn't due to lack of knowledge.
+# NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 
 import ctypes
 
@@ -210,7 +210,7 @@ def assemble(code):
     label name and the value the following instruction associated address.
 
     The 'words' key is a mixed list of InstructionWord and DataWord objects,
-    representing 16-bit words, that is intended to be a kind of Austro Simulator
+    representing 16-bit words, intended to be a kind of Austro Simulator
     assembler.
 
     The InstructionWord object carry lineno attribute that is the associated
@@ -233,8 +233,8 @@ def assemble(code):
             # Verify if has any label pending an address
             while pend_labels:
                 lbl = pend_labels.pop()
-                if labels.has_key(lbl.value):
-                    raise Exception("Error: symbol '%s' is already defined." % \
+                if lbl.value in labels:
+                    raise Exception("Error: symbol '%s' is already defined." %
                             lbl.value, lbl.lineno)
                 # Point the label to the next word pending attribution
                 labels[lbl.value] = len(words)
