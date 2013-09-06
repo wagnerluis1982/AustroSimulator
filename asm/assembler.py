@@ -26,9 +26,16 @@ class InstructionWord(ctypes.Structure):
     def value(self):
         return (self.opcode << 3 | self.flags) << 8 | self.operand
 
+    @value.setter
+    def value(self, val):
+        self.opcode = val >> 11
+        self.flags = val >> 8
+        self.operand = val
+
     def __repr__(self):
         return 'InstructionWord(%d, %d, %d, lineno=%d)' % (self.opcode,
                                         self.flags, self.operand, self.lineno)
+
 
 class DataWord(ctypes.Structure):
     """Represent the memory data word"""
@@ -36,6 +43,7 @@ class DataWord(ctypes.Structure):
 
     def __repr__(self):
         return 'DataWord(%d)' % (self.value)
+
 
 OPCODES = {
         'NOP': 0b00000, 'HALT': 0b00001, 'MOV': 0b00010, 'JZ':   0b00011,
@@ -55,6 +63,7 @@ REGISTERS = {
         'AX': 0b1000, 'BX': 0b1001, 'CX': 0b1010, 'DX': 0b1011,
         'SP': 0b1100, 'BP': 0b1101, 'SI': 0b1110, 'DI': 0b1111,
     }
+
 
 def memory_words(opcode, op1=None, op2=None):
     """Construct memory words using InstructionWord and DataWord classes
