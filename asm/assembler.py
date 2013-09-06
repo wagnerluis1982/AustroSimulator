@@ -297,7 +297,7 @@ def assemble(code):
     return {'labels': labels, 'words': words}
 
 
-if __name__ == "__main__":
+def main():
     import sys
     import os
     try:
@@ -310,3 +310,7 @@ if __name__ == "__main__":
 
     from pprint import pprint
     pprint(assemble(data))
+
+
+if __name__ == "__main__":
+    main()

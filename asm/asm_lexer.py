@@ -1,12 +1,12 @@
 from ply import lex
 
-instructions = [
+instructions = (
         'ADD', 'AND', 'CMP', 'DEC', 'DIV', 'HALT', 'IADD', 'ICMP', 'IDIV',
         'IMOD', 'IMUL', 'INC', 'ISUB', 'JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
         'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ', 'MOD', 'MOV', 'MUL', 'NOP',
         'NOT', 'OR', 'SHL', 'SHR', 'SUB', 'XOR',
-    ]
-tokens = ["LABEL", "OPCODE", "NAME", "REFERENCE", "NUMBER", "COMMA", "COMMENT"]
+    )
+tokens = ("LABEL", "OPCODE", "NAME", "REFERENCE", "NUMBER", "COMMA", "COMMENT")
 
 t_ignore = ' \t'
 t_ignore_COMMENT = r'\#.*'
