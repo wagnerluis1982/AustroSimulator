@@ -12,6 +12,9 @@ class CPU(object):
         self._memory = [None]*ADDRESS_SPACE
         self._registers = Registers()
 
+    def fetch(self):
+        pass
+
     def set_memory(self, words, start=0):
         assert isinstance(words, list)
         for i in xrange(len(words)):
@@ -19,10 +22,6 @@ class CPU(object):
             start += 1
 
         return True
-
-    def set_labels(self, labels):
-        assert isinstance(labels, dict)
-        self._labels = labels
 
     @property
     def registers(self):
@@ -57,14 +56,14 @@ class Registers(dict):
         # Specific registers
         #
         for i in 'PC', 'MAR':
-            dict.__setitem__(self, i, Reg8())
+            dict.__setitem__(self, getattr(self, i), Reg8())
 
         for i in 'RI', 'MBR':
-            dict.__setitem__(self, i, Reg())
+            dict.__setitem__(self, getattr(self, i), Reg())
 
         # State registers
         for i in 'N', 'Z', 'V', 'T':
-            dict.__setitem__(self, i, Reg1())
+            dict.__setitem__(self, getattr(self, i), Reg1())
 
     def __setitem__(self, key, value):
         assert isinstance(key, int)
