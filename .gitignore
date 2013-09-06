@@ -1,7 +1,6 @@
-aplicacao.pro
-aplicacao.pro.user
+/aplicacao.pro
+/aplicacao.pro.user
+/doc/html/
 *.autosave
 *.py[co]
 *.swp
-html/
-config.doxygen
