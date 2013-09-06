@@ -4,7 +4,8 @@
 
 import ctypes
 
-from asm_lexer import lexer
+from asm.asm_lexer import lexer
+
 
 class InstructionWord(ctypes.Structure):
     """Represent the memory instruction word
@@ -100,7 +101,7 @@ def memory_words(opcode, op1=None, op2=None):
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()]
                     instr_word.flags = 0
-                except KeyError:
+                except KeyError, e:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
                 return (instr_word,)
@@ -109,8 +110,10 @@ def memory_words(opcode, op1=None, op2=None):
                 instr_word.flags = 1
                 return (instr_word,)
             elif op1.type == 'NUMBER':
+                instr_word.operand = op1.value
                 instr_word.flags = 2
-                return (instr_word, DataWord(op1.value))
+                return (instr_word,)
+
         # INC, DEC and NOT instructions
         elif opname in others:
             if op1.type == 'NAME':
@@ -245,22 +248,32 @@ def assemble(code):
 
             # Get first operator if available
             tok = lexer.token()
-            if tok.lineno != opcode.lineno:
+            if not tok or tok.lineno != opcode.lineno:
                 words.extend(memory_words(opcode))  # non-arg opcode
                 continue
             op1 = tok
 
             # Comma
             tok = lexer.token()
-            if tok.lineno != opcode.lineno:
+            if not tok or tok.lineno != opcode.lineno:
+                # If instruction is a jump, replace labels by it address
+                jumps = ('JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
+                         'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ',)
+                if op1.type == 'NAME' and opcode.value.upper() in jumps:
+                    if op1.value not in labels:
+                        raise Exception("Invalid label '%s'" % op1.value,
+                                op1.lineno)
+                    op1.type = 'NUMBER'
+                    op1.value = labels[op1.value]
+
                 words.extend(memory_words(opcode, op1))  # 1-arg opcode
                 continue
-            elif tok.type != 'COMMA':
+            if tok.type != 'COMMA':
                 raise Exception("Invalid token", tok.lineno)
 
             # Get second operator if available
             tok = lexer.token()
-            if tok.lineno != opcode.lineno:
+            if not tok or tok.lineno != opcode.lineno:
                 raise Exception("Invalid syntax", opcode.lineno)
             op2 = tok
 
