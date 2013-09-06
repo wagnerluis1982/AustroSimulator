@@ -1,21 +1,4 @@
-'''Class for CPU simulator functionality
-
-    >>> from asm.assembler import assemble
-    >>> asmd = assemble("""
-    ...     mov ax, 10
-    ...     mov bx, 90
-    ...     add ax, bx
-    ... """)
-
-    >>> cpu = CPU()
-    >>> cpu.set_memory(asmd['words'])
-    True
-    >>> cpu.set_labels(asmd['labels'])
-
-    >>> from simulator.cycle import ExecutionCycle
-    >>> cycle = ExecutionCycle(cpu)
-    >>> cycle.prepare()
-'''
+'''Class for CPU simulator functionality'''
 
 from asm.assembler import REGISTERS
 from simulator.register import *
