@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Simulador Austro</string>
+   <string>Austro Simulator</string>
   </property>
   <property name="windowIcon">
    <iconset theme="cpu">
@@ -43,19 +43,19 @@
           </property>
           <widget class="QGroupBox" name="grpGenRegs">
            <property name="title">
-            <string>Registradores Genéricos</string>
+            <string>Generic Registers</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QTreeWidget" name="treeGenericRegs">
               <column>
                <property name="text">
-                <string notr="true">Nome</string>
+                <string notr="true">Name</string>
                </property>
               </column>
               <column>
                <property name="text">
-                <string>Valor</string>
+                <string>Data</string>
                </property>
               </column>
               <item>
@@ -144,19 +144,19 @@
           </widget>
           <widget class="QGroupBox" name="grpSpecRegs">
            <property name="title">
-            <string>Registradores Específicos</string>
+            <string>Specific Registers</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QTreeWidget" name="treeSpecificRegs">
               <column>
                <property name="text">
-                <string notr="true">Nome</string>
+                <string notr="true">Name</string>
                </property>
               </column>
               <column>
                <property name="text">
-                <string>Valor</string>
+                <string>Data</string>
                </property>
               </column>
               <item>
@@ -185,19 +185,19 @@
           </widget>
           <widget class="QGroupBox" name="grpStateRegs">
            <property name="title">
-            <string>Registradores de Estado</string>
+            <string>State Registers</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
              <widget class="QTreeWidget" name="treeStateRegs">
               <column>
                <property name="text">
-                <string notr="true">Nome</string>
+                <string notr="true">Name</string>
                </property>
               </column>
               <column>
                <property name="text">
-                <string>Valor</string>
+                <string>Data</string>
                </property>
               </column>
               <item>
@@ -242,6 +242,9 @@
            <bool>false</bool>
           </property>
           <widget class="QTabWidget" name="mainTabWidget">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
            <widget class="QWidget" name="tabPrg">
             <attribute name="icon">
              <iconset theme="document-edit">
@@ -249,7 +252,10 @@
              </iconset>
             </attribute>
             <attribute name="title">
-             <string>Programa</string>
+             <string>Program</string>
+            </attribute>
+            <attribute name="toolTip">
+             <string>Assembly code</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_5">
              <item row="0" column="0">
@@ -271,7 +277,10 @@
              </iconset>
             </attribute>
             <attribute name="title">
-             <string>Computador</string>
+             <string>Computer</string>
+            </attribute>
+            <attribute name="toolTip">
+             <string>Computer diagram</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_6">
              <item row="0" column="0">
@@ -321,19 +330,19 @@
         <item row="0" column="0">
          <widget class="QGroupBox" name="grpMemory">
           <property name="title">
-           <string>Memória</string>
+           <string>Memory</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QTreeWidget" name="treeMemory">
              <column>
               <property name="text">
-               <string notr="true">Posição</string>
+               <string notr="true">Address</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Valor</string>
+               <string>Data</string>
               </property>
              </column>
             </widget>
@@ -358,7 +367,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;Arquivo</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
@@ -368,7 +377,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Aj&amp;uda</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
@@ -378,7 +387,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolbarDefault">
    <property name="windowTitle">
-    <string>Barra padrão</string>
+    <string>Default bar</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -393,7 +402,7 @@
   </widget>
   <widget class="QToolBar" name="toolbarRun">
    <property name="windowTitle">
-    <string>Barra de executar</string>
+    <string>Execute bar</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -417,10 +426,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Novo</string>
+    <string>&amp;New</string>
    </property>
    <property name="toolTip">
-    <string>Criar um novo programa</string>
+    <string>Create a new program</string>
    </property>
    <property name="statusTip">
     <string>Iniciar um novo programa</string>
@@ -436,10 +445,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Abrir</string>
+    <string>&amp;Open</string>
    </property>
    <property name="toolTip">
-    <string>Abrir um programa salvo</string>
+    <string>Open a saved program</string>
    </property>
    <property name="statusTip">
     <string>Escolha um novo programa para exibir</string>
@@ -455,10 +464,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Salvar</string>
+    <string>&amp;Save</string>
    </property>
    <property name="toolTip">
-    <string>Salvar programa atual</string>
+    <string>Save current program</string>
    </property>
    <property name="statusTip">
     <string>Salva p programa atual no disco</string>
@@ -474,7 +483,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Sair</string>
+    <string>&amp;Quit</string>
    </property>
    <property name="statusTip">
     <string>Sair do Simulador Austro</string>
@@ -490,10 +499,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Carregar</string>
+    <string>Load</string>
    </property>
    <property name="toolTip">
-    <string>Carregar programa na memória</string>
+    <string>Load program on memory</string>
    </property>
    <property name="statusTip">
     <string>Carrega o programa atual na memória do simulador</string>
@@ -509,10 +518,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Executar</string>
+    <string>Run</string>
    </property>
    <property name="toolTip">
-    <string>Executar todas as instruções até o fim</string>
+    <string>Run all instructions until the end</string>
    </property>
    <property name="statusTip">
     <string>Executa o programa por completo</string>
@@ -528,10 +537,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Passo</string>
+    <string>Step</string>
    </property>
    <property name="toolTip">
-    <string>Passar instrução assembly atual</string>
+    <string>Step over current instruction</string>
    </property>
    <property name="statusTip">
     <string>Execução instrução por instrução</string>
@@ -550,10 +559,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Micro-passo</string>
+    <string>Micro-step</string>
    </property>
    <property name="toolTip">
-    <string>Ver as etapas até o fim da instrução</string>
+    <string>See steps until the end of instruction</string>
    </property>
    <property name="statusTip">
     <string>Mostra os pequenos passos para executar cada instrução</string>
@@ -569,10 +578,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Parar</string>
+    <string>Stop</string>
    </property>
    <property name="toolTip">
-    <string>Parar a execução do programa</string>
+    <string>Stop the computer execution</string>
    </property>
    <property name="statusTip">
     <string>Para a execução do programa</string>
@@ -588,7 +597,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Sobre</string>
+    <string>&amp;About</string>
    </property>
    <property name="statusTip">
     <string>Sobre o Simulador Austro</string>
