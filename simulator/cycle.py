@@ -3,7 +3,7 @@
 from simulator.cpu import ADDRESS_SPACE, CPU, Registers
 
 
-class MicroStep:
+class Stage:
     STOPPED = 0
     FETCH = 1
     DECODE = 2
@@ -15,7 +15,7 @@ class ExecutionCycle(object):
     def __init__(self, cpu):
         assert isinstance(cpu, CPU)
         self.cpu = cpu
-        self.stage = MicroStep.STOPPED
+        self.stage = Stage.STOPPED
 
     def prepare(self):
         self.PC = 0
@@ -23,7 +23,7 @@ class ExecutionCycle(object):
     def run(self, fnStep=lambda:None):
         while self.PC < ADDRESS_SPACE:
             # Fetch stage
-            self.stage = MicroStep.FETCH
+            self.stage = Stage.FETCH
             self.cpu.fetch()
 
         return True

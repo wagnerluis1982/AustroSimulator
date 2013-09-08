@@ -29,6 +29,8 @@ class CPU(object):
 
 
 class Registers(dict):
+    '''Container to store the CPU registers'''
+
     # Specific registers
     PC = 16
     RI = 17
