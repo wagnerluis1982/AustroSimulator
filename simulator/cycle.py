@@ -26,7 +26,6 @@ class Step(object):
     @property
     def cycle(self):
         return self._cycle
-
     @cycle.setter
     def cycle(self, value):
         self._cycle = value
@@ -61,7 +60,6 @@ class ExecutionCycle(object):
     @property
     def PC(self):
         return self.cpu.registers[Registers.PC]
-
     @PC.setter
     def PC(self, value):
         self.cpu.registers[Registers.PC] = value

@@ -75,18 +75,6 @@ def memory_words(opcode, op1=None, op2=None):
     If compounded of two elements, then
     - first is a InstructionWord object and
     - second is a DataWord object.
-
-        >>> from ply.lex import LexToken
-        >>> def lexToken(tp, val, line, lxpos=0):
-        ...     lt = LexToken()
-        ...     lt.type, lt.value, lt.lineno, lt.lexpos = tp, val, line, lxpos
-        ...     return lt
-
-        >>> opc = lexToken('OPCODE', 'mov', line=1)
-        >>> op1 = lexToken('NAME', 'ax', line=1)
-        >>> op2 = lexToken('NUMBER', 234, line=1)
-        >>> memory_words(opc, op1, op2)
-        (InstructionWord(2, 2, 8, lineno=1), DataWord(234))
     """
     opname = opcode.value.upper()
     try:
