@@ -24,7 +24,7 @@ class ExecutionCycle(object):
     def prepare(self):
         self.PC = 0
 
-    def run(self, step=None):
+    def run(self, step=DummyStep()):
         while self.PC < ADDRESS_SPACE:
             # Fetch stage
             self.stage = Stage.FETCH
@@ -39,3 +39,7 @@ class ExecutionCycle(object):
     @PC.setter
     def PC(self, value):
         self.cpu.registers[Registers.PC] = value
+
+
+class DummyStep(Step):
+    pass
