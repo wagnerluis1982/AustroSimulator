@@ -1,8 +1,7 @@
 import unittest
 
 from asm.assembler import assemble
-from simulator.cpu import CPU
-from simulator.cycle import ExecutionCycle
+from simulator import CPU, ExecutionCycle, Step
 
 class TestExecutionCycle(unittest.TestCase):
     '''ExecutionCycle'''
@@ -20,14 +19,18 @@ class TestExecutionCycle(unittest.TestCase):
         cpu = CPU()
         cpu.set_memory(asmd['words'])
 
-        # Execution cycle receives at start a step function. Here an example:
-        messages = []
-        def showRegisters(cycle):
-            regs = cycle.cpu.registers
-            messages.append('AX=%d, BX=%d' % (regs[8].value, regs[9].value))
+        # The cycle receives at start a Step class instance. A simple example:
+        class ShowRegisters(Step):
+            messages = []
+
+            def do(self):
+                regs = self.cycle.cpu.registers
+                self.messages.append('AX=%d, BX=%d' % (regs[8].value,
+                                                       regs[9].value))
 
         # Execution cycle needs a CPU object
-        exeCycle = ExecutionCycle(cpu)
-        exeCycle.prepare()
+        exec_cycle = ExecutionCycle(cpu)
+        exec_cycle.prepare()
         # Test
-        self.assertTrue( exeCycle.run(showRegisters) )
+        show_regs = ShowRegisters()
+        self.assertTrue( exec_cycle.run(show_regs) )

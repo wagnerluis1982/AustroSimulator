@@ -11,6 +11,10 @@ class Stage:
     STORE = 4
 
 
+class Step(object):
+    pass
+
+
 class ExecutionCycle(object):
     def __init__(self, cpu):
         assert isinstance(cpu, CPU)
@@ -20,7 +24,7 @@ class ExecutionCycle(object):
     def prepare(self):
         self.PC = 0
 
-    def run(self, fnStep=lambda:None):
+    def run(self, step=None):
         while self.PC < ADDRESS_SPACE:
             # Fetch stage
             self.stage = Stage.FETCH
