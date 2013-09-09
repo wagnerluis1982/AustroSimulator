@@ -1,7 +1,28 @@
 import unittest
 
-from asm.assembler import assemble
+from asm.assembler import assemble, REGISTERS
 from simulator import CPU, ExecutionCycle, Step
+from simulator.cpu import Registers
+
+
+# The cycle receives at start a Step class instance. Here a simple example:
+class ShowRegisters(Step):
+    def __init__(self, *names):
+        self.messages = []
+        self.fmt = ','.join(['%s=%%d' % nm for nm in names])
+
+        indexes = []
+        for nm in names:
+            try:
+                indexes.append(REGISTERS[nm])
+            except KeyError:
+                indexes.append(getattr(Registers, nm))
+        self.indexes = indexes
+
+    def do(self):
+        args = [self.cycle.cpu.registers[i].value for i in self.indexes]
+        self.messages.append(self.fmt % args)
+
 
 class TestExecutionCycle(unittest.TestCase):
     '''ExecutionCycle'''
@@ -19,18 +40,9 @@ class TestExecutionCycle(unittest.TestCase):
         cpu = CPU()
         cpu.set_memory(asmd['words'])
 
-        # The cycle receives at start a Step class instance. A simple example:
-        class ShowRegisters(Step):
-            messages = []
-
-            def do(self):
-                regs = self.cycle.cpu.registers
-                self.messages.append('AX=%d, BX=%d' % (regs[8].value,
-                                                       regs[9].value))
-
         # Execution cycle needs a CPU object
         exec_cycle = ExecutionCycle(cpu)
         exec_cycle.prepare()
-        # Test
-        show_regs = ShowRegisters()
-        self.assertTrue( exec_cycle.run(show_regs) )
+        # Test run
+        show = ShowRegisters('AX', 'BX')
+        self.assertTrue( exec_cycle.run(show) )
