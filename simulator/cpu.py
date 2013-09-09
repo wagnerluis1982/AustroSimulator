@@ -47,33 +47,38 @@ class Registers(object):
 
     def __init__(self):
         self._data = {}
+
+        # Internal function to set register objects
+        def init_register(name, value):
+            self._data[Registers.INDEX[name]] = value
+
         #
         ## Generic registers
         #
         for name in 'AX', 'BX', 'CX', 'DX':
-            self._data[Registers.INDEX[name]] = RegX()
+            init_register(name, RegX())
         # 8-bit registers
         for name in 'AH', 'AL', 'BH', 'BL', 'CH', 'CL', 'DH', 'DL':
-            reg16 = self._data[Registers.INDEX[name[0] + 'X']]
-            self._data[Registers.INDEX[name]] = reg16
+            reg16 = self[name[0] + 'X']
+            init_register(name, reg16)
         # 16-bit only registers
         for name in 'SP', 'BP', 'SI', 'DI':
-            self._data[Registers.INDEX[name]] = Reg()
+            init_register(name, Reg())
 
         #
         ## Specific registers
         #
         for name in 'PC', 'MAR':
-            self._data[Registers.INDEX[name]] = Reg()
+            init_register(name, Reg())
 
         for name in 'RI', 'MBR':
-            self._data[Registers.INDEX[name]] = Reg()
+            init_register(name, Reg())
 
         #
         ## State registers
         #
         for name in 'N', 'Z', 'V', 'T':
-            self._data[Registers.INDEX[name]] = Reg()
+            init_register(name, Reg())
 
     def __setitem__(self, key, value):
         assert isinstance(key, (int, basestring))
