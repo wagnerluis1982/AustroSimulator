@@ -25,53 +25,61 @@ class CPU(object):
 
     @property
     def registers(self):
-        return dict(self._registers)
+        return dict(self._registers._data)  # private violation
 
 
-class Registers(dict):
+class Registers(object):
     '''Container to store the CPU registers'''
 
-    # Specific registers
-    PC = 16
-    RI = 17
-    MAR = 18
-    MBR = 19
-
-    # State registers
-    N = 20
-    Z = 21
-    V = 22
-    T = 23
+    # Map of register names as keys and it number identifiers as values
+    INDEX = dict(REGISTERS.items() + [
+            # Specific registers
+            ('PC', 16),
+            ('RI', 17),
+            ('MAR', 18),
+            ('MBR', 19),
+            # State registers
+            ('N', 20),
+            ('Z', 21),
+            ('V', 22),
+            ('T', 23),
+        ])
 
     def __init__(self):
-        # AX, BX, CX, DX
-        for i in xrange(8, 12):
-            dict.__setitem__(self, i, RegX())
-        # AH, AL, BH, BL, CH, CL, DH. DL
-        for i in xrange(8):
-            xkey = i+7 if i & 1 else i+8  # get AX, BX, CX, DX keys
-            dict.__setitem__(self, xkey, RegX())
-        # SP, BP, SI, DI
-        for i in xrange(12, 16):
-            dict.__setitem__(self, i, Reg())
+        self._data = {}
         #
-        # Specific registers
+        ## Generic registers
         #
-        for i in 'PC', 'MAR':
-            dict.__setitem__(self, getattr(self, i), Reg8())
+        for name in 'AX', 'BX', 'CX', 'DX':
+            self._data[Registers.INDEX[name]] = RegX()
+        # 8-bit registers
+        for name in 'AH', 'AL', 'BH', 'BL', 'CH', 'CL', 'DH', 'DL':
+            reg16 = self._data[Registers.INDEX[name[0] + 'X']]
+            self._data[Registers.INDEX[name]] = reg16
+        # 16-bit only registers
+        for name in 'SP', 'BP', 'SI', 'DI':
+            self._data[Registers.INDEX[name]] = Reg()
 
-        for i in 'RI', 'MBR':
-            dict.__setitem__(self, getattr(self, i), Reg())
+        #
+        ## Specific registers
+        #
+        for name in 'PC', 'MAR':
+            self._data[Registers.INDEX[name]] = Reg()
 
-        # State registers
-        for i in 'N', 'Z', 'V', 'T':
-            dict.__setitem__(self, getattr(self, i), Reg1())
+        for name in 'RI', 'MBR':
+            self._data[Registers.INDEX[name]] = Reg()
+
+        #
+        ## State registers
+        #
+        for name in 'N', 'Z', 'V', 'T':
+            self._data[Registers.INDEX[name]] = Reg()
 
     def __setitem__(self, key, value):
         assert isinstance(key, int)
         assert isinstance(value, int)
 
-        reg = self[key]
+        reg = self._data[key]
         if key < 8:
             if key & 1:
                 reg.h = value
@@ -83,7 +91,7 @@ class Registers(dict):
     def __getitem__(self, key):
         assert isinstance(key, int)
 
-        reg = dict.__getitem__(self, key)
+        reg = self._data[key]
         if key < 8:
             return reg.h if key & 1 else reg.l
         else:

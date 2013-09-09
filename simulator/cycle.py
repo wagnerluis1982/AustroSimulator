@@ -55,11 +55,13 @@ class ExecutionCycle(object):
             self.stage = Stage.FETCH
             self.cpu.fetch()
 
+            self.PC += 1
+
         return True
 
     @property
     def PC(self):
-        return self.cpu.registers[Registers.PC]
+        return self.cpu.registers[Registers.INDEX['PC']]
     @PC.setter
     def PC(self, value):
-        self.cpu.registers[Registers.PC] = value
+        self.cpu.registers[Registers.INDEX['PC']] = value
