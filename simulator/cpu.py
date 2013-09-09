@@ -1,6 +1,7 @@
 '''Class for CPU simulator functionality'''
 
 from asm.assembler import REGISTERS
+from asm.memword import Word, DataWord
 from simulator.register import *
 
 
@@ -8,16 +9,47 @@ ADDRESS_SPACE = 256
 
 class CPU(object):
     def __init__(self):
-        self.memory = [None]*ADDRESS_SPACE
+        self.memory = Memory(ADDRESS_SPACE)
         self.registers = Registers()
 
     def set_memory_block(self, words, start=0):
-        assert isinstance(words, list)
+        assert isinstance(words, (list, tuple))
         for i in xrange(len(words)):
             self.memory[start] = words[i]
             start += 1
 
         return True
+
+
+class Memory(object):
+    def __init__(self, size):
+        self._size = size
+        self._space = [None]*size
+
+    def __setitem__(self, address, data):
+        assert isinstance(address, int)
+        assert isinstance(data, (int, Word))
+
+        if address > self._size:
+            raise Exception("Address out of memory range")
+
+        if isinstance(data, Word):
+            self._space[address] = data
+            return
+        if not self._space[address]:
+            self._space[address] = DataWord()
+
+        self._space[address].value = data
+
+    def __getitem__(self, address):
+        assert isinstance(address, int)
+
+        if address > self._size:
+            raise Exception("Address out of memory range")
+        if not self._space[address]:
+            self._space[address] = DataWord()
+
+        return self._space[address].value
 
 
 class Registers(object):
