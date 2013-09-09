@@ -42,7 +42,6 @@ class TestCPUCycle(unittest.TestCase):
 
         # Cycle needs a CPU object
         cpu_cycle = CPUCycle(cpu)
-        cpu_cycle.prepare()
         # Test run
         show = ShowRegisters('AX', 'BX')
-        self.assertTrue( cpu_cycle.run(show) )
+        self.assertTrue( cpu_cycle.start(show) )

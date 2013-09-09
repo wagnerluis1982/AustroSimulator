@@ -43,13 +43,11 @@ class CPUCycle(object):
         self.cpu = cpu
         self.stage = Stage.STOPPED
 
-    def prepare(self):
-        self.PC = 0
-
-    def run(self, step=None):
+    def start(self, step=None):
         step = step if step else DummyStep()
         assert isinstance(step, Step)
 
+        self.PC = 0
         while self.PC < ADDRESS_SPACE:
             # Fetch stage
             self.stage = Stage.FETCH
