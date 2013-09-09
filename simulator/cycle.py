@@ -49,11 +49,24 @@ class CPUCycle(object):
         assert isinstance(step, Step)
 
         self.registers['PC'] = 0
-        while self.registers['PC'] < ADDRESS_SPACE:
-            # Fetch stage
-            self.stage = Stage.FETCH
-            self.cpu.fetch()
+        self.stage = Stage.FETCH
+        while True:
+            if self.registers['PC'] >= ADDRESS_SPACE:
+                raise Exception("PC register greater than address space")
 
-            self.registers['PC'] += 1
+            # Fetch stage
+            if self.stage == Stage.FETCH:
+                pass
+            # Decode stage
+            elif self.stage == Stage.DECODE:
+                pass
+            # Execute stage
+            elif self.stage == Stage.EXECUTE:
+                pass
+            # Store stage
+            elif self.stage == Stage.STORE:
+                pass
+
+            break  # delete
 
         return True

@@ -8,12 +8,8 @@ ADDRESS_SPACE = 256
 
 class CPU(object):
     def __init__(self):
-        self._labels = {}
         self._memory = [None]*ADDRESS_SPACE
-        self._registers = Registers()
-
-    def fetch(self):
-        pass
+        self.registers = Registers()
 
     def set_memory(self, words, start=0):
         assert isinstance(words, list)
@@ -22,10 +18,6 @@ class CPU(object):
             start += 1
 
         return True
-
-    @property
-    def registers(self):
-        return self._registers
 
 
 class Registers(object):
