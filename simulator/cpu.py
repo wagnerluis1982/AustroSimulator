@@ -76,10 +76,14 @@ class Registers(object):
             self._data[Registers.INDEX[name]] = Reg()
 
     def __setitem__(self, key, value):
-        assert isinstance(key, int)
+        assert isinstance(key, (int, basestring))
         assert isinstance(value, int)
 
-        reg = self._data[key]
+        if isinstance(key, int):
+            reg = self._data[key]
+        else:
+            reg = self._data[Registers.INDEX[key]]
+
         if key < 8:
             if key & 1:
                 reg.h = value
@@ -89,9 +93,13 @@ class Registers(object):
             reg.value = value
 
     def __getitem__(self, key):
-        assert isinstance(key, int)
+        assert isinstance(key, (int, basestring))
 
-        reg = self._data[key]
+        if isinstance(key, int):
+            reg = self._data[key]
+        else:
+            reg = self._data[Registers.INDEX[key]]
+
         if key < 8:
             return reg.h if key & 1 else reg.l
         else:

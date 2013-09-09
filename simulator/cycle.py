@@ -41,25 +41,19 @@ class CPUCycle(object):
         assert isinstance(cpu, CPU)
 
         self.cpu = cpu
+        self.registers = cpu.registers
         self.stage = Stage.STOPPED
 
     def start(self, step=None):
         step = step if step else DummyStep()
         assert isinstance(step, Step)
 
-        self.PC = 0
-        while self.PC < ADDRESS_SPACE:
+        self.registers['PC'] = 0
+        while self.registers['PC'] < ADDRESS_SPACE:
             # Fetch stage
             self.stage = Stage.FETCH
             self.cpu.fetch()
 
-            self.PC += 1
+            self.registers['PC'] += 1
 
         return True
-
-    @property
-    def PC(self):
-        return self.cpu.registers[Registers.INDEX['PC']]
-    @PC.setter
-    def PC(self, value):
-        self.cpu.registers[Registers.INDEX['PC']] = value
