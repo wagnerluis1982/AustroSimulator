@@ -36,7 +36,7 @@ class DummyStep(Step):
         pass
 
 
-class ExecutionCycle(object):
+class CPUCycle(object):
     def __init__(self, cpu):
         assert isinstance(cpu, CPU)
 

@@ -25,7 +25,7 @@ class CPU(object):
 
     @property
     def registers(self):
-        return dict(self._registers._data)  # private violation
+        return self._registers
 
 
 class Registers(object):

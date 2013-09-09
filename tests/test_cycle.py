@@ -1,7 +1,7 @@
 import unittest
 
 from asm.assembler import assemble, REGISTERS
-from simulator import CPU, ExecutionCycle, Step
+from simulator import CPU, CPUCycle, Step
 from simulator.cpu import Registers
 
 
@@ -24,8 +24,8 @@ class ShowRegisters(Step):
         self.messages.append(self.fmt % args)
 
 
-class TestExecutionCycle(unittest.TestCase):
-    '''ExecutionCycle'''
+class TestCPUCycle(unittest.TestCase):
+    '''CPUCycle'''
 
     def test_mov__reg_const(self):
         '''mov should load registers with a constant'''
@@ -40,9 +40,9 @@ class TestExecutionCycle(unittest.TestCase):
         cpu = CPU()
         cpu.set_memory(asmd['words'])
 
-        # Execution cycle needs a CPU object
-        exec_cycle = ExecutionCycle(cpu)
-        exec_cycle.prepare()
+        # Cycle needs a CPU object
+        cpu_cycle = CPUCycle(cpu)
+        cpu_cycle.prepare()
         # Test run
         show = ShowRegisters('AX', 'BX')
-        self.assertTrue( exec_cycle.run(show) )
+        self.assertTrue( cpu_cycle.run(show) )

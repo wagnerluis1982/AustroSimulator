@@ -1,2 +1,2 @@
 from simulator.cpu import CPU
-from simulator.cycle import ExecutionCycle, Step
+from simulator.cycle import CPUCycle, Step
