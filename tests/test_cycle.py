@@ -38,7 +38,7 @@ class TestCPUCycle(unittest.TestCase):
         """)
 
         cpu = CPU()
-        cpu.set_memory(asmd['words'])
+        cpu.set_memory_block(asmd['words'])
 
         # Cycle needs a CPU object
         cpu_cycle = CPUCycle(cpu)

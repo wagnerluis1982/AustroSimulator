@@ -8,7 +8,7 @@ class ModuleTest(unittest.TestCase):
     """asm.assembler"""
 
     def test_memory_words(self):
-        """#memory_words should return a tuple of Word objects (two in max)"""
+        """#memory_words should return a tuple of Word objects (two at max)"""
         opc = self.lexToken('OPCODE', 'mov', line=1)
         op1 = self.lexToken('NAME', 'ax', line=1)
         op2 = self.lexToken('NUMBER', 234, line=1)

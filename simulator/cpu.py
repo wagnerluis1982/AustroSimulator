@@ -8,13 +8,13 @@ ADDRESS_SPACE = 256
 
 class CPU(object):
     def __init__(self):
-        self._memory = [None]*ADDRESS_SPACE
+        self.memory = [None]*ADDRESS_SPACE
         self.registers = Registers()
 
-    def set_memory(self, words, start=0):
+    def set_memory_block(self, words, start=0):
         assert isinstance(words, list)
         for i in xrange(len(words)):
-            self._memory[start] = words[i]
+            self.memory[start] = words[i]
             start += 1
 
         return True
