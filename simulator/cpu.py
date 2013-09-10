@@ -15,7 +15,7 @@ class CPU(object):
     def set_memory_block(self, words, start=0):
         assert isinstance(words, (list, tuple))
         for i in xrange(len(words)):
-            self.memory[start] = words[i]
+            self.memory.set_word(start, words[i])
             start += 1
 
         return True
@@ -26,16 +26,31 @@ class Memory(object):
         self._size = size
         self._space = [None]*size
 
-    def __setitem__(self, address, data):
+    def set_word(self, address, word):
         assert isinstance(address, int)
-        assert isinstance(data, (int, Word))
+        assert isinstance(word, Word)
 
-        if address > self._size:
+        if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
 
-        if isinstance(data, Word):
-            self._space[address] = data
-            return
+        self._space[address] = word
+
+    def get_word(self, address):
+        assert isinstance(address, int)
+
+        if not (0 <= address < self._size):
+            raise Exception("Address out of memory range")
+        if not self._space[address]:
+            self._space[address] = DataWord()
+
+        return self._space[address]
+
+    def __setitem__(self, address, data):
+        assert isinstance(address, int)
+        assert isinstance(data, int)
+
+        if not (0 <= address < self._size):
+            raise Exception("Address out of memory range")
         if not self._space[address]:
             self._space[address] = DataWord()
 
@@ -44,7 +59,7 @@ class Memory(object):
     def __getitem__(self, address):
         assert isinstance(address, int)
 
-        if address > self._size:
+        if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
         if not self._space[address]:
             self._space[address] = DataWord()
@@ -70,11 +85,12 @@ class Registers(object):
         ])
 
     def __init__(self):
-        self._data = {}
+        self._regs = {}
+        self._words = {}
 
         # Internal function to set register objects
         def init_register(name, value):
-            self._data[Registers.INDEX[name]] = value
+            self._regs[Registers.INDEX[name]] = value
 
         #
         ## Generic registers
@@ -104,14 +120,34 @@ class Registers(object):
         for name in 'N', 'Z', 'V', 'T':
             init_register(name, Reg())
 
+    def set_word(self, key, word):
+        assert isinstance(key, (int, basestring))
+        assert isinstance(word, Word)
+
+        if isinstance(key, basestring):
+            key = Registers.INDEX[key]
+
+        self._words[key] = word
+        self[key] = word.value
+        if self[key] != word.value:
+            raise Exception("Word data too large for the register")
+
+    def get_word(self, key):
+        assert isinstance(key, (int, basestring))
+
+        if isinstance(key, basestring):
+            key = Registers.INDEX[key]
+
+        return self._words[key]
+
     def __setitem__(self, key, value):
         assert isinstance(key, (int, basestring))
         assert isinstance(value, int)
 
         if isinstance(key, int):
-            reg = self._data[key]
+            reg = self._regs[key]
         else:
-            reg = self._data[Registers.INDEX[key]]
+            reg = self._regs[Registers.INDEX[key]]
 
         if key < 8:
             if key & 1:
@@ -125,9 +161,9 @@ class Registers(object):
         assert isinstance(key, (int, basestring))
 
         if isinstance(key, int):
-            reg = self._data[key]
+            reg = self._regs[key]
         else:
-            reg = self._data[Registers.INDEX[key]]
+            reg = self._regs[Registers.INDEX[key]]
 
         if key < 8:
             return reg.h if key & 1 else reg.l
