@@ -148,19 +148,15 @@ class Registers(object):
         assert isinstance(key, (int, basestring))
         assert isinstance(value, int)
 
-        if isinstance(key, int):
-            reg = self._regs[key]
-        else:
-            reg = self._regs[Registers.INDEX[key]]
+        if isinstance(key, basestring):
+            key = Registers.INDEX[key]
 
-        reg.value = value
+        self._regs[key].value = value
 
     def __getitem__(self, key):
         assert isinstance(key, (int, basestring))
 
-        if isinstance(key, int):
-            reg = self._regs[key]
-        else:
-            reg = self._regs[Registers.INDEX[key]]
+        if isinstance(key, basestring):
+            key = Registers.INDEX[key]
 
-        return reg.value
+        self._regs[key].value
