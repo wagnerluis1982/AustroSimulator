@@ -1,19 +1,27 @@
 import ctypes
 
 
-class Reg16(ctypes.Structure):
+class BaseReg(object):
+    pass
+
+
+class StructReg(BaseReg, ctypes.Structure):
+    pass
+
+
+class Reg16(StructReg):
     _fields_ = [("value", ctypes.c_uint16)]
 
 
-class Reg8(ctypes.Structure):
+class Reg8(StructReg):
     _fields_ = [("value", ctypes.c_uint8)]
 
 
-class Reg1(ctypes.Structure):
+class Reg1(StructReg):
     _fields_ = [("value", ctypes.c_uint8, 1)]
 
 
-class RegX(ctypes.Structure):
+class RegX(StructReg):
     _fields_ = [("_h", ctypes.c_uint8),
                 ("_l", ctypes.c_uint8)]
 
@@ -44,7 +52,7 @@ class RegX(ctypes.Structure):
         self._l = val
 
 
-class RegH(object):
+class RegH(BaseReg):
     def __init__(self, regx, val=None):
         assert isinstance(regx, RegX)
 
@@ -60,7 +68,7 @@ class RegH(object):
         self.regx.h = val
 
 
-class RegL(object):
+class RegL(BaseReg):
     def __init__(self, regx, val=None):
         assert isinstance(regx, RegX)
 
