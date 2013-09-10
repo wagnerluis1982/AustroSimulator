@@ -97,28 +97,32 @@ class Registers(object):
         #
         for name in 'AX', 'BX', 'CX', 'DX':
             init_register(name, RegX())
-        # 8-bit registers
-        for name in 'AH', 'AL', 'BH', 'BL', 'CH', 'CL', 'DH', 'DL':
-            reg16 = self[name[0] + 'X']
-            init_register(name, reg16)
+        # 8-bit most significant registers
+        for name in 'AH', 'BH', 'CH', 'DH':
+            regx = self._regs[Registers.INDEX[name[0] + 'X']]
+            init_register(name, RegH(regx))
+        # 8-bit less significant registers
+        for name in 'AL', 'BL', 'CL', 'DL':
+            regx = self._regs[Registers.INDEX[name[0] + 'X']]
+            init_register(name, RegL(regx))
         # 16-bit only registers
         for name in 'SP', 'BP', 'SI', 'DI':
-            init_register(name, Reg())
+            init_register(name, Reg16())
 
         #
         ## Specific registers
         #
         for name in 'PC', 'MAR':
-            init_register(name, Reg())
+            init_register(name, Reg16())
 
         for name in 'RI', 'MBR':
-            init_register(name, Reg())
+            init_register(name, Reg16())
 
         #
         ## State registers
         #
         for name in 'N', 'Z', 'V', 'T':
-            init_register(name, Reg())
+            init_register(name, Reg16())
 
     def set_word(self, key, word):
         assert isinstance(key, (int, basestring))
@@ -149,13 +153,7 @@ class Registers(object):
         else:
             reg = self._regs[Registers.INDEX[key]]
 
-        if key < 8:
-            if key & 1:
-                reg.h = value
-            else:
-                reg.l = value
-        else:
-            reg.value = value
+        reg.value = value
 
     def __getitem__(self, key):
         assert isinstance(key, (int, basestring))
@@ -165,7 +163,4 @@ class Registers(object):
         else:
             reg = self._regs[Registers.INDEX[key]]
 
-        if key < 8:
-            return reg.h if key & 1 else reg.l
-        else:
-            return reg.value
+        return reg.value

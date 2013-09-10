@@ -1,7 +1,7 @@
 import ctypes
 
 
-class Reg(ctypes.Structure):
+class Reg16(ctypes.Structure):
     _fields_ = [("value", ctypes.c_uint16)]
 
 
@@ -25,15 +25,15 @@ class RegX(ctypes.Structure):
     def h(self):
         return self._h
     @h.setter
-    def h(self, value):
-        self._h = value
+    def h(self, val):
+        self._h = val
 
     @property
     def l(self):
         return self._l
     @l.setter
-    def l(self, value):
-        self._l = value
+    def l(self, val):
+        self._l = val
 
     @property
     def value(self):
@@ -42,3 +42,35 @@ class RegX(ctypes.Structure):
     def value(self, val):
         self._h = val >> 8
         self._l = val
+
+
+class RegH(object):
+    def __init__(self, regx, val=None):
+        assert isinstance(regx, RegX)
+
+        self.regx = regx
+        if val is not None:
+            regx.h = val
+
+    @property
+    def value(self):
+        return self.regx.h
+    @value.setter
+    def value(self, val):
+        self.regx.h = val
+
+
+class RegL(object):
+    def __init__(self, regx, val=None):
+        assert isinstance(regx, RegX)
+
+        self.regx = regx
+        if val is not None:
+            regx.l = val
+
+    @property
+    def value(self):
+        return self.regx.l
+    @value.setter
+    def value(self, val):
+        self.regx.l = val
