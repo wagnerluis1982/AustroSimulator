@@ -41,25 +41,30 @@ class CPUCycle(object):
         assert isinstance(cpu, CPU)
 
         self.cpu = cpu
-        self.registers = cpu.registers
         self.stage = Stage.STOPPED
 
     def start(self, step=None):
         step = step if step else DummyStep()
         assert isinstance(step, Step)
 
-        self.registers['PC'] = 0
+        registers = self.cpu.registers
+        memory = self.cpu.memory
+
+        registers['PC'] = 0
         self.stage = Stage.FETCH
         while True:
-            if self.registers['PC'] >= ADDRESS_SPACE:
+            if registers['PC'] >= ADDRESS_SPACE:
                 raise Exception("PC register greater than address space")
 
             # Fetch stage
             if self.stage == Stage.FETCH:
-                pass
+                registers['MAR'] = registers['PC']
+                registers['MBR'] = memory[registers['MAR']]
+                registers['RI'] = registers['MBR']
+                self.stage = Stage.DECODE
             # Decode stage
             elif self.stage == Stage.DECODE:
-                pass
+                decode = self.decode(registers['RI'])
             # Execute stage
             elif self.stage == Stage.EXECUTE:
                 pass
@@ -67,6 +72,9 @@ class CPUCycle(object):
             elif self.stage == Stage.STORE:
                 pass
 
-            break  # delete
+            break  # delete-me please
 
         return True
+
+    def decode(instr_word):
+        pass
