@@ -82,6 +82,8 @@ class Registers(object):
             ('Z', 21),
             ('V', 22),
             ('T', 23),
+            # Internal (not visible)
+            ('TMP', 90),
         ])
 
     def __init__(self):
@@ -124,7 +126,30 @@ class Registers(object):
         for name in 'N', 'Z', 'V', 'T':
             init_register(name, Reg16())
 
+    def set_reg(self, key, reg):
+        assert isinstance(key, (int, basestring))
+        assert isinstance(reg, BaseReg)
+
+        if isinstance(key, basestring):
+            key = Registers.INDEX[key]
+
+        self._regs[key].value = reg.value
+
+    def get_reg(self, key):
+        assert isinstance(key, (int, basestring))
+
+        if isinstance(key, basestring):
+            key = Registers.INDEX[key]
+
+        return self._regs[key]
+
     def set_word(self, key, word):
+        """Convenient way to store a word in a register
+
+        WARNING: althought this method set the current register value, if a
+        register value is changed, the changes will not back to the original
+        word.
+        """
         assert isinstance(key, (int, basestring))
         assert isinstance(word, Word)
 
@@ -159,4 +184,4 @@ class Registers(object):
         if isinstance(key, basestring):
             key = Registers.INDEX[key]
 
-        self._regs[key].value
+        return self._regs[key].value
