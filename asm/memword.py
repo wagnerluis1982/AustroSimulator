@@ -1,99 +1,104 @@
 import ctypes
-from abc import ABCMeta, abstractmethod
 
 
-class Word(object):
-    __metaclass__ = ABCMeta
+class Word(ctypes.Structure):
+    '''Represent the memory word
 
-    @abstractmethod
-    def get_value(self):
-        pass
+    Word objects can act as instruction or data words of 16 bits
+    '''
 
-    @abstractmethod
-    def set_value(self, value):
-        pass
+    _fields_ = [('_opcode', ctypes.c_ubyte, 5),
+                ('_flags', ctypes.c_ubyte, 3),
+                ('_operand', ctypes.c_ubyte, 8),
+                ('_value', ctypes.c_uint16)]
+
+    def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None,
+            is_instruction=False):
+        # Flag to know if this word should act as a instruction
+        self._instruction = is_instruction
+        # Set an associated assembly code line number (for instructions)
+        self.lineno = lineno
+
+        if value is not None:
+            self.value = value
+        else:
+            # If marked as instruction, set args separately
+            if is_instruction:
+                ctypes.Structure.__init__(self, opcode, flags, operand)
+            # In a data word the 'opcode' arg act as whole value
+            else:
+                self.value = opcode
 
     @property
     def value(self):
-        return self.get_value()
+        if self.is_instruction:
+            return (self.opcode << 3 | self.flags) << 8 | self.operand
+        else:
+            return self._value
     @value.setter
-    def value(self, val):
-        self.set_value(val)
+    def value(self, value):
+        if self.is_instruction:
+            self.opcode = value >> 11
+            self.flags = value >> 8
+            self.operand = value
+        else:
+            self._value = value
+
+    @property
+    def opcode(self):
+        assert self.is_instruction, "Word is not a instruction"
+        return self._opcode
+    @opcode.setter
+    def opcode(self, value):
+        assert self.is_instruction, "Word is not a instruction"
+        self._opcode = value
+
+    @property
+    def flags(self):
+        assert self.is_instruction, "Word is not a instruction"
+        return self._flags
+    @flags.setter
+    def flags(self, value):
+        assert self.is_instruction, "Word is not a instruction"
+        self._flags = value
+
+    @property
+    def operand(self):
+        assert self.is_instruction, "Word is not a instruction"
+        return self._operand
+    @operand.setter
+    def operand(self, value):
+        assert self.is_instruction, "Word is not a instruction"
+        self._operand = value
+
+    @property
+    def is_instruction(self):
+        return self._instruction
+    @is_instruction.setter
+    def is_instruction(self, switch):
+        if switch:
+            if not self._instruction:
+                self._instruction = True
+                self.value = self._value
+        else:
+            if self._instruction:
+                value = self.value
+                self._instruction = False
+                self.value = value
+
+    @property
+    def is_data(self):
+        return not self._instruction
+    @is_data.setter
+    def is_data(self, switch):
+        self.is_instruction = not switch
 
     def __eq__(self, o):
         return self.value == o.value
 
-
-class InstructionWord(Word):
-    '''Represent the memory instruction word'''
-
-    class Container(ctypes.Structure):
-        _fields_ = [('opcode', ctypes.c_ubyte, 5),
-                    ('flags', ctypes.c_ubyte, 3),
-                    ('operand', ctypes.c_ubyte, 8)]
-
-    def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None):
-        self._cont = InstructionWord.Container()
-        if value is not None:
-            self.value = value  # setting whole word
-        else:
-            self.opcode = opcode
-            self.flags = flags
-            self.operand = operand
-        # Set an associated assembly code line number
-        self.lineno = lineno
-
-    def get_value(self):
-        return (self.opcode << 3 | self.flags) << 8 | self.operand
-
-    def set_value(self, value):
-        self.opcode = value >> 11
-        self.flags = value >> 8
-        self.operand = value
-
-    @property
-    def opcode(self):
-        return self._cont.opcode
-    @opcode.setter
-    def opcode(self, value):
-        self._cont.opcode = value
-
-    @property
-    def flags(self):
-        return self._cont.flags
-    @flags.setter
-    def flags(self, value):
-        self._cont.flags = value
-
-    @property
-    def operand(self):
-        return self._cont.operand
-    @operand.setter
-    def operand(self, value):
-        self._cont.operand = value
-
     def __repr__(self):
-        return 'InstructionWord(%d, %d, %d, lineno=%d)' % (self.opcode,
+        if self.is_instruction:
+            return 'Word(%d, %d, %d, lineno=%d)' % (self.opcode,
                                         self.flags, self.operand, self.lineno)
-
-
-class DataWord(Word):
-    """Represent the memory data word"""
-
-    class Container(ctypes.Structure):
-        _fields_ = [('data', ctypes.c_uint16)]
-
-
-    def __init__(self, value=0):
-        self._cont = DataWord.Container()
-        self.value = value
-
-    def get_value(self):
-        return self._cont.data
-
-    def set_value(self, value):
-        self._cont.data = value
-
-    def __repr__(self):
-        return 'DataWord(%d)' % (self.value)
-
+        else:
+            return 'Word(%d)' % (self._value)

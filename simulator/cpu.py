@@ -1,7 +1,7 @@
 '''Class for CPU simulator functionality'''
 
 from asm.assembler import REGISTERS
-from asm.memword import Word, DataWord
+from asm.memword import Word
 from simulator.register import *
 
 
@@ -41,7 +41,7 @@ class Memory(object):
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
         if not self._space[address]:
-            self._space[address] = DataWord()
+            self._space[address] = Word()
 
         return self._space[address]
 
@@ -52,7 +52,7 @@ class Memory(object):
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
         if not self._space[address]:
-            self._space[address] = DataWord()
+            self._space[address] = Word()
 
         self._space[address].value = data
 
@@ -62,7 +62,7 @@ class Memory(object):
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
         if not self._space[address]:
-            self._space[address] = DataWord()
+            self._space[address] = Word()
 
         return self._space[address].value
 

@@ -3,7 +3,7 @@
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 
 from asm.asm_lexer import lexer
-from asm.memword import InstructionWord, DataWord
+from asm.memword import Word
 
 
 OPCODES = {
@@ -27,19 +27,20 @@ REGISTERS = {
 
 
 def memory_words(opcode, op1=None, op2=None):
-    """Construct memory words using InstructionWord and DataWord classes
+    """Construct memory words using Word objects
 
     The output of this function is a tuple of one or two elements.
 
-    If compounded of one element, this element is a InstructionWord object.
+    If compounded of one element, this element is a Word object marked as
+    instruction word.
 
     If compounded of two elements, then
-    - first is a InstructionWord object and
-    - second is a DataWord object.
+    - first is a Word object marked as instruction and
+    - second is another Word object marked as data.
     """
     opname = opcode.value.upper()
     try:
-        instr_word = InstructionWord(OPCODES[opname], lineno=opcode.lineno)
+        instr_word = Word(OPCODES[opname], lineno=opcode.lineno, is_instruction=True)
     except KeyError:
         raise Exception("Invalid instruction '%s'" % opname, opcode.lineno)
 
@@ -103,11 +104,11 @@ def memory_words(opcode, op1=None, op2=None):
                         raise Exception("Error: bad register name '%s'" % \
                                 e.args)
 
-                    return (instr_word, DataWord(op2.value))
+                    return (instr_word, Word(op2.value))
                 elif op1.type == 'REFERENCE':
                     instr_word.operand = op1.value
                     instr_word.flags = 1
-                    return (instr_word, DataWord(op2.value))
+                    return (instr_word, Word(op2.value))
         # All other instructions
         elif opname in others:
             if opname in ('IADD', 'ICMP', 'IDIV', 'IMOD', 'IMUL', 'ISUB',):
@@ -129,7 +130,7 @@ def memory_words(opcode, op1=None, op2=None):
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return (instr_word, DataWord(op2.value))
+                return (instr_word, Word(op2.value))
             elif op1.type == 'NAME' and op2.type == 'NUMBER':
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()]
@@ -137,7 +138,7 @@ def memory_words(opcode, op1=None, op2=None):
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return (instr_word, DataWord(op2.value))
+                return (instr_word, Word(op2.value))
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
                 try:
                     instr_word.operand = REGISTERS[op2.value.upper()]
@@ -145,7 +146,7 @@ def memory_words(opcode, op1=None, op2=None):
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
 
-                return (instr_word, DataWord(op1.value))
+                return (instr_word, Word(op1.value))
 
     return None
 
@@ -161,8 +162,8 @@ def assemble(code):
                 ...
             }
          'words': [
-                InstructionWord(5, 7, 46, lineno=1),
-                DataWord(2028),
+                Word(5, 7, 46, lineno=1),  # instruction word
+                Word(2028),                # data word
                 ...
             ]
         }
@@ -170,11 +171,10 @@ def assemble(code):
     As can be seen, the labels itself are another dict where the key is a
     label name and the value the following instruction associated address.
 
-    The 'words' key is a mixed list of InstructionWord and DataWord objects,
-    representing 16-bit words, intended to be a kind of Austro Simulator
-    assembler.
+    The 'words' key is a list of Word objects representing 16-bit words,
+    intended to be a kind of Austro Simulator assembler.
 
-    The InstructionWord object carry lineno attribute that is the associated
+    The Word object (instruction) carry lineno attribute that is the associated
     line number in assembly file.
     """
     lexer.input(code)
