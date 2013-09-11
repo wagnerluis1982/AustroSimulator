@@ -43,7 +43,7 @@ class Decode(object):
     store = None
 
 
-class CPUCycle(object):
+class MachineCycle(object):
     def __init__(self, cpu):
         assert isinstance(cpu, CPU)
 

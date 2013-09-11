@@ -1,7 +1,7 @@
 import unittest
 
 from asm.assembler import assemble, REGISTERS
-from simulator import CPU, CPUCycle, Step
+from simulator import CPU, MachineCycle, Step
 from simulator.cpu import Registers
 
 
@@ -24,8 +24,8 @@ class ShowRegisters(Step):
         self.messages.append(self.fmt % tuple(args))
 
 
-class TestCPUCycle(unittest.TestCase):
-    '''CPUCycle'''
+class TestMachineCycle(unittest.TestCase):
+    '''MachineCycle'''
 
     def test_mov__reg_const(self):
         '''mov should load registers with a constant'''
@@ -42,10 +42,10 @@ class TestCPUCycle(unittest.TestCase):
         cpu.set_memory_block(asmd['words'])
 
         # Cycle needs a CPU object
-        cpu_cycle = CPUCycle(cpu)
+        mach_cycle = MachineCycle(cpu)
         # Test run
         show = ShowRegisters('AX', 'BX', 'CX')
-        self.assertTrue( cpu_cycle.start(show) )
+        self.assertTrue( mach_cycle.start(show) )
 
         # Test step
         self.assertEqual( show.messages,
