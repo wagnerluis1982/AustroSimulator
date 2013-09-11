@@ -126,6 +126,11 @@ class Registers(object):
         for name in 'N', 'Z', 'V', 'T':
             init_register(name, Reg16())
 
+        #
+        ## Internal
+        #
+        init_register('TMP', Reg16())
+
     def set_reg(self, key, reg):
         assert isinstance(key, (int, basestring))
         assert isinstance(reg, BaseReg)

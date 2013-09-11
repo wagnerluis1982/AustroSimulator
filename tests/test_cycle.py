@@ -20,8 +20,8 @@ class ShowRegisters(Step):
         self.indexes = indexes
 
     def do(self):
-        args = [self.cycle.cpu.registers[i].value for i in self.indexes]
-        self.messages.append(self.fmt % args)
+        args = [self.cycle.cpu.registers[i] for i in self.indexes]
+        self.messages.append(self.fmt % tuple(args))
 
 
 class TestCPUCycle(unittest.TestCase):
@@ -34,6 +34,7 @@ class TestCPUCycle(unittest.TestCase):
         asmd = assemble("""
             mov ax, 9
             mov bx, 4
+            mov cx, ax
             halt
         """)
 
@@ -43,5 +44,14 @@ class TestCPUCycle(unittest.TestCase):
         # Cycle needs a CPU object
         cpu_cycle = CPUCycle(cpu)
         # Test run
-        show = ShowRegisters('AX', 'BX')
+        show = ShowRegisters('AX', 'BX', 'CX')
         self.assertTrue( cpu_cycle.start(show) )
+
+        # Test step
+        self.assertEqual( show.messages,
+                    ['AX=0,BX=0,CX=0',   # start
+                     'AX=9,BX=0,CX=0',   # after "mov ax, 9"
+                     'AX=9,BX=4,CX=0',   # after "mov bx, 4"
+                     'AX=9,BX=4,CX=9',   # after "mov cx, ax"
+                     'AX=9,BX=4,CX=9']   # after "halt"
+                )
