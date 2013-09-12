@@ -74,6 +74,7 @@ class MachineCycle(object):
 
         registers = self.cpu.registers
         memory = self.cpu.memory
+        _ = self._opcodes  # alias to improve code visual
 
         registers['PC'] = 0
         self.stage = Stage.FETCH
@@ -96,13 +97,14 @@ class MachineCycle(object):
             # Execute stage
             elif self.stage == Stage.EXECUTE:
                 opcode = decode.opcode
-                if opcode in self._ops('MOV'):
+                if opcode in _('MOV'):
                     registers[decode.op1] = registers[decode.op2]
-                elif opcode in self._ops('NOP'):
+                elif opcode in _('NOP'):
                     self.stage = Stage.FETCH
                     continue
-                elif opcode in self._ops('HALT'):
+                elif opcode in _('HALT'):
                     break
+
                 # Next stage: store or fetch
                 if decode.store is not None:
                     self.stage = Stage.STORE
@@ -118,8 +120,8 @@ class MachineCycle(object):
 
         return True
 
-    def _ops(self, *args):
-        for name in args:
+    def _opcodes(self, *opnames):
+        for name in opnames:
             yield OPCODES[name]
 
     def _arg_type(self, opcode):
