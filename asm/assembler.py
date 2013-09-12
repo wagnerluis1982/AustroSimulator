@@ -74,7 +74,7 @@ def memory_words(opcode, op1=None, op2=None):
         if opname in jumps:
             if op1.type == 'NAME':
                 try:
-                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError, e:
                     raise Exception("Error: bad register name '%s'" % e.args)
@@ -93,7 +93,7 @@ def memory_words(opcode, op1=None, op2=None):
         elif opname in others:
             if op1.type == 'NAME':
                 try:
-                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
@@ -114,7 +114,7 @@ def memory_words(opcode, op1=None, op2=None):
             if op2.type == 'NUMBER':
                 if op1.type == 'NAME':
                     try:
-                        instr_word.operand = REGISTERS[op1.value.upper()]
+                        instr_word.operand = REGISTERS[op1.value.upper()] << 4
                         instr_word.flags = 0
                     except KeyError:
                         raise Exception("Error: bad register name '%s'" % \
@@ -141,7 +141,7 @@ def memory_words(opcode, op1=None, op2=None):
                 return (instr_word,)
             elif op1.type == 'NAME' and op2.type == 'REFERENCE':
                 try:
-                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b001  # flag x01
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
@@ -149,7 +149,7 @@ def memory_words(opcode, op1=None, op2=None):
                 return (instr_word, Word(op2.value))
             elif op1.type == 'NAME' and op2.type == 'NUMBER':
                 try:
-                    instr_word.operand = REGISTERS[op1.value.upper()]
+                    instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b010  # flag x10
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)
@@ -157,7 +157,7 @@ def memory_words(opcode, op1=None, op2=None):
                 return (instr_word, Word(op2.value))
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
                 try:
-                    instr_word.operand = REGISTERS[op2.value.upper()]
+                    instr_word.operand = REGISTERS[op2.value.upper()] << 4
                     instr_word.flags |= 0b011  # flag x11
                 except KeyError:
                     raise Exception("Error: bad register name '%s'" % e.args)

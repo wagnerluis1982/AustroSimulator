@@ -14,7 +14,7 @@ class ModuleTest(unittest.TestCase):
         op2 = self.lexToken('NUMBER', 234, line=1)
 
         self.assertEqual( memory_words(opc, op1, op2),
-                (Word(2, 2, 8, lineno=1, is_instruction=True), Word(234)) )
+                (Word(2, 2, 8 << 4, lineno=1, is_instruction=True), Word(234)) )
 
     def lexToken(self, typ, val, line, lexpos=0):
         # Method helper to construct a LexToken

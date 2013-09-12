@@ -175,7 +175,7 @@ class MachineCycle(object):
                 registers['MBR'] = memory[registers['MAR']]
                 # Reg, Mem
                 if order == 1:
-                    dcd.op1 = operand
+                    dcd.op1 = operand >> 4
                     # Getting memory reference
                     registers['PC'] = registers['MBR']
                     registers['TMP'] = memory[registers['PC']]
@@ -183,11 +183,11 @@ class MachineCycle(object):
                     registers['PC'] = registers['MAR']
                 # Reg, Const
                 elif order == 2:
-                    dcd.op1 = operand
+                    dcd.op1 = operand >> 4
                     dcd.op2 = Registers.INDEX['MBR']
                 # Mem, Reg
                 else:
-                    dcd.op2 = operand
+                    dcd.op2 = operand >> 4
                     # Getting memory reference
                     registers['PC'] = registers['MBR']
                     registers['TMP'] = memory[registers['PC']]
