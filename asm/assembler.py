@@ -23,15 +23,15 @@ from asm.memword import Word
 
 
 OPCODES = {
-        'NOP': 0b00000, 'HALT': 0b00001, 'MOV': 0b00010, 'JZ':   0b00011,
-        'JE':  0b00101, 'JNZ':  0b00110, 'JNE': 0b00110, 'JN':   0b00111,
-        'JLT': 0b00111, 'JP':   0b01000, 'JGT': 0b01000, 'JGE':  0b01001,
-        'JLE': 0b01001, 'JV':   0b01010, 'JT':  0b01011, 'JMP':  0b01100,
-        'SHR': 0b01101, 'SHL':  0b01110, 'ADD': 0b10000, 'IADD': 0b10000,
-        'INC': 0b10001, 'DEC':  0b10010, 'SUB': 0b10011, 'ISUB': 0b10011,
-        'MUL': 0b10100, 'IMUL': 0b10100, 'OR':  0b10101, 'AND':  0b10110,
-        'NOT': 0b10111, 'XOR':  0b11000, 'DIV': 0b11001, 'IDIV': 0b11001,
-        'MOD': 0b11010, 'IMOD': 0b11010, 'CMP': 0b11011, 'ICMP': 0b11011,
+        'NOP': 0b00000, 'HALT': 0b00001, 'MOV': 0b00010,  'JZ':  0b00011,
+        'JE':  0b00101, 'JNZ':  0b00110, 'JNE': 0b00110,  'JN':  0b00111,
+        'JLT': 0b00111, 'JP':   0b01000, 'JGT': 0b01000,  'JGE': 0b01001,
+        'JLE': 0b01001, 'JV':   0b01010, 'JT':  0b01011,  'JMP': 0b01100,
+        'SHR': 0b01101, 'SHL':  0b01110, 'ADD': 0b10000,  'INC': 0b10001,
+        'DEC': 0b10010, 'SUB':  0b10011, 'MUL': 0b10100, 'IMUL': 0b10100,
+        'OR':  0b10101, 'AND':  0b10110, 'NOT': 0b10111, 'XOR':  0b11000,
+        'DIV': 0b11001, 'IDIV': 0b11001, 'MOD': 0b11010, 'IMOD': 0b11010,
+        'CMP': 0b11011, 'ICMP': 0b11011,
     }
 
 REGISTERS = {
@@ -107,8 +107,8 @@ def memory_words(opcode, op1=None, op2=None):
     # 2-operand instructions
     else:
         shifts = ('SHR', 'SHL',)
-        others = ('ADD', 'AND', 'CMP', 'ICMP', 'DIV', 'IADD', 'ICMP', 'IDIV',
-            'IMOD', 'IMUL', 'ISUB', 'MOD', 'MOV', 'MUL', 'OR', 'SUB', 'XOR',)
+        others = ('MOV', 'CMP', 'ICMP', 'DIV', 'IDIV', 'MOD', 'IMOD',
+                  'MUL', 'IMUL', 'AND', 'OR', 'XOR', 'ADD', 'SUB',)
         # Shift instructions
         if opname in shifts:
             if op2.type == 'NUMBER':
@@ -127,7 +127,7 @@ def memory_words(opcode, op1=None, op2=None):
                     return (instr_word, Word(op2.value))
         # All other instructions
         elif opname in others:
-            if opname in ('IADD', 'ICMP', 'IDIV', 'IMOD', 'IMUL', 'ISUB',):
+            if opname in ('ICMP', 'IDIV', 'IMOD', 'IMUL',):
                 instr_word.flags = 0b100  # signed instructions
 
             if op1.type == 'NAME' and op2.type == 'NAME':

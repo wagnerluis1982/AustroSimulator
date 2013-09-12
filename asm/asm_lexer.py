@@ -18,10 +18,10 @@
 from ply import lex
 
 instructions = (
-        'ADD', 'AND', 'CMP', 'DEC', 'DIV', 'HALT', 'IADD', 'ICMP', 'IDIV',
-        'IMOD', 'IMUL', 'INC', 'ISUB', 'JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
-        'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ', 'MOD', 'MOV', 'MUL', 'NOP',
-        'NOT', 'OR', 'SHL', 'SHR', 'SUB', 'XOR',
+        'ADD', 'AND', 'CMP', 'DEC', 'DIV', 'HALT', 'ICMP', 'IDIV', 'IMOD',
+        'IMUL', 'INC', 'JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP', 'JN', 'JNE',
+        'JNZ', 'JP', 'JT', 'JV', 'JZ', 'MOD', 'MOV', 'MUL', 'NOP', 'NOT', 'OR',
+        'SHL', 'SHR', 'SUB', 'XOR',
     )
 tokens = ("LABEL", "OPCODE", "NAME", "REFERENCE", "NUMBER", "COMMA", "COMMENT")
 
