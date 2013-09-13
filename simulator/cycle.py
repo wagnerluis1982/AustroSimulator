@@ -58,6 +58,7 @@ class Decode(object):
     op1 = None
     op2 = None
     store = None
+    is_8bits = False
 
 
 class MachineCycle(object):
@@ -108,7 +109,7 @@ class MachineCycle(object):
                     result = registers[decode.op1] + registers[decode.op2]
                     registers[decode.op1] = result
                     # Excess handling (transport)
-                    excess = result >> 16
+                    excess = result >> (8 if decode.is_8bits else 16)
                     if excess > 0:
                         registers['T'] = 1
                         registers['SP'] = excess
@@ -209,6 +210,10 @@ class MachineCycle(object):
                     registers['PC'] = registers['MAR']
                     # Setting for store stage
                     dcd.store = registers['MBR']
+
+            # If op1 is an 8-bit register, inform that
+            if order < 3 and dcd.op1 < 8:
+                dcd.is_8bits = True
 
             # Signed operation flag
             dcd.signed = bool(flags & 0b100)
