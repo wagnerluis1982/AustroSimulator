@@ -53,31 +53,8 @@ class TestMachineCycle(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
-    def test_add__excess(self):
-        '''add should load SP register with the excess'''
-
-        # mov instructions
-        assembly = ("mov ax, 65535\n"
-                    "add ax, 123\n"
-                    "mov sp, 7\n"
-                    "mov bl, 255\n"
-                    "add bl, 10\n"
-                    "halt\n")
-        # registers
-        registers = ('AX', 'BL', 'SP')
-        # expected messages
-        messages = ['AX=0,BL=0,SP=0',      # start
-                    'AX=65535,BL=0,SP=0',  # after "mov ax, 65535"
-                    'AX=122,BL=0,SP=1',    # after "add ax, 123"
-                    'AX=122,BL=0,SP=7',    # after "mov sp, 7"
-                    'AX=122,BL=255,SP=7',  # after "mov bl, 255"
-                    'AX=122,BL=9,SP=1',    # after "add bl, 10"
-                    'AX=122,BL=9,SP=1']    # after "halt"
-
-        self.register_asserts(assembly, registers, messages)
-
     def test_add__flags(self):
-        '''add should set flags Z and T'''
+        '''add should set flags Z and V'''
 
         # mov instructions
         assembly = ("mov ax, 65534\n"
@@ -89,17 +66,17 @@ class TestMachineCycle(unittest.TestCase):
                     "add cl, 1\n"
                     "halt\n")
         # registers
-        registers = ('Z', 'T')
+        registers = ('Z', 'V')
         # expected messages
-        messages = ['Z=0,T=0',  # start
-                    'Z=0,T=0',  # after "mov ax, 65534"
-                    'Z=0,T=0',  # after "mov bx, 65535"
-                    'Z=0,T=0',  # after "add ax, 1"
-                    'Z=1,T=1',  # after "add ax, 1"
-                    'Z=0,T=1',  # after "add bx, 2"
-                    'Z=0,T=1',  # after "mov cl, 255"
-                    'Z=1,T=1',  # after "add cl, 1"
-                    'Z=1,T=1']  # after "halt"
+        messages = ['Z=0,V=0',  # start
+                    'Z=0,V=0',  # after "mov ax, 65534"
+                    'Z=0,V=0',  # after "mov bx, 65535"
+                    'Z=0,V=0',  # after "add ax, 1"
+                    'Z=1,V=1',  # after "add ax, 1"
+                    'Z=0,V=1',  # after "add bx, 2"
+                    'Z=0,V=1',  # after "mov cl, 255"
+                    'Z=1,V=1',  # after "add cl, 1"
+                    'Z=1,V=1']  # after "halt"
 
         self.register_asserts(assembly, registers, messages)
 

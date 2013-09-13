@@ -108,15 +108,16 @@ class MachineCycle(object):
                 elif opcode in _('ADD'):
                     result = registers[decode.op1] + registers[decode.op2]
                     registers[decode.op1] = result
-                    # Excess handling (transport)
-                    excess = result >> (8 if decode.is_8bits else 16)
-                    if excess > 0:
-                        registers['T'] = 1
-                        registers['SP'] = excess
+                    # Overflow
+                    if result > registers[decode.op1]:
+                        registers['V'] = 1
                     else:
-                        registers['T'] = 0
-                    # Register Z(ERO)
-                    registers['Z'] = 0 if registers[decode.op1] else 1
+                        registers['V'] = 0
+                    # Zero
+                    if registers[decode.op1] == 0:
+                        registers['Z'] = 1
+                    else:
+                        registers['Z'] = 0
 
                 # Next stage: store or fetch
                 if decode.store is not None:
