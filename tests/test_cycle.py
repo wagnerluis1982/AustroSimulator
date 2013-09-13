@@ -1,6 +1,6 @@
 import unittest
 
-from asm.assembler import assemble, REGISTERS
+from asm.assembler import assemble
 from simulator import CPU, MachineCycle, Step
 from simulator.cpu import Registers
 
@@ -11,13 +11,9 @@ class ShowRegisters(Step):
         self.messages = []
         self.fmt = ','.join(['%s=%%d' % nm for nm in names])
 
-        indexes = []
+        self.indexes = []
         for nm in names:
-            try:
-                indexes.append(REGISTERS[nm])
-            except KeyError:
-                indexes.append(getattr(Registers, nm))
-        self.indexes = indexes
+            self.indexes.append(Registers.INDEX[nm])
 
     def do(self):
         args = [self.cycle.cpu.registers[i] for i in self.indexes]
@@ -37,6 +33,65 @@ class ShowMemories(Step):
 
 class TestMachineCycle(unittest.TestCase):
     '''MachineCycle'''
+
+    def test_add__reg_reg(self):
+        '''add should sum two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 193\n"
+                    "mov bx, 297\n"
+                    "add ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',      # start
+                    'AX=193,BX=0',    # after "mov ax, 193"
+                    'AX=193,BX=297',  # after "mov bx, 297"
+                    'AX=490,BX=297',  # after "add ax, bx"
+                    'AX=490,BX=297']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_add__excess(self):
+        '''add should load SP register with the excess'''
+
+        # mov instructions
+        assembly = ("mov ax, 65535\n"
+                    "add ax, 123\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'SP')
+        # expected messages
+        messages = ['AX=0,SP=0',      # start
+                    'AX=65535,SP=0',  # after "mov ax, 65535"
+                    'AX=122,SP=1',    # after "add ax, bx"
+                    'AX=122,SP=1']    # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_add__flags(self):
+        '''add should set flags Z and T'''
+
+        # mov instructions
+        assembly = ("mov ax, 65534\n"
+                    "mov bx, 65535\n"
+                    "add ax, 1\n"
+                    "add ax, 1\n"
+                    "add bx, 2\n"
+                    "halt\n")
+        # registers
+        registers = ('Z', 'T')
+        # expected messages
+        messages = ['Z=0,T=0',  # start
+                    'Z=0,T=0',  # after "mov ax, 65534"
+                    'Z=0,T=0',  # after "mov bx, 65535"
+                    'Z=0,T=0',  # after "add ax, 1"
+                    'Z=1,T=1',  # after "add ax, 1"
+                    'Z=0,T=1',  # after "add bx, 2"
+                    'Z=0,T=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
 
     def test_mov__reg_reg(self):
         '''mov should load a register from another register'''
