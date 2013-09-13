@@ -37,6 +37,11 @@ class CPU(object):
 
         return True
 
+    def start(self, step):
+        from simulator.cycle import MachineCycle
+        mach_cycle = MachineCycle(self)
+        return mach_cycle.start(step)
+
 
 class Memory(object):
     def __init__(self, size):

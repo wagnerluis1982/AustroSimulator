@@ -177,11 +177,9 @@ class TestMachineCycle(unittest.TestCase):
         cpu = CPU()
         cpu.set_memory_block(asmd['words'])
 
-        # Cycle needs a CPU object
-        mach_cycle = MachineCycle(cpu)
         # Test run
         show = ShowRegisters(*registers)
-        self.assertTrue( mach_cycle.start(show) )
+        self.assertTrue( cpu.start(show) )
 
         # Test step
         self.assertEqual( show.messages, messages )
@@ -193,11 +191,9 @@ class TestMachineCycle(unittest.TestCase):
         cpu = CPU()
         cpu.set_memory_block(asmd['words'])
 
-        # Cycle needs a CPU object
-        mach_cycle = MachineCycle(cpu)
         # Test run
         show = ShowMemories(*addresses)
-        self.assertTrue( mach_cycle.start(show) )
+        self.assertTrue( cpu.start(show) )
 
         # Test step
         self.assertEqual( show.messages, messages )
