@@ -92,7 +92,6 @@ class MachineCycle(object):
             # Decode stage
             elif self.stage == Stage.DECODE:
                 decode = self.decode(registers.get_word('RI'))
-                registers['PC'] += 1
                 self.stage = Stage.EXECUTE
             # Execute stage
             elif self.stage == Stage.EXECUTE:
@@ -110,6 +109,8 @@ class MachineCycle(object):
                     self.stage = Stage.STORE
                 else:
                     self.stage = Stage.FETCH
+
+                registers['PC'] += 1
             # Store stage
             elif self.stage == Stage.STORE:
                 memory[decode.store] = registers[decode.op1]
@@ -179,8 +180,8 @@ class MachineCycle(object):
                     # Getting memory reference
                     registers['PC'] = registers['MBR']
                     registers['TMP'] = memory[registers['PC']]
-                    dcd.op2 = Registers.INDEX['TMP']
                     registers['PC'] = registers['MAR']
+                    dcd.op2 = Registers.INDEX['TMP']
                 # Reg, Const
                 elif order == 2:
                     dcd.op1 = operand >> 4
