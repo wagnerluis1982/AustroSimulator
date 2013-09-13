@@ -1,11 +1,11 @@
 import unittest
 
 from asm.assembler import assemble
-from simulator import CPU, MachineCycle, Step
-from simulator.cpu import Registers
+from simulator.cpu import CPU, Registers, Step
 
-
-# The cycle receives at start a Step class instance. Here a simple example:
+#
+## The cpu receives at start a Step class instance. Here two simple examples:
+#
 class ShowRegisters(Step):
     def __init__(self, *names):
         self.messages = []
@@ -16,7 +16,7 @@ class ShowRegisters(Step):
             self.indexes.append(Registers.INDEX[nm])
 
     def do(self):
-        args = [self.cycle.cpu.registers[i] for i in self.indexes]
+        args = [self.cpu.registers[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
 
@@ -27,12 +27,12 @@ class ShowMemories(Step):
         self.indexes = numbers
 
     def do(self):
-        args = [self.cycle.cpu.memory[i] for i in self.indexes]
+        args = [self.cpu.memory[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
 
-class TestMachineCycle(unittest.TestCase):
-    '''MachineCycle'''
+class TestCPU(unittest.TestCase):
+    '''CPU'''
 
     def test_add__reg_reg(self):
         '''add should sum two registers'''

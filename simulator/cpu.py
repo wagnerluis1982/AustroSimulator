@@ -17,17 +17,58 @@
 
 '''CPU simulator functionality'''
 
-from asm.assembler import REGISTERS
+from abc import ABCMeta, abstractmethod
+
+from asm.assembler import REGISTERS, OPCODES
 from asm.memword import Word
 from simulator.register import *
 
 
-ADDRESS_SPACE = 256
+class Step(object):
+    __metaclass__ = ABCMeta
+    _cycle = None
+
+    @abstractmethod
+    def do(self):
+        pass
+
+    @property
+    def cycle(self):
+        return self._cycle
+    @cycle.setter
+    def cycle(self, value):
+        self._cycle = value
+
+
+class DummyStep(Step):
+    def do(self):
+        pass
+
+
+class Decode(object):
+    opcode = None
+    op1 = None
+    op2 = None
+    store = None
+    is_8bits = False
+
+
+class Stage:
+    STOPPED = 0
+    FETCH = 1
+    DECODE = 2
+    EXECUTE = 3
+    STORE = 4
+    HALTED = 5
+
 
 class CPU(object):
+    ADDRESS_SPACE = 256
+
     def __init__(self):
-        self.memory = Memory(ADDRESS_SPACE)
+        self.memory = Memory(CPU.ADDRESS_SPACE)
         self.registers = Registers()
+        self.stage = Stage.STOPPED
 
     def set_memory_block(self, words, start=0):
         assert isinstance(words, (list, tuple))
@@ -37,56 +78,161 @@ class CPU(object):
 
         return True
 
-    def start(self, step):
-        from simulator.cycle import MachineCycle
-        mach_cycle = MachineCycle(self)
-        return mach_cycle.start(step)
+    def start(self, step=None):
+        step = step if step else DummyStep()
+        assert isinstance(step, Step)
+        step.cpu = self
 
+        registers = self.registers
+        memory = self.memory
+        _ = self._opcodes  # alias to improve visual of code
 
-class Memory(object):
-    def __init__(self, size):
-        self._size = size
-        self._space = [None]*size
+        # For starting, PC=0
+        registers['PC'] = 0
+        self.stage = Stage.FETCH
 
-    def set_word(self, address, word):
-        assert isinstance(address, int)
-        assert isinstance(word, Word)
+        # Machine cycles state machine
+        while True:
+            if registers['PC'] >= CPU.ADDRESS_SPACE:
+                raise Exception("PC register greater than address space")
 
-        if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
+            # Fetch stage
+            if self.stage == Stage.FETCH:
+                step.do()  # step action
+                registers['MAR'] = registers['PC']
+                registers.set_word('MBR', memory.get_word(registers['MAR']))
+                registers.set_word('RI', registers.get_word('MBR'))
+                self.stage = Stage.DECODE
+            # Decode stage
+            elif self.stage == Stage.DECODE:
+                decode = self.decode(registers.get_word('RI'))
+                self.stage = Stage.EXECUTE
+            # Execute stage
+            elif self.stage == Stage.EXECUTE:
+                opcode = decode.opcode
+                if opcode in _('MOV'):
+                    registers[decode.op1] = registers[decode.op2]
+                elif opcode in _('NOP'):
+                    self.stage = Stage.FETCH
+                    continue
+                elif opcode in _('HALT'):
+                    break
+                # Addition
+                elif opcode in _('ADD'):
+                    result = registers[decode.op1] + registers[decode.op2]
+                    registers[decode.op1] = result
+                    # Overflow
+                    if result > registers[decode.op1]:
+                        registers['V'] = 1
+                    else:
+                        registers['V'] = 0
+                    # Zero
+                    if registers[decode.op1] == 0:
+                        registers['Z'] = 1
+                    else:
+                        registers['Z'] = 0
 
-        self._space[address] = word
+                # Next stage: store or fetch
+                if decode.store is not None:
+                    self.stage = Stage.STORE
+                else:
+                    self.stage = Stage.FETCH
 
-    def get_word(self, address):
-        assert isinstance(address, int)
+                registers['PC'] += 1
+            # Store stage
+            elif self.stage == Stage.STORE:
+                memory[decode.store] = registers[decode.op1]
+                self.stage = Stage.FETCH
 
-        if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
-        if not self._space[address]:
-            self._space[address] = Word()
+        self.stage = Stage.HALTED
+        step.do()  # last step action
 
-        return self._space[address]
+        return True
 
-    def __setitem__(self, address, data):
-        assert isinstance(address, int)
-        assert isinstance(data, int)
+    def decode(self, instr_word):
+        dcd = Decode()
+        dcd.opcode = instr_word.opcode
 
-        if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
-        if not self._space[address]:
-            self._space[address] = Word()
+        registers = self.registers
+        memory = self.memory
 
-        self._space[address].value = data
+        argtype = self._arg_type(instr_word.opcode)
 
-    def __getitem__(self, address):
-        assert isinstance(address, int)
+        if argtype == 'NOARG':
+            return dcd
 
-        if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
-        if not self._space[address]:
-            self._space[address] = Word()
+        flags = instr_word.flags
+        operand = instr_word.operand
+        if argtype in ('DST_ORI', 'OP1_OP2'):
+            order = flags & 0b011
+            # Reg, Reg
+            if order == 0:
+                dcd.op1 = operand >> 4
+                dcd.op2 = operand & 0b1111
+            # Situations that need next word
+            else:
+                registers['PC'] += 1  # increment PC
+                registers['MAR'] = registers['PC']
+                registers['MBR'] = memory[registers['MAR']]
+                # Reg, Mem
+                if order == 1:
+                    dcd.op1 = operand >> 4
+                    # Getting memory reference
+                    registers['PC'] = registers['MBR']
+                    registers['TMP'] = memory[registers['PC']]
+                    registers['PC'] = registers['MAR']
+                    dcd.op2 = Registers.INDEX['TMP']
+                # Reg, Const
+                elif order == 2:
+                    dcd.op1 = operand >> 4
+                    dcd.op2 = Registers.INDEX['MBR']
+                # Mem, Reg
+                else:
+                    dcd.op2 = operand >> 4
+                    # Getting memory reference
+                    registers['PC'] = registers['MBR']
+                    registers['TMP'] = memory[registers['PC']]
+                    dcd.op1 = Registers.INDEX['TMP']
+                    registers['PC'] = registers['MAR']
+                    # Setting for store stage
+                    dcd.store = registers['MBR']
 
-        return self._space[address].value
+            # If op1 is an 8-bit register, inform that
+            if order < 3 and dcd.op1 < 8:
+                dcd.is_8bits = True
+
+            # Signed operation flag
+            dcd.signed = bool(flags & 0b100)
+
+            return dcd
+
+    def _opcodes(self, *opnames):
+        for name in opnames:
+            yield OPCODES[name]
+
+    def _arg_type(self, opcode):
+        DST_ORI = (0b00010, 0b10000, 0b10011, 0b10100, 0b10101, 0b10110,
+                   0b11000, 0b11001, 0b11010,)
+        if opcode in DST_ORI:
+            return 'DST_ORI'
+
+        OP1_OP2 = (11011,)
+        if opcode in OP1_OP2:
+            return 'OP1_OP2'
+
+        OP_QNT = (0b01101, 0b01110,)
+        if opcode in OP_QNT:
+            return 'OP_QNT'
+
+        JUMP = range(0b00011, 0b01100+1)
+        if opcode in JUMP:
+            return 'JUMP'
+
+        OP = (0b10001, 0b10010, 0b10111,)
+        if opcode in OP:
+            return 'OP'
+
+        return 'NOARG'
 
 
 class Registers(object):
@@ -212,3 +358,49 @@ class Registers(object):
             key = Registers.INDEX[key]
 
         return self._regs[key].value
+
+
+class Memory(object):
+    def __init__(self, size):
+        self._size = size
+        self._space = [None]*size
+
+    def set_word(self, address, word):
+        assert isinstance(address, int)
+        assert isinstance(word, Word)
+
+        if not (0 <= address < self._size):
+            raise Exception("Address out of memory range")
+
+        self._space[address] = word
+
+    def get_word(self, address):
+        assert isinstance(address, int)
+
+        if not (0 <= address < self._size):
+            raise Exception("Address out of memory range")
+        if not self._space[address]:
+            self._space[address] = Word()
+
+        return self._space[address]
+
+    def __setitem__(self, address, data):
+        assert isinstance(address, int)
+        assert isinstance(data, int)
+
+        if not (0 <= address < self._size):
+            raise Exception("Address out of memory range")
+        if not self._space[address]:
+            self._space[address] = Word()
+
+        self._space[address].value = data
+
+    def __getitem__(self, address):
+        assert isinstance(address, int)
+
+        if not (0 <= address < self._size):
+            raise Exception("Address out of memory range")
+        if not self._space[address]:
+            self._space[address] = Word()
+
+        return self._space[address].value
