@@ -110,6 +110,26 @@ class TestMachineCycle(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_mov__high_low(self):
+        '''mov should allow setting most and less significant register areas'''
+
+        # mov instructions
+        assembly = ("mov al, 0x9A\n"
+                    "mov ah, 0x10\n"
+                    "mov ax, 0x9F8D\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'AH', 'AL')
+        # expected messages
+        messages = [
+                'AX=%d,AH=%d,AL=%d' % (0x0, 0x0, 0x0),  # start
+                'AX=%d,AH=%d,AL=%d' % (0x009A, 0x00, 0x9A),  # "mov al, 0x9A"
+                'AX=%d,AH=%d,AL=%d' % (0x109A, 0x10, 0x9A),  # "mov ah, 0x10"
+                'AX=%d,AH=%d,AL=%d' % (0x9F8D, 0x9F, 0x8D),  # "mov ax, 0x9F8D"
+                'AX=%d,AH=%d,AL=%d' % (0x9F8D, 0x9F, 0x8D)]  # "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mov__reg_const(self):
         '''mov should load a register from a constant'''
 
