@@ -46,11 +46,11 @@ class DummyStep(Step):
 
 
 class Decode(object):
-    opcode = None
+    unit = None
+    operation = None
     op1 = None
     op2 = None
     store = None
-    is_8bits = False
 
 
 class Stage:
@@ -65,6 +65,14 @@ class Stage:
 class CPU(object):
     ADDRESS_SPACE = 256
 
+    # Execution units
+    ALU = 0
+    UC = 1
+    SHIFT = 2
+
+    # Special UC actions
+    UC_LOAD = 128
+
     def __init__(self):
         self.memory = Memory(CPU.ADDRESS_SPACE)
         self.registers = Registers()
@@ -72,8 +80,8 @@ class CPU(object):
 
     def set_memory_block(self, words, start=0):
         assert isinstance(words, (list, tuple))
-        for i in xrange(len(words)):
-            self.memory.set_word(start, words[i])
+        for word in words:
+            self.memory.set_word(start, word)
             start += 1
 
         return True
@@ -103,67 +111,121 @@ class CPU(object):
                 registers.set_word('MBR', memory.get_word(registers['MAR']))
                 registers.set_word('RI', registers.get_word('MBR'))
                 self.stage = Stage.DECODE
+
             # Decode stage
             elif self.stage == Stage.DECODE:
                 decode = self.decode(registers.get_word('RI'))
+                op1_val = None if decode.op1 is None else registers[decode.op1]
+                op2_val = None if decode.op2 is None else registers[decode.op2]
+                # Next state
                 self.stage = Stage.EXECUTE
+
             # Execute stage
             elif self.stage == Stage.EXECUTE:
-                opcode = decode.opcode
-                if opcode in _('MOV'):
-                    registers[decode.op1] = registers[decode.op2]
-                elif opcode in _('NOP'):
-                    self.stage = Stage.FETCH
-                    continue
-                elif opcode in _('HALT'):
-                    break
-                # Addition
-                elif opcode in _('ADD'):
-                    result = registers[decode.op1] + registers[decode.op2]
-                    registers[decode.op1] = result
-                    # Overflow
-                    if result > registers[decode.op1]:
-                        registers['V'] = 1
-                    else:
-                        registers['V'] = 0
-                    # Zero
-                    if registers[decode.op1] == 0:
-                        registers['Z'] = 1
-                    else:
-                        registers['Z'] = 0
+                # Call ALU (Arithmetic and Logic Unit)
+                if decode.unit == self.ALU:
+                    result = self.alu(decode.operation, op1_val, op2_val)
+                # Call UC (Control Unit)
+                elif decode.unit == self.UC:
+                    self.uc(decode.operation, decode.op1, decode.op2)
+                    if self.stage == Stage.HALTED:
+                        break
+                    if self.stage == Stage.FETCH:
+                        continue
+                # Call SU (Shift Unit)
+                elif decode.unit == self.SHIFT:
+                    result = self.shift(decode.operation, op1_val, op2_val)
 
-                # Next stage: store or fetch
-                if decode.store is not None:
+                # Next state: store or fetch
+                if decode.store is True or decode.store is not None:
                     self.stage = Stage.STORE
                 else:
                     self.stage = Stage.FETCH
 
                 registers['PC'] += 1
+
             # Store stage
             elif self.stage == Stage.STORE:
-                memory[decode.store] = registers[decode.op1]
+                if decode.unit != self.UC:
+                    self.uc(CPU.UC_LOAD, decode.op1, result)
+                if decode.store is not True:
+                    memory[decode.store] = registers[decode.op1]
+                # Next state
                 self.stage = Stage.FETCH
 
-        self.stage = Stage.HALTED
         step.do()  # last step action
 
         return True
 
+    #
+    ## Implementation of CPU execution units
+    #
+
+    # Control Unit
+    def uc(self, operation, op1, op2):
+        registers = self.registers
+
+        # Special actions
+        if operation >= 128:
+            if operation == CPU.UC_LOAD:
+                registers[op1] = op2
+
+            return
+
+        _ = self._opcodes
+        opcode = operation
+
+        if opcode in _('NOP'):
+            registers['PC'] += 1
+            self.stage = Stage.FETCH
+        elif opcode in _('HALT'):
+            self.stage = Stage.HALTED
+        elif opcode in _('MOV'):
+            registers[op1] = registers[op2]
+
+    # Arithmetic and Logic Unit
+    def alu(self, operation, in1, in2):
+        _ = self._opcodes
+        registers = self.registers
+
+        opcode = operation >> 2
+        signed = operation & 0b1
+        bits = 8 if operation & 0b10 else 16
+
+        # Addition
+        if opcode in _('ADD'):
+            result = in1 + in2
+            # Overflow
+            registers['V'] = result > 2**bits - 1 and 1 or 0
+            # Zero
+            mask = 0xff if bits == 8 else 0xffff
+            registers['Z'] = result & mask == 0 and 1 or 0
+
+        return result
+
+    # Shift Unit
+    def shift(self, operation, in1, in2):
+        pass
+
     def decode(self, instr_word):
         dcd = Decode()
-        dcd.opcode = instr_word.opcode
+        instr_word.is_instruction = True
 
+        # Aliases
         registers = self.registers
         memory = self.memory
 
+        # Argument type
         argtype = self._arg_type(instr_word.opcode)
-
-        if argtype == 'NOARG':
-            return dcd
 
         flags = instr_word.flags
         operand = instr_word.operand
-        if argtype in ('DST_ORI', 'OP1_OP2'):
+
+        if argtype == 'NOARG':
+            pass
+
+        elif argtype in ('DST_ORI', 'OP1_OP2'):
+            dcd.store = True  # for store stage
             order = flags & 0b011
             # Reg, Reg
             if order == 0:
@@ -194,17 +256,28 @@ class CPU(object):
                     registers['TMP'] = memory[registers['PC']]
                     dcd.op1 = Registers.INDEX['TMP']
                     registers['PC'] = registers['MAR']
-                    # Setting for store stage
+                    # Setting memory address for store stage
                     dcd.store = registers['MBR']
 
-            # If op1 is an 8-bit register, inform that
-            if order < 3 and dcd.op1 < 8:
-                dcd.is_8bits = True
+        # Setting execution unit
+        if instr_word.opcode in (12, 13):
+            dcd.unit = CPU.SHIFT
+            dcd.operation = instr_word.opcode
+        elif instr_word.opcode >= 16:
+            dcd.unit = CPU.ALU
+            # ALU see if last bit is 1, mean a signed operation
+            signed = (flags & 0b100) >> 2
+            is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
+            ula_flags = is_8bits << 1 | signed
+            dcd.operation = (instr_word.opcode << 2) | ula_flags
+        else:
+            dcd.unit = CPU.UC
+            dcd.operation = instr_word.opcode
+            # Only memory words is passed to store on UC instructions
+            if dcd.store is True:
+                dcd.store = None
 
-            # Signed operation flag
-            dcd.signed = bool(flags & 0b100)
-
-            return dcd
+        return dcd
 
     def _opcodes(self, *opnames):
         for name in opnames:
