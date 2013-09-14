@@ -196,10 +196,16 @@ class CPU(object):
         if opcode in _('ADD'):
             result = in1 + in2
             # Overflow
-            registers['V'] = result > 2**bits - 1 and 1 or 0
-            # Zero
-            mask = 0xff if bits == 8 else 0xffff
-            registers['Z'] = result & mask == 0 and 1 or 0
+            registers['V'] = result > (2**bits)-1 and 1 or 0
+        # Subtraction
+        elif opcode in _('SUB'):
+            result = in1 - in2
+            # Overflow
+            registers['V'] = result < 0 and 1 or 0
+
+        # Zero
+        mask = 0xff if bits == 8 else 0xffff
+        registers['Z'] = result & mask == 0 and 1 or 0
 
         return result
 

@@ -80,6 +80,48 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_sub__reg_reg(self):
+        '''sub should subtract two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 19\n"
+                    "mov bx, 10\n"
+                    "sub ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',   # start
+                    'AX=19,BX=0',  # after "mov ax, 19"
+                    'AX=19,BX=10', # after "mov bx, 10"
+                    'AX=9,BX=10',  # after "sub ax, bx"
+                    'AX=9,BX=10']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_sub__flags(self):
+        '''sub should set flags Z and V'''
+
+        # mov instructions
+        assembly = ("mov ax, 1\n"
+                    "mov bx, 1\n"
+                    "sub ax, 2\n"
+                    "sub bx, 1\n"
+                    "sub bx, 1\n"
+                    "halt\n")
+        # registers
+        registers = ('Z', 'V')
+        # expected messages
+        messages = ['Z=0,V=0',  # start
+                    'Z=0,V=0',  # after "mov ax, 1"
+                    'Z=0,V=0',  # after "mov bx, 1"
+                    'Z=0,V=1',  # after "sub ax, 2"
+                    'Z=1,V=0',  # after "sub bx, 1"
+                    'Z=0,V=1',  # after "sub bx, 1"
+                    'Z=0,V=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mov__reg_reg(self):
         '''mov should load a register from another register'''
 
