@@ -110,6 +110,40 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_not(self):
+        '''not should invert all bits of a value'''
+
+        # instructions
+        assembly = ("mov ax, 0xabcd\n"
+                    "not ax\n"
+                    "halt\n")
+        # registers
+        registers = ('AX',)
+        # expected messages
+        messages = ['AX=0',            # start
+                    'AX=%d' % 0xabcd,  # after "mov ax, 0xabcd"
+                    'AX=%d' % 0x5432,  # after "not ax"
+                    'AX=%d' % 0x5432]  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_not__flags(self):
+        '''not should set flag Z'''
+
+        # instructions
+        assembly = ("mov ax, 0xffff\n"
+                    "not ax\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 0xffff"
+                    'Z=1',  # after "not ax"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_xor__reg_reg(self):
         '''xor should do a bitwise XOR on two registers'''
 
