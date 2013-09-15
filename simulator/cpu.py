@@ -218,6 +218,9 @@ class CPU(object):
         # Division
         elif opcode in _('DIV'):
             result = in1 // in2
+        # Remainder
+        elif opcode in _('MOD'):
+            result = in1 % in2
         else:
             return None
 

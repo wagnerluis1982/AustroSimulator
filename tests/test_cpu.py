@@ -272,6 +272,42 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_mod__reg_reg(self):
+        '''mod should calculate remainder of two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 7\n"
+                    "mov bx, 2\n"
+                    "mod ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',    # start
+                    'AX=7,BX=0',    # after "mov ax, 7"
+                    'AX=7,BX=2',    # after "mov bx, 2"
+                    'AX=1,BX=2',    # after "mod ax, bx"
+                    'AX=1,BX=2']    # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_mod__flags(self):
+        '''mod should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 9\n"
+                    "mod ax, 3\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 9"
+                    'Z=1',  # after "mod ax, 3"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mov__reg_reg(self):
         '''mov should load a register from another register'''
 
