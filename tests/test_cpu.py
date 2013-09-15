@@ -476,6 +476,76 @@ class TestCPU(unittest.TestCase):
 
         self.memory_asserts(assembly, memories, messages)
 
+    def test_shl(self):
+        '''shl should shift left a value'''
+
+        # mov instructions
+        assembly = ("mov ax, 0b100\n"
+                    "shl ax, 2\n"
+                    "halt\n")
+        # registers
+        registers = ('AX',)
+        # expected messages
+        messages = ['AX=0',   # start
+                    'AX=4',   # after "mov ax, 0b100"
+                    'AX=16',  # after "shr ax, bx"
+                    'AX=16']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_shl__flags(self):
+        '''shl should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 0x4000\n"
+                    "shl ax, 1\n"
+                    "shl ax, 1\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 0x4000"
+                    'Z=0',  # after "shl ax, 1"
+                    'Z=1',  # after "shl ax, 1"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_shr(self):
+        '''shr should shift right a value'''
+
+        # mov instructions
+        assembly = ("mov ax, 0b1000\n"
+                    "shr ax, 2\n"
+                    "halt\n")
+        # registers
+        registers = ('AX',)
+        # expected messages
+        messages = ['AX=0',  # start
+                    'AX=8',  # after "mov ax, 0b100"
+                    'AX=2',  # after "shr ax, bx"
+                    'AX=2']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_shr__flags(self):
+        '''shr should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 0x0001\n"
+                    "shr ax, 1\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 0x0001"
+                    'Z=1',  # after "shr ax, 1"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def register_asserts(self, assembly, registers, messages):
         # mov instructions
         asmd = assemble(assembly)

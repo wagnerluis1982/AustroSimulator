@@ -259,8 +259,22 @@ class CPU(object):
         return result
 
     # Shift Unit
-    def shift(self, operation, in1, in2):
-        pass
+    def shift(self, operation, op, n):
+        _ = self._opcodes
+        registers = self.registers
+        opcode = operation >> 1
+        is_8bits = operation & 0b1
+
+        if opcode in _('SHR'):
+            result = op >> n
+        elif opcode in _('SHL'):
+            result = op << n
+
+        # Zero
+        mask = 0xff if is_8bits else 0xffff
+        registers['Z'] = result & mask == 0 and 1 or 0
+
+        return result
 
     def decode(self, instr_word):
         dcd = Decode()
@@ -276,10 +290,7 @@ class CPU(object):
         flags = instr_word.flags
         operand = instr_word.operand
 
-        if argtype == 'NOARG':
-            pass
-
-        elif argtype in ('DST_ORI', 'OP1_OP2'):
+        if argtype in ('DST_ORI', 'OP1_OP2'):
             dcd.store = True  # for store stage
             order = flags & 0b011
             # Reg, Reg
@@ -306,18 +317,42 @@ class CPU(object):
                 # Mem, Reg
                 else:
                     dcd.op2 = operand >> 4
-                    # Getting memory reference
+                    # Fetching memory reference
                     registers['PC'] = registers['MBR']
                     registers['TMP'] = memory[registers['PC']]
-                    dcd.op1 = Registers.INDEX['TMP']
                     registers['PC'] = registers['MAR']
+                    dcd.op1 = Registers.INDEX['TMP']
                     # Setting memory address for store stage
                     dcd.store = registers['MBR']
 
+        elif argtype == 'OP_QNT':
+            order = flags & 0b001
+            # Operand => Reg
+            if order == 0:
+                dcd.op1 = operand >> 4
+                dcd.store = True
+            # Operand => Mem
+            else:
+                # Fetching memory reference
+                registers['MAR'] = registers['PC']
+                registers['PC'] = operand
+                registers['TMP'] = memory(registers['PC'])
+                registers['PC'] = registers['MAR']
+                dcd.op1 = Registers.INDEX['TMP']
+                # Setting memory address for store stage
+                dcd.store = operand
+            # Quantity (next word)
+            registers['PC'] += 1  # increment PC
+            registers['MAR'] = registers['PC']
+            registers['MBR'] = memory[registers['MAR']]
+            dcd.op2 = Registers.INDEX['MBR']
+
         # Setting execution unit
-        if instr_word.opcode in (12, 13):
+        _ = self._opcodes
+        if instr_word.opcode in _('SHR', 'SHL'):
             dcd.unit = CPU.SHIFT
-            dcd.operation = instr_word.opcode
+            is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
+            dcd.operation = (instr_word.opcode << 1) | is_8bits
         elif instr_word.opcode >= 16:
             dcd.unit = CPU.ALU
             # ALU see if last bit is 1, mean a signed operation
@@ -351,7 +386,6 @@ class CPU(object):
         if opcode in _('SHR', 'SHL'):
             return 'OP_QNT'
 
-        JUMP = range(0b00011, 0b01100+1)
         if opcode in _('JZ', 'JE', 'JNZ', 'JNE', 'JN', 'JLT', 'JP', 'JGT',
                 'JGE', 'JLE', 'JV', 'JT', 'JMP'):
             return 'JUMP'
