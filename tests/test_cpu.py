@@ -37,7 +37,7 @@ class TestCPU(unittest.TestCase):
     def test_or__reg_reg(self):
         '''or should do a bitwise OR on two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0b1001\n"
                     "mov bx, 0b1100\n"
                     "or ax, bx\n"
@@ -56,7 +56,7 @@ class TestCPU(unittest.TestCase):
     def test_or__flags(self):
         '''or should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0\n"
                     "or ax, 1\n"
                     "mov ax, 0\n"
@@ -77,7 +77,7 @@ class TestCPU(unittest.TestCase):
     def test_and__reg_reg(self):
         '''and should do a bitwise AND on two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0b1100\n"
                     "mov bx, 0b0110\n"
                     "and ax, bx\n"
@@ -96,7 +96,7 @@ class TestCPU(unittest.TestCase):
     def test_and__flags(self):
         '''and should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 1\n"
                     "and ax, 0\n"
                     "halt\n")
@@ -113,7 +113,7 @@ class TestCPU(unittest.TestCase):
     def test_xor__reg_reg(self):
         '''xor should do a bitwise XOR on two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0b1100\n"
                     "mov bx, 0b1010\n"
                     "xor ax, bx\n"
@@ -132,7 +132,7 @@ class TestCPU(unittest.TestCase):
     def test_xor__flags(self):
         '''xor should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 1\n"
                     "xor ax, 1\n"
                     "halt\n")
@@ -149,7 +149,7 @@ class TestCPU(unittest.TestCase):
     def test_add__reg_reg(self):
         '''add should sum two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 193\n"
                     "mov bx, 297\n"
                     "add ax, bx\n"
@@ -168,7 +168,7 @@ class TestCPU(unittest.TestCase):
     def test_add__flags(self):
         '''add should set flags Z and V'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 65534\n"
                     "mov bx, 65535\n"
                     "add ax, 1\n"
@@ -195,7 +195,7 @@ class TestCPU(unittest.TestCase):
     def test_sub__reg_reg(self):
         '''sub should subtract two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 19\n"
                     "mov bx, 10\n"
                     "sub ax, bx\n"
@@ -214,7 +214,7 @@ class TestCPU(unittest.TestCase):
     def test_sub__flags(self):
         '''sub should set flags Z and V'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 1\n"
                     "mov bx, 1\n"
                     "sub ax, 2\n"
@@ -237,7 +237,7 @@ class TestCPU(unittest.TestCase):
     def test_mul__reg_reg(self):
         '''mul should multiply two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 12\n"
                     "mov bx, 5\n"
                     "mul ax, bx\n"
@@ -256,7 +256,7 @@ class TestCPU(unittest.TestCase):
     def test_mul__flags(self):
         '''mul should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 77\n"
                     "mul ax, 0\n"
                     "halt\n")
@@ -273,7 +273,7 @@ class TestCPU(unittest.TestCase):
     def test_div__reg_reg(self):
         '''div should calculate quotient of two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 7\n"
                     "mov bx, 2\n"
                     "div ax, bx\n"
@@ -292,7 +292,7 @@ class TestCPU(unittest.TestCase):
     def test_div__flags(self):
         '''div should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 3\n"
                     "div ax, 3\n"
                     "div ax, 4\n"
@@ -311,7 +311,7 @@ class TestCPU(unittest.TestCase):
     def test_mod__reg_reg(self):
         '''mod should calculate remainder of two registers'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 7\n"
                     "mov bx, 2\n"
                     "mod ax, bx\n"
@@ -330,7 +330,7 @@ class TestCPU(unittest.TestCase):
     def test_mod__flags(self):
         '''mod should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 9\n"
                     "mod ax, 3\n"
                     "halt\n")
@@ -347,7 +347,7 @@ class TestCPU(unittest.TestCase):
     def test_cmp(self):
         '''cmp should compare two values and set flags N and Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 5\n"
                     "cmp ax, 5\n"
                     "cmp ax, 6\n"
@@ -368,7 +368,7 @@ class TestCPU(unittest.TestCase):
     def test_icmp(self):
         '''icmp should signed compare two values and set flags N and Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, -7\n"
                     "icmp ax, -7\n"
                     "icmp ax, 2\n"
@@ -479,7 +479,7 @@ class TestCPU(unittest.TestCase):
     def test_shl(self):
         '''shl should shift left a value'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0b100\n"
                     "shl ax, 2\n"
                     "halt\n")
@@ -496,7 +496,7 @@ class TestCPU(unittest.TestCase):
     def test_shl__flags(self):
         '''shl should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0x4000\n"
                     "shl ax, 1\n"
                     "shl ax, 1\n"
@@ -515,7 +515,7 @@ class TestCPU(unittest.TestCase):
     def test_shr(self):
         '''shr should shift right a value'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0b1000\n"
                     "shr ax, 2\n"
                     "halt\n")
@@ -532,7 +532,7 @@ class TestCPU(unittest.TestCase):
     def test_shr__flags(self):
         '''shr should set flag Z'''
 
-        # mov instructions
+        # instructions
         assembly = ("mov ax, 0x0001\n"
                     "shr ax, 1\n"
                     "halt\n")
@@ -547,7 +547,7 @@ class TestCPU(unittest.TestCase):
         self.register_asserts(assembly, registers, messages)
 
     def register_asserts(self, assembly, registers, messages):
-        # mov instructions
+        # instructions
         asmd = assemble(assembly)
 
         cpu = CPU()
@@ -561,7 +561,7 @@ class TestCPU(unittest.TestCase):
         self.assertEqual( show.messages, messages )
 
     def memory_asserts(self, assembly, addresses, messages):
-        # mov instructions
+        # instructions
         asmd = assemble(assembly)
 
         cpu = CPU()
