@@ -347,6 +347,23 @@ class CPU(object):
             registers['MBR'] = memory[registers['MAR']]
             dcd.op2 = Registers.INDEX['MBR']
 
+        elif argtype == 'OP':
+            order = flags & 0b001
+            # Operand => Reg
+            if order == 0:
+                dcd.op1 = operand >> 4
+                dcd.store = True
+            # Operand => Mem
+            else:
+                # Fetching memory reference
+                registers['MAR'] = registers['PC']
+                registers['PC'] = operand
+                registers['TMP'] = memory(registers['PC'])
+                registers['PC'] = registers['MAR']
+                dcd.op1 = Registers.INDEX['TMP']
+                # Setting memory address for store stage
+                dcd.store = operand
+
         # Setting execution unit
         _ = self._opcodes
         if instr_word.opcode in _('SHR', 'SHL'):
