@@ -194,9 +194,20 @@ class CPU(object):
         registers = self.registers
 
         opcode = operation >> 2
-        signed = operation & 0b1
         bits = 8 if operation & 0b10 else 16
         result = None
+
+        # Treat inputs as signed if desired
+        signed = operation & 0b1
+        if signed:
+            # 8-bit inputs
+            if bits == 8:
+                in1 = c_int8(in1).value
+                in2 = c_int8(in2).value
+            # 16-bit inputs
+            else:
+                in1 = c_int16(in1).value
+                in2 = c_int16(in2).value
 
         # Bitwise OR
         if opcode in _('OR'):
@@ -225,13 +236,6 @@ class CPU(object):
             result = in1 % in2
         # Comparison
         elif opcode in _('CMP'):
-            if signed:
-                if bits == 8:
-                    in1 = c_int8(in1).value
-                    in2 = c_int8(in2).value
-                else:
-                    in1 = c_int16(in1).value
-                    in2 = c_int16(in2).value
             tmp = in1 - in2
             registers['N'] = int(tmp < 0)
             registers['Z'] = int(tmp == 0)
