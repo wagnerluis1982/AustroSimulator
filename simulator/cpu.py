@@ -218,6 +218,11 @@ class CPU(object):
         # Bitwise NOT
         elif opcode in _('NOT'):
             result = ~in1
+        # Increment
+        elif opcode in _('INC'):
+            result = in1 + 1
+            # Overflow
+            registers['V'] = result > (2**bits)-1 and 1 or 0
         # Bitwise XOR
         elif opcode in _('XOR'):
             result = in1 ^ in2

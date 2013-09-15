@@ -268,6 +268,42 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_inc(self):
+        '''inc should increment one unit of a value'''
+
+        # instructions
+        assembly = ("mov ax, 9\n"
+                    "inc ax\n"
+                    "halt\n")
+        # registers
+        registers = ('AX',)
+        # expected messages
+        messages = ['AX=0',   # start
+                    'AX=9',   # after "mov ax, 9"
+                    'AX=10',  # after "inc ax"
+                    'AX=10']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_inc__flags(self):
+        '''inc should set flags Z and V'''
+
+        # instructions
+        assembly = ("mov ax, 0xfffe\n"
+                    "inc ax\n"
+                    "inc ax\n"
+                    "halt\n")
+        # registers
+        registers = ('Z', 'V')
+        # expected messages
+        messages = ['Z=0,V=0',  # start
+                    'Z=0,V=0',  # after "mov ax, 0xfffe"
+                    'Z=0,V=0',  # after "inc ax"
+                    'Z=1,V=1',  # after "inc ax"
+                    'Z=1,V=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mul__reg_reg(self):
         '''mul should multiply two registers'''
 
