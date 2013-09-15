@@ -37,12 +37,12 @@ def get_base(t_name):
         base = 16
     elif t_name.startswith("0"):
         base = 8
-    elif t_name.isdigit():
+    else:
         base = 10
     return base
 
 
-number = r'(0b[01]+|0[0-7]+|0o[0-7]+|0x[0-9a-fA-F]+|\d+)'
+number = r'(0b[01]+|0[0-7]+|0o[0-7]+|0x[0-9a-fA-F]+|-?\d+)'
 reference = r'\[\s*' + number + r'\s*\]'
 
 def t_newline(t):
@@ -68,8 +68,7 @@ def t_NAME(t):
 
 @lex.TOKEN(number)
 def t_NUMBER(t):
-    base = get_base(t.value)
-    t.value = int(t.value, base)
+    t.value = int(t.value, get_base(t.value))
     return t
 
 def t_error(t):

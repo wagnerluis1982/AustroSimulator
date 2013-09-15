@@ -195,6 +195,7 @@ class CPU(object):
         opcode = operation >> 2
         signed = operation & 0b1
         bits = 8 if operation & 0b10 else 16
+        result = None
 
         # Bitwise OR
         if opcode in _('OR'):
@@ -221,6 +222,12 @@ class CPU(object):
         # Remainder
         elif opcode in _('MOD'):
             result = in1 % in2
+        # Comparison
+        elif opcode in _('CMP'):
+            tmp = in1 - in2
+            registers['N'] = int(tmp < 0)
+            registers['Z'] = int(tmp == 0)
+            return None
         else:
             return None
 
@@ -311,25 +318,24 @@ class CPU(object):
             yield OPCODES[name]
 
     def _arg_type(self, opcode):
-        DST_ORI = (0b00010, 0b10000, 0b10011, 0b10100, 0b10101, 0b10110,
-                   0b11000, 0b11001, 0b11010,)
-        if opcode in DST_ORI:
+        _ = self._opcodes
+
+        if opcode in _('MOV', 'ADD', 'SUB', 'MUL', 'OR', 'AND', 'XOR',
+                'DIV', 'MOD'):
             return 'DST_ORI'
 
-        OP1_OP2 = (11011,)
-        if opcode in OP1_OP2:
+        if opcode in _('CMP'):
             return 'OP1_OP2'
 
-        OP_QNT = (0b01101, 0b01110,)
-        if opcode in OP_QNT:
+        if opcode in _('SHR', 'SHL'):
             return 'OP_QNT'
 
         JUMP = range(0b00011, 0b01100+1)
-        if opcode in JUMP:
+        if opcode in _('JZ', 'JE', 'JNZ', 'JNE', 'JN', 'JLT', 'JP', 'JGT',
+                'JGE', 'JLE', 'JV', 'JT', 'JMP'):
             return 'JUMP'
 
-        OP = (0b10001, 0b10010, 0b10111,)
-        if opcode in OP:
+        if opcode in _('INC', 'DEC', 'NOT'):
             return 'OP'
 
         return 'NOARG'
