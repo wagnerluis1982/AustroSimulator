@@ -34,6 +34,46 @@ class ShowMemories(Step):
 class TestCPU(unittest.TestCase):
     '''CPU'''
 
+    def test_or__reg_reg(self):
+        '''or should do a bitwise OR on two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 0b1001\n"
+                    "mov bx, 0b1100\n"
+                    "or ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',    # start
+                    'AX=9,BX=0',    # after "mov ax, 0b1001"
+                    'AX=9,BX=12',   # after "mov bx, 0b1100"
+                    'AX=13,BX=12',  # after "or ax, bx"
+                    'AX=13,BX=12']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_or__flags(self):
+        '''or should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 0\n"
+                    "or ax, 1\n"
+                    "mov ax, 0\n"
+                    "or ax, 0\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 0"
+                    'Z=0',  # after "or ax, 1"
+                    'Z=0',  # after "mov ax, 0"
+                    'Z=1',  # after "or ax, 0"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_add__reg_reg(self):
         '''add should sum two registers'''
 

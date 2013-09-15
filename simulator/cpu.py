@@ -192,8 +192,11 @@ class CPU(object):
         signed = operation & 0b1
         bits = 8 if operation & 0b10 else 16
 
+        # Bitwise OR
+        if opcode in _('OR'):
+            result = in1 | in2
         # Addition
-        if opcode in _('ADD'):
+        elif opcode in _('ADD'):
             result = in1 + in2
             # Overflow
             registers['V'] = result > (2**bits)-1 and 1 or 0
