@@ -125,6 +125,9 @@ class CPU(object):
                 # Call ALU (Arithmetic and Logic Unit)
                 if decode.unit == self.ALU:
                     result = self.alu(decode.operation, op1_val, op2_val)
+                    # Invalid instructions behave as NOP
+                    if result is None:
+                        decode.store = None
                 # Call UC (Control Unit)
                 elif decode.unit == self.UC:
                     self.uc(decode.operation, decode.op1, decode.op2)
@@ -175,13 +178,14 @@ class CPU(object):
         _ = self._opcodes
         opcode = operation
 
-        if opcode in _('NOP'):
-            registers['PC'] += 1
-            self.stage = Stage.FETCH
-        elif opcode in _('HALT'):
+        if opcode in _('HALT'):
             self.stage = Stage.HALTED
         elif opcode in _('MOV'):
             registers[op1] = registers[op2]
+        # opcode == 'NOP' or invalid
+        else:
+            registers['PC'] += 1
+            self.stage = Stage.FETCH
 
     # Arithmetic and Logic Unit
     def alu(self, operation, in1, in2):
@@ -211,6 +215,8 @@ class CPU(object):
             result = in1 - in2
             # Overflow
             registers['V'] = result < 0 and 1 or 0
+        else:
+            return None
 
         # Zero
         mask = 0xff if bits == 8 else 0xffff
