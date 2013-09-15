@@ -231,6 +231,8 @@ class CPU(object):
         # Multiplicatiom
         elif opcode in _('MUL'):
             result = in1 * in2
+            if signed:
+                registers['N'] = int(result < 0)
         # Division
         elif opcode in _('DIV'):
             result = in1 // in2
