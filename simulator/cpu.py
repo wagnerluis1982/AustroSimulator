@@ -228,6 +228,9 @@ class CPU(object):
             result = in1 - in2
             # Overflow
             registers['V'] = result < 0 and 1 or 0
+        # Multiplicatiom
+        elif opcode in _('MUL'):
+            result = in1 * in2
         # Division
         elif opcode in _('DIV'):
             result = in1 // in2

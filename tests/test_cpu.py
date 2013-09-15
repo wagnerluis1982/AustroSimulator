@@ -234,6 +234,42 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_mul__reg_reg(self):
+        '''mul should multiply two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 12\n"
+                    "mov bx, 5\n"
+                    "mul ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',   # start
+                    'AX=12,BX=0',  # after "mov ax, 12"
+                    'AX=12,BX=5',  # after "mov bx, 5"
+                    'AX=60,BX=5',  # after "mul ax, bx"
+                    'AX=60,BX=5']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_mul__flags(self):
+        '''mul should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 77\n"
+                    "mul ax, 0\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 77"
+                    'Z=1',  # after "mul ax, 0"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_div__reg_reg(self):
         '''div should calculate quotient of two registers'''
 
