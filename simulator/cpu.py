@@ -231,9 +231,13 @@ class CPU(object):
         # Division
         elif opcode in _('DIV'):
             result = in1 // in2
+            if signed:
+                registers['N'] = int(result < 0)
         # Remainder
         elif opcode in _('MOD'):
             result = in1 % in2
+            if signed:
+                registers['N'] = int(result < 0)
         # Comparison
         elif opcode in _('CMP'):
             tmp = in1 - in2
