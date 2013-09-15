@@ -74,6 +74,42 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_and__reg_reg(self):
+        '''and should do a bitwise AND on two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 0b1100\n"
+                    "mov bx, 0b0110\n"
+                    "and ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',   # start
+                    'AX=12,BX=0',  # after "mov ax, 0b1100"
+                    'AX=12,BX=6',  # after "mov bx, 0b0110"
+                    'AX=4,BX=6',   # after "and ax, bx"
+                    'AX=4,BX=6']   # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_and__flags(self):
+        '''and should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 1\n"
+                    "and ax, 0\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 1"
+                    'Z=1',  # after "and ax, 0"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_add__reg_reg(self):
         '''add should sum two registers'''
 

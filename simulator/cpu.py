@@ -195,6 +195,9 @@ class CPU(object):
         # Bitwise OR
         if opcode in _('OR'):
             result = in1 | in2
+        # Bitwise AND
+        elif opcode in _('AND'):
+            result = in1 & in2
         # Addition
         elif opcode in _('ADD'):
             result = in1 + in2
