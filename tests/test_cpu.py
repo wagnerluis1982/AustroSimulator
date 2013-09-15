@@ -329,6 +329,27 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_icmp(self):
+        '''icmp should signed compare two values and set flags N and Z'''
+
+        # mov instructions
+        assembly = ("mov ax, -7\n"
+                    "icmp ax, -7\n"
+                    "icmp ax, 2\n"
+                    "icmp ax, -15\n"
+                    "halt\n")
+        # registers
+        registers = ('N', 'Z')
+        # expected messages
+        messages = ['N=0,Z=0',  # start
+                    'N=0,Z=0',  # after "mov ax, -7"
+                    'N=0,Z=1',  # after "cmp ax, -7"
+                    'N=1,Z=0',  # after "cmp ax, 2"
+                    'N=0,Z=0',  # after "cmp ax, -15"
+                    'N=0,Z=0']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mov__reg_reg(self):
         '''mov should load a register from another register'''
 

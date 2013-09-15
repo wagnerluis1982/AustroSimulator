@@ -17,6 +17,7 @@
 
 '''CPU simulator functionality'''
 
+from ctypes import c_int8, c_int16
 from abc import ABCMeta, abstractmethod
 
 from asm.assembler import REGISTERS, OPCODES
@@ -224,6 +225,13 @@ class CPU(object):
             result = in1 % in2
         # Comparison
         elif opcode in _('CMP'):
+            if signed:
+                if bits == 8:
+                    in1 = c_int8(in1).value
+                    in2 = c_int8(in2).value
+                else:
+                    in1 = c_int16(in1).value
+                    in2 = c_int16(in2).value
             tmp = in1 - in2
             registers['N'] = int(tmp < 0)
             registers['Z'] = int(tmp == 0)
