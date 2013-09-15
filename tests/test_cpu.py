@@ -304,6 +304,42 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_dec(self):
+        '''dec should decrement one unit of a value'''
+
+        # instructions
+        assembly = ("mov ax, 100\n"
+                    "dec ax\n"
+                    "halt\n")
+        # registers
+        registers = ('AX',)
+        # expected messages
+        messages = ['AX=0',    # start
+                    'AX=100',  # after "mov ax, 100"
+                    'AX=99',   # after "dec ax"
+                    'AX=99']   # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_dec__flags(self):
+        '''dec should set flags Z and V'''
+
+        # instructions
+        assembly = ("mov ax, 1\n"
+                    "dec ax\n"
+                    "dec ax\n"
+                    "halt\n")
+        # registers
+        registers = ('Z', 'V')
+        # expected messages
+        messages = ['Z=0,V=0',  # start
+                    'Z=0,V=0',  # after "mov ax, 1"
+                    'Z=1,V=0',  # after "dec ax"
+                    'Z=0,V=1',  # after "dec ax"
+                    'Z=0,V=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mul__reg_reg(self):
         '''mul should multiply two registers'''
 

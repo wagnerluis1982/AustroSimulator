@@ -223,6 +223,11 @@ class CPU(object):
             result = in1 + 1
             # Overflow
             registers['V'] = result > (2**bits)-1 and 1 or 0
+        # Decrement
+        elif opcode in _('DEC'):
+            result = in1 - 1
+            # Overflow
+            registers['V'] = result < 0 and 1 or 0
         # Bitwise XOR
         elif opcode in _('XOR'):
             result = in1 ^ in2
