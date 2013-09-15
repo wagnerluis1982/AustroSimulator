@@ -375,8 +375,8 @@ class CPU(object):
             # ALU see if last bit is 1, mean a signed operation
             signed = (flags & 0b100) >> 2
             is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
-            ula_flags = is_8bits << 1 | signed
-            dcd.operation = (instr_word.opcode << 2) | ula_flags
+            alu_flags = is_8bits << 1 | signed
+            dcd.operation = (instr_word.opcode << 2) | alu_flags
         else:
             dcd.unit = CPU.UC
             dcd.operation = instr_word.opcode
