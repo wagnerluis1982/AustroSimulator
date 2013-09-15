@@ -234,6 +234,44 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_div__reg_reg(self):
+        '''div should calculate quotient of two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 7\n"
+                    "mov bx, 2\n"
+                    "div ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',  # start
+                    'AX=7,BX=0',  # after "mov ax, 7"
+                    'AX=7,BX=2',  # after "mov bx, 2"
+                    'AX=3,BX=2',  # after "div ax, bx"
+                    'AX=3,BX=2']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_div__flags(self):
+        '''div should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 3\n"
+                    "div ax, 3\n"
+                    "div ax, 4\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 3"
+                    'Z=0',  # after "div ax, 3"
+                    'Z=1',  # after "div ax, 4"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mov__reg_reg(self):
         '''mov should load a register from another register'''
 
