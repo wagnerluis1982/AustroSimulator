@@ -110,6 +110,42 @@ class TestCPU(unittest.TestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_xor__reg_reg(self):
+        '''xor should do a bitwise XOR on two registers'''
+
+        # mov instructions
+        assembly = ("mov ax, 0b1100\n"
+                    "mov bx, 0b1010\n"
+                    "xor ax, bx\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'BX')
+        # expected messages
+        messages = ['AX=0,BX=0',    # start
+                    'AX=12,BX=0',   # after "mov ax, 0b1100"
+                    'AX=12,BX=10',  # after "mov bx, 0b1010"
+                    'AX=6,BX=10',   # after "xor ax, bx"
+                    'AX=6,BX=10']   # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
+    def test_xor__flags(self):
+        '''xor should set flag Z'''
+
+        # mov instructions
+        assembly = ("mov ax, 1\n"
+                    "xor ax, 1\n"
+                    "halt\n")
+        # registers
+        registers = ('Z')
+        # expected messages
+        messages = ['Z=0',  # start
+                    'Z=0',  # after "mov ax, 1"
+                    'Z=1',  # after "xor ax, 1"
+                    'Z=1']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_add__reg_reg(self):
         '''add should sum two registers'''
 
