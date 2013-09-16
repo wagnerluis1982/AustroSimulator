@@ -616,6 +616,36 @@ class TestCPU__UC(CPUTestCase):
 
         self.memory_asserts(assembly, memories, messages)
 
+    def test_jz_je(self):
+        '''JZ/JE should set PC register when Z=1'''
+
+        # instructions
+        assembly = ("mov ax, 1\n"
+                    "detour:\n"
+                    "dec ax\n"
+                    "jz detour\n"
+                    "cmp ax, 65535\n"
+                    "je detour\n"
+                    "halt\n")
+        # registers
+        registers = ('PC',)
+        # expected messages
+        messages = ['PC=0',  # start
+                    'PC=2',  # after "mov ax, 1"
+                    'PC=3',  # after "dec ax"
+                    'PC=2',  # after "jz detour"
+                    'PC=3',  # after "dec ax"
+                    'PC=4',  # after "jz detour"
+                    'PC=6',  # after "cmp ax, 65535"
+                    'PC=2',  # after "je detour"
+                    'PC=3',  # after "dec ax"
+                    'PC=4',  # after "jz detour"
+                    'PC=6',  # after "cmp ax, 65535"
+                    'PC=7',  # after "je detour"
+                    'PC=7']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
 
 class TestCPU__SHIFT(CPUTestCase):
     '''CPU (Shift Unit)'''

@@ -173,7 +173,6 @@ class CPU(object):
         if operation >= 128:
             if operation == CPU.UC_LOAD:
                 registers[op1] = op2
-
             return
 
         _ = self._opcodes
@@ -183,6 +182,10 @@ class CPU(object):
             self.stage = Stage.HALTED
         elif opcode in _('MOV'):
             registers[op1] = registers[op2]
+        # Jump instructions
+        elif opcode in _('JZ', 'JE'):
+            if registers['Z'] == 1:
+                self._jump_to(registers[op1])
         # opcode == 'NOP' or invalid
         else:
             registers['PC'] += 1
