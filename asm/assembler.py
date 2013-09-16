@@ -199,23 +199,34 @@ def assemble(code):
     labels = {}
     words = []
 
+
+    def verify_pending_labels():
+        # Verify if has any label pending an address
+        while pend_labels:
+            lbl = pend_labels.pop()
+            if lbl.value in labels:
+                raise Exception("Error: symbol '%s' is already defined." %
+                        lbl.value, lbl.lineno)
+            # Point the label to the next word pending attribution
+            position = len(words)
+            labels[lbl.value] = position
+            # Verify if has any jump instruction missing this label
+            mlbls = miss_labels.get(lbl.value)
+            if mlbls:
+                for mlb in mlbls:
+                    mlb.operand = position
+                del miss_labels[lbl.value]
+
     opcode = None
     pend_labels = []
+    miss_labels = {}
     tok = lexer.token()
     while tok:
         if tok.type == 'LABEL':
             pend_labels.append(tok)
 
         elif tok.type == 'OPCODE':
-            # Verify if has any label pending an address
-            while pend_labels:
-                lbl = pend_labels.pop()
-                if lbl.value in labels:
-                    raise Exception("Error: symbol '%s' is already defined." %
-                            lbl.value, lbl.lineno)
-                # Point the label to the next word pending attribution
-                labels[lbl.value] = len(words)
-                del lbl
+            verify_pending_labels()
 
             # Store opcode
             opcode = tok
@@ -233,14 +244,22 @@ def assemble(code):
                 # If instruction is a jump, replace labels by it address
                 jumps = ('JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
                          'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ',)
+                no_label = False
+                lbl_name = op1.value
                 if op1.type == 'NAME' and opcode.value.upper() in jumps:
-                    if op1.value not in labels:
-                        raise Exception("Invalid label '%s'" % op1.value,
-                                op1.lineno)
-                    op1.type = 'NUMBER'
-                    op1.value = labels[op1.value]
+                    if op1.value.upper() not in REGISTERS:
+                        op1.type = 'NUMBER'
+                        if op1.value not in labels:
+                            no_label = True
+                            op1.value = 0
+                        else:
+                            op1.value = labels[op1.value]
 
                 words.extend(memory_words(opcode, op1))  # 1-arg opcode
+                if no_label:
+                    if lbl_name not in miss_labels:
+                        miss_labels[lbl_name] = []
+                    miss_labels[lbl_name].append(words[-1])
                 continue
             if tok.type != 'COMMA':
                 raise Exception("Invalid token", tok.lineno)
@@ -258,6 +277,13 @@ def assemble(code):
             raise Exception("Invalid token", tok.lineno)
 
         tok = lexer.token()
+
+    # Add any pending label to labels dict
+    verify_pending_labels()
+
+    # Interrupt assembling if has any jump missing label
+    for mlb in miss_labels.items():
+        raise Exception("Invalid label '%s'" % mlb[0], mlb[1][0].lineno)
 
     return {'labels': labels, 'words': words}
 
