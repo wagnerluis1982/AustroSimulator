@@ -289,6 +289,10 @@ class CPU(object):
 
         return result
 
+    #
+    ## Decoder
+    #
+
     def decode(self, instr_word):
         dcd = Decode()
         instr_word.is_instruction = True
@@ -360,6 +364,24 @@ class CPU(object):
             registers['MBR'] = memory[registers['MAR']]
             dcd.op2 = Registers.INDEX['MBR']
 
+        elif argtype == 'JUMP':
+            order = flags & 0b011
+            # End => Register
+            if order == 0:
+                dcd.op1 = operand >> 4
+            # End => Memory
+            elif order == 1:
+                # Fetching memory reference
+                registers['MAR'] = registers['PC']
+                registers['PC'] = operand
+                registers['TMP'] = memory(registers['PC'])
+                registers['PC'] = registers['MAR']
+                dcd.op1 = Registers.INDEX['TMP']
+            # End => Constant
+            elif order == 2:
+                registers['TMP'] = operand
+                dcd.op1 = Registers.INDEX['TMP']
+
         elif argtype == 'OP':
             order = flags & 0b001
             # Operand => Reg
@@ -398,6 +420,11 @@ class CPU(object):
                 dcd.store = None
 
         return dcd
+
+    # Helper to jump instructions
+    def _jump_to(self, newpc):
+        self.registers['PC'] = newpc
+        self.stage = Stage.FETCH
 
     def _opcodes(self, *opnames):
         for name in opnames:
