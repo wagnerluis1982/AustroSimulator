@@ -276,9 +276,10 @@ class CPU(object):
                 registers['T'] = int(transport > 0)
                 if registers['T'] == 1:
                     registers['SP'] = transport
-            # Negative flag
-            if signed:
+            # Negative and Overflow
+            else:
                 registers['N'] = int(result < 0)
+                registers['V'] = (result >> bits) != 0
         # Division
         elif opcode in _('DIV'):
             result = in1 // in2

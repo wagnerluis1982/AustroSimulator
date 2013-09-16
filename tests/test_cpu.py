@@ -429,6 +429,25 @@ class TestCPU__ALU(CPUTestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_imul__flags(self):
+        '''IMUL should set flags N, Z and V'''
+
+        # instructions
+        assembly = ("mov ax, 80\n"
+                    "imul ax, -900\n"
+                    "imul ax, 0\n"
+                    "halt\n")
+        # registers
+        registers = ('N', 'Z', 'V')
+        # expected messages
+        messages = ['N=0,Z=0,V=0',  # start
+                    'N=0,Z=0,V=0',  # after "mov ax, 80"
+                    'N=1,Z=0,V=1',  # after "imul ax, -900"
+                    'N=0,Z=1,V=0',  # after "imul ax, 0"
+                    'N=0,Z=1,V=0']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_div__reg_reg(self):
         '''DIV should calculate quotient of two registers'''
 
