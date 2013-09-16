@@ -295,13 +295,11 @@ class CPU(object):
             tmp = in1 - in2
             registers['N'] = int(tmp < 0)
             registers['Z'] = int(tmp == 0)
-            return None
-        else:
-            return None
 
         # Zero
-        mask = 0xff if bits == 8 else 0xffff
-        registers['Z'] = result & mask == 0 and 1 or 0
+        if result is not None:
+            mask = 0xff if bits == 8 else 0xffff
+            registers['Z'] = result & mask == 0 and 1 or 0
 
         return result
 
