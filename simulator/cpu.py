@@ -270,6 +270,13 @@ class CPU(object):
         # Multiplicatiom
         elif opcode in _('MUL'):
             result = in1 * in2
+            # Transport handling (excess)
+            if not signed:
+                transport = result >> bits
+                registers['T'] = int(transport > 0)
+                if registers['T'] == 1:
+                    registers['SP'] = transport
+            # Negative flag
             if signed:
                 registers['N'] = int(result < 0)
         # Division

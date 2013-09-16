@@ -389,20 +389,43 @@ class TestCPU__ALU(CPUTestCase):
 
         self.register_asserts(assembly, registers, messages)
 
+    def test_mul__transport(self):
+        '''MUL should transport excess to SP register'''
+
+        # instructions
+        assembly = ("mov ax, 500\n"
+                    "mov sp, 8\n"
+                    "mul ax, 1\n"
+                    "mul ax, 850\n"
+                    "halt\n")
+        # registers
+        registers = ('AX', 'SP')
+        # expected messages
+        messages = ['AX=0,SP=0',      # start
+                    'AX=500,SP=0',    # after "mov ax, 500"
+                    'AX=500,SP=8',    # after "mov sp, 8"
+                    'AX=500,SP=8',    # after "mul ax, 1"
+                    'AX=31784,SP=6',  # after "mul ax, 850"
+                    'AX=31784,SP=6']  # after "halt"
+
+        self.register_asserts(assembly, registers, messages)
+
     def test_mul__flags(self):
-        '''MUL should set flag Z'''
+        '''MUL should set flags Z and T'''
 
         # instructions
         assembly = ("mov ax, 77\n"
+                    "mul ax, 900\n"
                     "mul ax, 0\n"
                     "halt\n")
         # registers
-        registers = ('Z')
+        registers = ('Z', 'T')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 77"
-                    'Z=1',  # after "mul ax, 0"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0,T=0',  # start
+                    'Z=0,T=0',  # after "mov ax, 77"
+                    'Z=0,T=1',  # after "mul ax, 900"
+                    'Z=1,T=0',  # after "mul ax, 0"
+                    'Z=1,T=0']  # after "halt"
 
         self.register_asserts(assembly, registers, messages)
 
