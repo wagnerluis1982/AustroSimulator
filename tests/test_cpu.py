@@ -36,12 +36,12 @@ class CPUTestCase(unittest.TestCase):
         # instructions
         asmd = assemble(assembly)
 
-        cpu = CPU()
+        show = ShowRegisters(*registers)
+        cpu = CPU(show)
         cpu.set_memory_block(asmd['words'])
 
         # Test run
-        show = ShowRegisters(*registers)
-        self.assertTrue( cpu.start(show) )
+        self.assertTrue( cpu.start() )
 
         # Test step event
         self.assertEqual( show.messages, messages )
@@ -50,12 +50,12 @@ class CPUTestCase(unittest.TestCase):
         # instructions
         asmd = assemble(assembly)
 
-        cpu = CPU()
+        show = ShowMemories(*addresses)
+        cpu = CPU(show)
         cpu.set_memory_block(asmd['words'])
 
         # Test run
-        show = ShowMemories(*addresses)
-        self.assertTrue( cpu.start(show) )
+        self.assertTrue( cpu.start() )
 
         # Test step event
         self.assertEqual( show.messages, messages )

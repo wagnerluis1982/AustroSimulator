@@ -74,7 +74,11 @@ class CPU(object):
     # Special UC actions
     UC_LOAD = 128
 
-    def __init__(self):
+    def __init__(self, event=None):
+        self.event = event if event else DummyStepEvent()
+        assert isinstance(self.event, StepEvent)
+        self.event.cpu = self
+
         self.memory = Memory(CPU.ADDRESS_SPACE)
         self.registers = Registers()
         self.stage = Stage.STOPPED
@@ -87,13 +91,10 @@ class CPU(object):
 
         return True
 
-    def start(self, event=None):
-        event = event if event else DummyStepEvent()
-        assert isinstance(event, StepEvent)
-        event.cpu = self
-
+    def start(self):
         registers = self.registers
         memory = self.memory
+        event = self.event
         _ = self._opcodes  # alias to improve visual of code
 
         # For starting, PC=0
