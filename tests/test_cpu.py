@@ -1,12 +1,12 @@
 import unittest
 
 from austro.asm.assembler import assemble
-from austro.simulator.cpu import CPU, Registers, Step
+from austro.simulator.cpu import CPU, Registers, StepEvent
 
 #
-## The cpu receives at start a Step class instance. Here two simple examples:
+## The cpu receives at start a StepEvent class instance. Here two simple examples:
 #
-class ShowRegisters(Step):
+class ShowRegisters(StepEvent):
     def __init__(self, *names):
         self.messages = []
         self.fmt = ','.join(['%s=%%d' % nm for nm in names])
@@ -20,7 +20,7 @@ class ShowRegisters(Step):
         self.messages.append(self.fmt % tuple(args))
 
 
-class ShowMemories(Step):
+class ShowMemories(StepEvent):
     def __init__(self, *numbers):
         self.messages = []
         self.fmt = ','.join(['[%d]=%%d' % n for n in numbers])
@@ -43,7 +43,7 @@ class CPUTestCase(unittest.TestCase):
         show = ShowRegisters(*registers)
         self.assertTrue( cpu.start(show) )
 
-        # Test step
+        # Test step event
         self.assertEqual( show.messages, messages )
 
     def memory_asserts(self, assembly, addresses, messages):
@@ -57,7 +57,7 @@ class CPUTestCase(unittest.TestCase):
         show = ShowMemories(*addresses)
         self.assertTrue( cpu.start(show) )
 
-        # Test step
+        # Test step event
         self.assertEqual( show.messages, messages )
 
 

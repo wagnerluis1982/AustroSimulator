@@ -25,7 +25,7 @@ from austro.asm.memword import Word
 from austro.simulator.register import *
 
 
-class Step(object):
+class StepEvent(object):
     __metaclass__ = ABCMeta
     _cycle = None
 
@@ -41,7 +41,7 @@ class Step(object):
         self._cycle = value
 
 
-class DummyStep(Step):
+class DummyStepEvent(StepEvent):
     def do(self):
         pass
 
@@ -87,10 +87,10 @@ class CPU(object):
 
         return True
 
-    def start(self, step=None):
-        step = step if step else DummyStep()
-        assert isinstance(step, Step)
-        step.cpu = self
+    def start(self, event=None):
+        event = event if event else DummyStepEvent()
+        assert isinstance(event, StepEvent)
+        event.cpu = self
 
         registers = self.registers
         memory = self.memory
@@ -107,7 +107,7 @@ class CPU(object):
 
             # Fetch stage
             if self.stage == Stage.FETCH:
-                step.do()  # step action
+                event.do()  # event action
                 registers['MAR'] = registers['PC']
                 registers.set_word('MBR', memory.get_word(registers['MAR']))
                 registers.set_word('RI', registers.get_word('MBR'))
@@ -157,7 +157,7 @@ class CPU(object):
                 # Next state
                 self.stage = Stage.FETCH
 
-        step.do()  # last step action
+        event.do()  # last event action
 
         return True
 
