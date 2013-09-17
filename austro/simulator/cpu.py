@@ -27,18 +27,18 @@ from austro.simulator.register import *
 
 class StepEvent(object):
     __metaclass__ = ABCMeta
-    _cycle = None
+    _cpu = None
 
     @abstractmethod
     def do(self):
         pass
 
     @property
-    def cycle(self):
-        return self._cycle
-    @cycle.setter
-    def cycle(self, value):
-        self._cycle = value
+    def cpu(self):
+        return self._cpu
+    @cpu.setter
+    def cpu(self, value):
+        self._cpu = value
 
 
 class DummyStepEvent(StepEvent):
