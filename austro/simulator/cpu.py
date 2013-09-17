@@ -30,7 +30,7 @@ class StepEvent(object):
     _cpu = None
 
     @abstractmethod
-    def do(self):
+    def on_fetch(self):
         pass
 
     @property
@@ -42,7 +42,7 @@ class StepEvent(object):
 
 
 class DummyStepEvent(StepEvent):
-    def do(self):
+    def on_fetch(self):
         pass
 
 
@@ -107,7 +107,7 @@ class CPU(object):
 
             # Fetch stage
             if self.stage == Stage.FETCH:
-                event.do()  # event action
+                event.on_fetch()  # event action
                 registers['MAR'] = registers['PC']
                 registers.set_word('MBR', memory.get_word(registers['MAR']))
                 registers.set_word('RI', registers.get_word('MBR'))
@@ -157,7 +157,7 @@ class CPU(object):
                 # Next state
                 self.stage = Stage.FETCH
 
-        event.do()  # last event action
+        event.on_fetch()  # last event action
 
         return True
 

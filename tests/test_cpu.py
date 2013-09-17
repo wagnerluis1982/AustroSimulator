@@ -15,7 +15,7 @@ class ShowRegisters(StepEvent):
         for nm in names:
             self.indexes.append(Registers.INDEX[nm])
 
-    def do(self):
+    def on_fetch(self):
         args = [self.cpu.registers[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
@@ -26,7 +26,7 @@ class ShowMemories(StepEvent):
         self.fmt = ','.join(['[%d]=%%d' % n for n in numbers])
         self.indexes = numbers
 
-    def do(self):
+    def on_fetch(self):
         args = [self.cpu.memory[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
