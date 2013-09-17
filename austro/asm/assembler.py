@@ -18,8 +18,8 @@
 # Austro Simulator Assembler
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 
-from asm.asm_lexer import lexer
-from asm.memword import Word
+from austro.asm.asm_lexer import lexer
+from austro.asm.memword import Word
 
 
 OPCODES = {

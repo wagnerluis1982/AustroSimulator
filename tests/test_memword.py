@@ -1,6 +1,6 @@
 import unittest
 
-from asm.memword import Word
+from austro.asm.memword import Word
 
 
 class WordTest(unittest.TestCase):

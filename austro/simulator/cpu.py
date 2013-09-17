@@ -20,9 +20,9 @@
 from ctypes import c_int8, c_int16
 from abc import ABCMeta, abstractmethod
 
-from asm.assembler import REGISTERS, OPCODES
-from asm.memword import Word
-from simulator.register import *
+from austro.asm.assembler import REGISTERS, OPCODES
+from austro.asm.memword import Word
+from austro.simulator.register import *
 
 
 class Step(object):

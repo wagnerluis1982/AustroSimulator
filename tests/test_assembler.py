@@ -1,7 +1,7 @@
 import unittest
 
 from ply.lex import LexToken
-from asm.assembler import Word, memory_words
+from austro.asm.assembler import Word, memory_words
 
 
 class ModuleTest(unittest.TestCase):

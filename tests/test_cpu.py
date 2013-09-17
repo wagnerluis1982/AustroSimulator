@@ -1,7 +1,7 @@
 import unittest
 
-from asm.assembler import assemble
-from simulator.cpu import CPU, Registers, Step
+from austro.asm.assembler import assemble
+from austro.simulator.cpu import CPU, Registers, Step
 
 #
 ## The cpu receives at start a Step class instance. Here two simple examples:
