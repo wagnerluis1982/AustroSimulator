@@ -75,11 +75,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',    # start
-                    'AX=9,BX=0',    # after "mov ax, 0b1001"
-                    'AX=9,BX=12',   # after "mov bx, 0b1100"
-                    'AX=13,BX=12',  # after "or ax, bx"
-                    'AX=13,BX=12']  # after "halt"
+        messages = ['AX=0,BX=0',    # before "mov ax, 0b1001"
+                    'AX=9,BX=0',    # before "mov bx, 0b1100"
+                    'AX=9,BX=12',   # before "or ax, bx"
+                    'AX=13,BX=12']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -95,12 +94,11 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 0"
-                    'Z=0',  # after "or ax, 1"
-                    'Z=0',  # after "mov ax, 0"
-                    'Z=1',  # after "or ax, 0"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 0"
+                    'Z=0',  # before "or ax, 1"
+                    'Z=0',  # before "mov ax, 0"
+                    'Z=0',  # before "or ax, 0"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -115,11 +113,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',   # start
-                    'AX=12,BX=0',  # after "mov ax, 0b1100"
-                    'AX=12,BX=6',  # after "mov bx, 0b0110"
-                    'AX=4,BX=6',   # after "and ax, bx"
-                    'AX=4,BX=6']   # after "halt"
+        messages = ['AX=0,BX=0',   # before "mov ax, 0b1100"
+                    'AX=12,BX=0',  # before "mov bx, 0b0110"
+                    'AX=12,BX=6',  # before "and ax, bx"
+                    'AX=4,BX=6']   # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -133,10 +130,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 1"
-                    'Z=1',  # after "and ax, 0"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 1"
+                    'Z=0',  # before "and ax, 0"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -150,10 +146,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX',)
         # expected messages
-        messages = ['AX=0',            # start
-                    'AX=%d' % 0xabcd,  # after "mov ax, 0xabcd"
-                    'AX=%d' % 0x5432,  # after "not ax"
-                    'AX=%d' % 0x5432]  # after "halt"
+        messages = ['AX=0',            # before "mov ax, 0xabcd"
+                    'AX=%d' % 0xabcd,  # before "not ax"
+                    'AX=%d' % 0x5432]  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -167,10 +162,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 0xffff"
-                    'Z=1',  # after "not ax"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 0xffff"
+                    'Z=0',  # before "not ax"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -185,11 +179,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',    # start
-                    'AX=12,BX=0',   # after "mov ax, 0b1100"
-                    'AX=12,BX=10',  # after "mov bx, 0b1010"
-                    'AX=6,BX=10',   # after "xor ax, bx"
-                    'AX=6,BX=10']   # after "halt"
+        messages = ['AX=0,BX=0',    # before "mov ax, 0b1100"
+                    'AX=12,BX=0',   # before "mov bx, 0b1010"
+                    'AX=12,BX=10',  # before "xor ax, bx"
+                    'AX=6,BX=10']   # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -203,10 +196,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 1"
-                    'Z=1',  # after "xor ax, 1"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 1"
+                    'Z=0',  # before "xor ax, 1"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -221,11 +213,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',      # start
-                    'AX=193,BX=0',    # after "mov ax, 193"
-                    'AX=193,BX=297',  # after "mov bx, 297"
-                    'AX=490,BX=297',  # after "add ax, bx"
-                    'AX=490,BX=297']  # after "halt"
+        messages = ['AX=0,BX=0',      # before "mov ax, 193"
+                    'AX=193,BX=0',    # before "mov bx, 297"
+                    'AX=193,BX=297',  # before "add ax, bx"
+                    'AX=490,BX=297']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -244,15 +235,14 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z', 'V')
         # expected messages
-        messages = ['Z=0,V=0',  # start
-                    'Z=0,V=0',  # after "mov ax, 65534"
-                    'Z=0,V=0',  # after "mov bx, 65535"
-                    'Z=0,V=0',  # after "add ax, 1"
-                    'Z=1,V=1',  # after "add ax, 1"
-                    'Z=0,V=1',  # after "add bx, 2"
-                    'Z=0,V=1',  # after "mov cl, 255"
-                    'Z=1,V=1',  # after "add cl, 1"
-                    'Z=1,V=1']  # after "halt"
+        messages = ['Z=0,V=0',  # before "mov ax, 65534"
+                    'Z=0,V=0',  # before "mov bx, 65535"
+                    'Z=0,V=0',  # before "add ax, 1"
+                    'Z=0,V=0',  # before "add ax, 1"
+                    'Z=1,V=1',  # before "add bx, 2"
+                    'Z=0,V=1',  # before "mov cl, 255"
+                    'Z=0,V=1',  # before "add cl, 1"
+                    'Z=1,V=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -267,11 +257,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',   # start
-                    'AX=19,BX=0',  # after "mov ax, 19"
-                    'AX=19,BX=10', # after "mov bx, 10"
-                    'AX=9,BX=10',  # after "sub ax, bx"
-                    'AX=9,BX=10']  # after "halt"
+        messages = ['AX=0,BX=0',    # before "mov ax, 19"
+                    'AX=19,BX=0',   # before "mov bx, 10"
+                    'AX=19,BX=10',  # before "sub ax, bx"
+                    'AX=9,BX=10']   # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -288,13 +277,12 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z', 'V')
         # expected messages
-        messages = ['Z=0,V=0',  # start
-                    'Z=0,V=0',  # after "mov ax, 1"
-                    'Z=0,V=0',  # after "mov bx, 1"
-                    'Z=0,V=1',  # after "sub ax, 2"
-                    'Z=1,V=0',  # after "sub bx, 1"
-                    'Z=0,V=1',  # after "sub bx, 1"
-                    'Z=0,V=1']  # after "halt"
+        messages = ['Z=0,V=0',  # before "mov ax, 1"
+                    'Z=0,V=0',  # before "mov bx, 1"
+                    'Z=0,V=0',  # before "sub ax, 2"
+                    'Z=0,V=1',  # before "sub bx, 1"
+                    'Z=1,V=0',  # before "sub bx, 1"
+                    'Z=0,V=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -308,10 +296,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX',)
         # expected messages
-        messages = ['AX=0',   # start
-                    'AX=9',   # after "mov ax, 9"
-                    'AX=10',  # after "inc ax"
-                    'AX=10']  # after "halt"
+        messages = ['AX=0',   # before "mov ax, 9"
+                    'AX=9',   # before "inc ax"
+                    'AX=10']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -326,11 +313,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z', 'V')
         # expected messages
-        messages = ['Z=0,V=0',  # start
-                    'Z=0,V=0',  # after "mov ax, 0xfffe"
-                    'Z=0,V=0',  # after "inc ax"
-                    'Z=1,V=1',  # after "inc ax"
-                    'Z=1,V=1']  # after "halt"
+        messages = ['Z=0,V=0',  # before "mov ax, 0xfffe"
+                    'Z=0,V=0',  # before "inc ax"
+                    'Z=0,V=0',  # before "inc ax"
+                    'Z=1,V=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -344,10 +330,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX',)
         # expected messages
-        messages = ['AX=0',    # start
-                    'AX=100',  # after "mov ax, 100"
-                    'AX=99',   # after "dec ax"
-                    'AX=99']   # after "halt"
+        messages = ['AX=0',    # before "mov ax, 100"
+                    'AX=100',  # before "dec ax"
+                    'AX=99']   # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -362,11 +347,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z', 'V')
         # expected messages
-        messages = ['Z=0,V=0',  # start
-                    'Z=0,V=0',  # after "mov ax, 1"
-                    'Z=1,V=0',  # after "dec ax"
-                    'Z=0,V=1',  # after "dec ax"
-                    'Z=0,V=1']  # after "halt"
+        messages = ['Z=0,V=0',  # before "mov ax, 1"
+                    'Z=0,V=0',  # before "dec ax"
+                    'Z=1,V=0',  # before "dec ax"
+                    'Z=0,V=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -381,11 +365,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',   # start
-                    'AX=12,BX=0',  # after "mov ax, 12"
-                    'AX=12,BX=5',  # after "mov bx, 5"
-                    'AX=60,BX=5',  # after "mul ax, bx"
-                    'AX=60,BX=5']  # after "halt"
+        messages = ['AX=0,BX=0',   # before "mov ax, 12"
+                    'AX=12,BX=0',  # before "mov bx, 5"
+                    'AX=12,BX=5',  # before "mul ax, bx"
+                    'AX=60,BX=5']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -401,12 +384,11 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'SP')
         # expected messages
-        messages = ['AX=0,SP=0',      # start
-                    'AX=500,SP=0',    # after "mov ax, 500"
-                    'AX=500,SP=8',    # after "mov sp, 8"
-                    'AX=500,SP=8',    # after "mul ax, 1"
-                    'AX=31784,SP=6',  # after "mul ax, 850"
-                    'AX=31784,SP=6']  # after "halt"
+        messages = ['AX=0,SP=0',      # before "mov ax, 500"
+                    'AX=500,SP=0',    # before "mov sp, 8"
+                    'AX=500,SP=8',    # before "mul ax, 1"
+                    'AX=500,SP=8',    # before "mul ax, 850"
+                    'AX=31784,SP=6']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -421,11 +403,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z', 'T')
         # expected messages
-        messages = ['Z=0,T=0',  # start
-                    'Z=0,T=0',  # after "mov ax, 77"
-                    'Z=0,T=1',  # after "mul ax, 900"
-                    'Z=1,T=0',  # after "mul ax, 0"
-                    'Z=1,T=0']  # after "halt"
+        messages = ['Z=0,T=0',  # before "mov ax, 77"
+                    'Z=0,T=0',  # before "mul ax, 900"
+                    'Z=0,T=1',  # before "mul ax, 0"
+                    'Z=1,T=0']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -440,11 +421,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('N', 'Z', 'V')
         # expected messages
-        messages = ['N=0,Z=0,V=0',  # start
-                    'N=0,Z=0,V=0',  # after "mov ax, 80"
-                    'N=1,Z=0,V=1',  # after "imul ax, -900"
-                    'N=0,Z=1,V=0',  # after "imul ax, 0"
-                    'N=0,Z=1,V=0']  # after "halt"
+        messages = ['N=0,Z=0,V=0',  # before "mov ax, 80"
+                    'N=0,Z=0,V=0',  # before "imul ax, -900"
+                    'N=1,Z=0,V=1',  # before "imul ax, 0"
+                    'N=0,Z=1,V=0']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -459,11 +439,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',  # start
-                    'AX=7,BX=0',  # after "mov ax, 7"
-                    'AX=7,BX=2',  # after "mov bx, 2"
-                    'AX=3,BX=2',  # after "div ax, bx"
-                    'AX=3,BX=2']  # after "halt"
+        messages = ['AX=0,BX=0',  # before "mov ax, 7"
+                    'AX=7,BX=0',  # before "mov bx, 2"
+                    'AX=7,BX=2',  # before "div ax, bx"
+                    'AX=3,BX=2']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -478,11 +457,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 3"
-                    'Z=0',  # after "div ax, 3"
-                    'Z=1',  # after "div ax, 4"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 3"
+                    'Z=0',  # before "div ax, 3"
+                    'Z=0',  # before "div ax, 4"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -497,11 +475,10 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',    # start
-                    'AX=7,BX=0',    # after "mov ax, 7"
-                    'AX=7,BX=2',    # after "mov bx, 2"
-                    'AX=1,BX=2',    # after "mod ax, bx"
-                    'AX=1,BX=2']    # after "halt"
+        messages = ['AX=0,BX=0',  # before "mov ax, 7"
+                    'AX=7,BX=0',  # before "mov bx, 2"
+                    'AX=7,BX=2',  # before "mod ax, bx"
+                    'AX=1,BX=2']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -515,10 +492,9 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 9"
-                    'Z=1',  # after "mod ax, 3"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 9"
+                    'Z=0',  # before "mod ax, 3"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -534,12 +510,11 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('N', 'Z')
         # expected messages
-        messages = ['N=0,Z=0',  # start
-                    'N=0,Z=0',  # after "mov ax, 5"
-                    'N=0,Z=1',  # after "cmp ax, 5"
-                    'N=1,Z=0',  # after "cmp ax, 6"
-                    'N=0,Z=0',  # after "cmp ax, 4"
-                    'N=0,Z=0']  # after "halt"
+        messages = ['N=0,Z=0',  # before "mov ax, 5"
+                    'N=0,Z=0',  # before "cmp ax, 5"
+                    'N=0,Z=1',  # before "cmp ax, 6"
+                    'N=1,Z=0',  # before "cmp ax, 4"
+                    'N=0,Z=0']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -555,12 +530,11 @@ class TestCPU__ALU(CPUTestCase):
         # registers
         registers = ('N', 'Z')
         # expected messages
-        messages = ['N=0,Z=0',  # start
-                    'N=0,Z=0',  # after "mov ax, -7"
-                    'N=0,Z=1',  # after "cmp ax, -7"
-                    'N=1,Z=0',  # after "cmp ax, 2"
-                    'N=0,Z=0',  # after "cmp ax, -15"
-                    'N=0,Z=0']  # after "halt"
+        messages = ['N=0,Z=0',  # before "mov ax, -7"
+                    'N=0,Z=0',  # before "cmp ax, -7"
+                    'N=0,Z=1',  # before "cmp ax, 2"
+                    'N=1,Z=0',  # before "cmp ax, -15"
+                    'N=0,Z=0']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -578,10 +552,9 @@ class TestCPU__UC(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',  # start
-                    'AX=3,BX=0',  # after "mov ax, 3"
-                    'AX=3,BX=3',  # after "mov bx, ax"
-                    'AX=3,BX=3']  # after "halt"
+        messages = ['AX=0,BX=0',  # before "mov ax, 3"
+                    'AX=3,BX=0',  # before "mov bx, ax"
+                    'AX=3,BX=3']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -597,10 +570,9 @@ class TestCPU__UC(CPUTestCase):
         registers = ('AX', 'AH', 'AL')
         # expected messages
         messages = [
-                'AX=%d,AH=%d,AL=%d' % (0x0, 0x0, 0x0),  # start
-                'AX=%d,AH=%d,AL=%d' % (0x009A, 0x00, 0x9A),  # "mov al, 0x9A"
-                'AX=%d,AH=%d,AL=%d' % (0x109A, 0x10, 0x9A),  # "mov ah, 0x10"
-                'AX=%d,AH=%d,AL=%d' % (0x9F8D, 0x9F, 0x8D),  # "mov ax, 0x9F8D"
+                'AX=%d,AH=%d,AL=%d' % (0x0, 0x0, 0x0),       # "mov al, 0x9A"
+                'AX=%d,AH=%d,AL=%d' % (0x009A, 0x00, 0x9A),  # "mov ah, 0x10"
+                'AX=%d,AH=%d,AL=%d' % (0x109A, 0x10, 0x9A),  # "mov ax, 0x9F8D"
                 'AX=%d,AH=%d,AL=%d' % (0x9F8D, 0x9F, 0x8D)]  # "halt"
 
         self.register_asserts(assembly, registers, messages)
@@ -615,10 +587,9 @@ class TestCPU__UC(CPUTestCase):
         # registers
         registers = ('AX', 'BX')
         # expected messages
-        messages = ['AX=0,BX=0',  # start
-                    'AX=9,BX=0',  # after "mov ax, 9"
-                    'AX=9,BX=4',  # after "mov bx, 4"
-                    'AX=9,BX=4']  # after "halt"
+        messages = ['AX=0,BX=0',  # before "mov ax, 9"
+                    'AX=9,BX=0',  # before "mov bx, 4"
+                    'AX=9,BX=4']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -633,11 +604,10 @@ class TestCPU__UC(CPUTestCase):
         # registers
         registers = ('BX',)
         # expected messages
-        messages = ['BX=0',  # start
-                    'BX=0',  # after "mov ax, 7"
-                    'BX=0',  # after "mov [128], ax"
-                    'BX=7',  # after "mov bx, [128]"
-                    'BX=7']  # after "halt"
+        messages = ['BX=0',  # before "mov ax, 7"
+                    'BX=0',  # before "mov [128], ax"
+                    'BX=0',  # before "mov bx, [128]"
+                    'BX=7']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -651,10 +621,9 @@ class TestCPU__UC(CPUTestCase):
         # memory addresses
         memories = (128,)
         # expected messages
-        messages = ['[128]=0',  # start
-                    '[128]=0',  # after "mov ax, 5"
-                    '[128]=5',  # after "mov [128], ax"
-                    '[128]=5']  # after "halt"
+        messages = ['[128]=0',  # before "mov ax, 5"
+                    '[128]=0',  # before "mov [128], ax"
+                    '[128]=5']  # before "halt"
 
         self.memory_asserts(assembly, memories, messages)
 
@@ -672,19 +641,18 @@ class TestCPU__UC(CPUTestCase):
         # registers
         registers = ('PC',)
         # expected messages
-        messages = ['PC=0',  # start
-                    'PC=2',  # after "mov ax, 1"
-                    'PC=3',  # after "dec ax"
-                    'PC=2',  # after "jz detour"
-                    'PC=3',  # after "dec ax"
-                    'PC=4',  # after "jz detour"
-                    'PC=6',  # after "cmp ax, 65535"
-                    'PC=2',  # after "je detour"
-                    'PC=3',  # after "dec ax"
-                    'PC=4',  # after "jz detour"
-                    'PC=6',  # after "cmp ax, 65535"
-                    'PC=7',  # after "je detour"
-                    'PC=7']  # after "halt"
+        messages = ['PC=0',  # before "mov ax, 1"
+                    'PC=2',  # before "dec ax"
+                    'PC=3',  # before "jz detour"
+                    'PC=2',  # before "dec ax"
+                    'PC=3',  # before "jz detour"
+                    'PC=4',  # before "cmp ax, 65535"
+                    'PC=6',  # before "je detour"
+                    'PC=2',  # before "dec ax"
+                    'PC=3',  # before "jz detour"
+                    'PC=4',  # before "cmp ax, 65535"
+                    'PC=6',  # before "je detour"
+                    'PC=7']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -702,10 +670,9 @@ class TestCPU__SHIFT(CPUTestCase):
         # registers
         registers = ('AX',)
         # expected messages
-        messages = ['AX=0',   # start
-                    'AX=4',   # after "mov ax, 0b100"
-                    'AX=16',  # after "shr ax, bx"
-                    'AX=16']  # after "halt"
+        messages = ['AX=0',   # before "mov ax, 0b100"
+                    'AX=4',   # before "shr ax, bx"
+                    'AX=16']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -720,11 +687,10 @@ class TestCPU__SHIFT(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 0x4000"
-                    'Z=0',  # after "shl ax, 1"
-                    'Z=1',  # after "shl ax, 1"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 0x4000"
+                    'Z=0',  # before "shl ax, 1"
+                    'Z=0',  # before "shl ax, 1"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -738,10 +704,9 @@ class TestCPU__SHIFT(CPUTestCase):
         # registers
         registers = ('AX',)
         # expected messages
-        messages = ['AX=0',  # start
-                    'AX=8',  # after "mov ax, 0b100"
-                    'AX=2',  # after "shr ax, bx"
-                    'AX=2']  # after "halt"
+        messages = ['AX=0',  # before "mov ax, 0b100"
+                    'AX=8',  # before "shr ax, bx"
+                    'AX=2']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)
 
@@ -755,9 +720,8 @@ class TestCPU__SHIFT(CPUTestCase):
         # registers
         registers = ('Z')
         # expected messages
-        messages = ['Z=0',  # start
-                    'Z=0',  # after "mov ax, 0x0001"
-                    'Z=1',  # after "shr ax, 1"
-                    'Z=1']  # after "halt"
+        messages = ['Z=0',  # before "mov ax, 0x0001"
+                    'Z=0',  # before "shr ax, 1"
+                    'Z=1']  # before "halt"
 
         self.register_asserts(assembly, registers, messages)

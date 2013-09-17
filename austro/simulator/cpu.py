@@ -108,10 +108,10 @@ class CPU(object):
 
             # Fetch stage
             if self.stage == Stage.FETCH:
-                event.on_fetch()  # event action
                 registers['MAR'] = registers['PC']
                 registers.set_word('MBR', memory.get_word(registers['MAR']))
                 registers.set_word('RI', registers.get_word('MBR'))
+                event.on_fetch()
                 self.stage = Stage.DECODE
 
             # Decode stage
@@ -157,8 +157,6 @@ class CPU(object):
                     memory[decode.store] = registers[decode.op1]
                 # Next state
                 self.stage = Stage.FETCH
-
-        event.on_fetch()  # last event action
 
         return True
 
