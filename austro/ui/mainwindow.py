@@ -7,7 +7,7 @@ from PySide.QtUiTools import QUiLoader
 
 from austro.simulator.cpu import CPU
 from austro.ui.codeeditor import CodeEditor
-from austro.ui.cpumodels import MemoryModel
+from austro.ui.models import MemoryModel
 
 
 def _resource(*rsc):
@@ -48,11 +48,14 @@ class MainWindow(object):
         middlesplitter.setStretchFactor(1, 1)
 
         # Models
-        self.model = MemoryModel(CPU.ADDRESS_SPACE)
+        self.memoryModel = MemoryModel(CPU.ADDRESS_SPACE)
+        memoryModel = self.memoryModel
 
         # Get trees
-        self.treeMemory = gui.findChild(QTableView, "treeMemory")
-        self.treeMemory.setModel(self.model)
+        self.tblMemory = gui.findChild(QTableView, "tblMemory")
+        tblMemory = self.tblMemory
+        tblMemory.setModel(memoryModel)
+        tblMemory.resizeColumnToContents(0)
 
     def show(self):
         self.gui.show()

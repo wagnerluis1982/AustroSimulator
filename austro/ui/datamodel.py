@@ -25,6 +25,9 @@ class DataItem(object):
     def data(self, column):
         return self._itemData[column]
 
+    def setData(self, column, value):
+        self._itemData[column] = value
+
     def row(self):
         if self._parentItem:
             return self._parentItem._childItems.index(self)
@@ -96,6 +99,15 @@ class DataModel(QAbstractItemModel):
 
         return item.data(index.column())
 
+    def setData(self, index, value, role=Qt.EditRole):
+        if role == Qt.EditRole:
+            column = index.column()
+            index.internalPointer().setData(column, value)
+            self.dataChanged.emit(index, index)
+            return True
+
+        return super(DataModel, self).setData(index, value, role)
+
     def flags(self, index):
         if not index.isValid():
             return 0
@@ -107,3 +119,8 @@ class DataModel(QAbstractItemModel):
             return self._rootItem.data(section)
 
         return None
+
+    def refresh(self):
+        first = self.index(0, 0)
+        last = self.index(self.rowCount()-1, self.columnCount()-1)
+        self.dataChanged.emit(first, last)

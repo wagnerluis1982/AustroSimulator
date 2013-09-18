@@ -334,7 +334,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QTableView" name="treeMemory">
+            <widget class="QTableView" name="tblMemory">
              <property name="alternatingRowColors">
               <bool>true</bool>
              </property>
@@ -626,7 +626,7 @@
   <tabstop>treeGenericRegs</tabstop>
   <tabstop>treeSpecificRegs</tabstop>
   <tabstop>treeStateRegs</tabstop>
-  <tabstop>treeMemory</tabstop>
+  <tabstop>tblMemory</tabstop>
   <tabstop>txtConsole</tabstop>
   <tabstop>mainTabWidget</tabstop>
   <tabstop>bottomTabWidget</tabstop>
