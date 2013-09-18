@@ -42,10 +42,36 @@ class DataItem(object):
 
 
 class DataModel(QAbstractItemModel):
+    # Format options
+    F_BIN = 2
+    F_OCT = 8
+    F_DEC = 10
+    F_HEX = 16
+    F_DEC_TWO = 0
+
+    FORMATS = {
+            F_BIN: "0b{0:b}",
+            F_OCT: "0{0:o}",
+            F_HEX: "0x{0:x}",
+        }
+
     def __init__(self, header, parent=None):
         super(DataModel, self).__init__(parent)
 
         self._rootItem = DataItem(header)
+        self.setDataFormat(self.F_DEC)
+
+    def setDataFormat(self, noFormat):
+        self._fmt = noFormat
+        self.refresh()
+
+    def format(self, data):
+        if self._fmt in (DataModel.F_DEC, DataModel.F_DEC_TWO):
+            return data
+        elif self._fmt == DataModel.F_OCT and data == 0:
+            return 0
+
+        return str.format(DataModel.FORMATS[self._fmt], data)
 
     def index(self, row, column, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
@@ -100,7 +126,11 @@ class DataModel(QAbstractItemModel):
 
         item = index.internalPointer()
 
-        return item.data(index.column())
+        column = index.column()
+        if column == 1:
+            return self.format(item.data(column))
+
+        return item.data(column)
 
     def setData(self, index, value, role=Qt.EditRole):
         if role == Qt.EditRole:
