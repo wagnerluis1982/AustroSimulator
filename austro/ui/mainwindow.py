@@ -5,9 +5,10 @@ from PySide.QtCore import Qt, QSize
 from PySide.QtDeclarative import QDeclarativeView
 from PySide.QtUiTools import QUiLoader
 
+from austro.asm import assembler
 from austro.simulator.cpu import CPU
 from austro.ui.codeeditor import CodeEditor
-from austro.ui.models import MemoryModel
+from austro.ui.models import DataModel, MemoryModel
 
 
 def _resource(*rsc):
@@ -17,6 +18,9 @@ def _resource(*rsc):
 
 class MainWindow(object):
     def __init__(self):
+        self.cpu = CPU()
+        cpu = self.cpu
+
         loader = QUiLoader()
         loader.registerCustomWidget(CodeEditor)
         self.gui = loader.load(_resource('mainwindow.ui'))
@@ -48,7 +52,7 @@ class MainWindow(object):
         middlesplitter.setStretchFactor(1, 1)
 
         # Models
-        self.memoryModel = MemoryModel(CPU.ADDRESS_SPACE)
+        self.memoryModel = MemoryModel(cpu.memory)
         memoryModel = self.memoryModel
 
         # Get trees

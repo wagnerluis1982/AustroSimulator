@@ -23,6 +23,9 @@ class DataItem(object):
         return len(self._itemData)
 
     def data(self, column):
+        if self.parent() != None and column == 1:
+            return self._itemData[column].value
+
         return self._itemData[column]
 
     def setData(self, column, value):

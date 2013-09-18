@@ -425,6 +425,9 @@
    <addaction name="actionStop"/>
   </widget>
   <action name="actionNew">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="document-new">
      <normaloff/>
@@ -444,6 +447,9 @@
    </property>
   </action>
   <action name="actionOpen">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="document-open">
      <normaloff/>
@@ -463,6 +469,9 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="document-save">
      <normaloff/>
@@ -517,6 +526,9 @@
    </property>
   </action>
   <action name="actionRun">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="system-run">
      <normaloff/>
@@ -536,6 +548,9 @@
    </property>
   </action>
   <action name="actionStep">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="debug-step-over">
      <normaloff/>
@@ -575,8 +590,14 @@
    <property name="shortcut">
     <string>F9</string>
    </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="actionStop">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="process-stop">
      <normaloff/>
