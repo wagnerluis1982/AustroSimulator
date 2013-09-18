@@ -160,6 +160,11 @@ class CPU(object):
 
         return True
 
+    def reset(self):
+        self.memory.clear()
+        self.registers.clear()
+        self.stage = Stage.STOPPED
+
     #
     ## Implementation of CPU execution units
     #
@@ -548,6 +553,12 @@ class Registers(object):
         #
         init_register('TMP', Reg16())
 
+    def clear(self):
+        for reg in self._regs.values():
+            reg.value = 0
+
+        self._words.clear()
+
     def set_reg(self, key, reg):
         assert isinstance(key, (int, basestring))
         assert isinstance(reg, BaseReg)
@@ -653,6 +664,10 @@ class Memory(object):
             raise Exception("Address out of memory range")
 
         return self._space[address].value
+
+    def clear(self):
+        for word in self._space:
+            word.value = 0
 
     def size(self):
         return self._size
