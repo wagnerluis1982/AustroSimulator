@@ -8,7 +8,7 @@ from PySide.QtUiTools import QUiLoader
 from austro.asm import assembler
 from austro.simulator.cpu import CPU
 from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
-from austro.ui.models import DataModel, GenRegsModel, MemoryModel
+from austro.ui.models import DataModel, RegistersModel, MemoryModel
 
 
 def _resource(*rsc):
@@ -44,16 +44,26 @@ class MainWindow(object):
         mainsplitter.setStretchFactor(2, 3)
 
         leftsplitter = gui.findChild(QSplitter, "leftsplitter")
-        leftsplitter.setStretchFactor(0, 2)
-        leftsplitter.setStretchFactor(1, 1)
-        leftsplitter.setStretchFactor(2, 1)
+        leftsplitter.setStretchFactor(0, 5)
+        leftsplitter.setStretchFactor(1, 2)
+        leftsplitter.setStretchFactor(2, 2)
 
         middlesplitter = gui.findChild(QSplitter, "middlesplitter")
         middlesplitter.setStretchFactor(0, 2)
         middlesplitter.setStretchFactor(1, 1)
 
         # Models
-        self.genRegsModel = GenRegsModel(cpu.registers)
+        self.genRegsModel = RegistersModel(cpu.registers, (
+                'AX', ('AH', 'AL'), 'BX', ('BH', 'BL'),
+                'CX', ('CH', 'CL'), 'DX', ('DH', 'DL'),
+                'SP', 'BP', 'SI', 'DI',
+            ))
+        self.specRegsModel = RegistersModel(cpu.registers, (
+                'PC', 'RI', 'MAR', 'MBR',
+            ))
+        self.stateRegsModel = RegistersModel(cpu.registers, (
+                'N', 'Z', 'V', 'T',
+            ))
         self.memoryModel = MemoryModel(cpu.memory)
 
         # Get trees
@@ -62,6 +72,18 @@ class MainWindow(object):
         treeGenericRegs.expandAll()
         treeGenericRegs.resizeColumnToContents(0)
         treeGenericRegs.resizeColumnToContents(1)
+
+        treeSpecificRegs = gui.findChild(QTreeView, "treeSpecificRegs")
+        treeSpecificRegs.setModel(self.specRegsModel)
+        treeSpecificRegs.expandAll()
+        treeSpecificRegs.resizeColumnToContents(0)
+        treeSpecificRegs.resizeColumnToContents(1)
+
+        treeStateRegs = gui.findChild(QTreeView, "treeStateRegs")
+        treeStateRegs.setModel(self.stateRegsModel)
+        treeStateRegs.expandAll()
+        treeStateRegs.resizeColumnToContents(0)
+        treeStateRegs.resizeColumnToContents(1)
 
         tblMemory = gui.findChild(QTableView, "tblMemory")
         tblMemory.setModel(self.memoryModel)
@@ -87,8 +109,7 @@ class MainWindow(object):
 
         self.cpu.reset()
         self.cpu.set_memory_block(asmd['words'])
-        self.genRegsModel.refresh()
-        self.memoryModel.refresh()
+        self.refreshModels()
 
         self.actionLoad.setEnabled(False)
         self.actionRun.setEnabled(True)
@@ -100,6 +121,12 @@ class MainWindow(object):
         self.actionRun.setEnabled(False)
         self.actionStep.setEnabled(False)
         self.actionStop.setEnabled(False)
+
+    def refreshModels(self):
+        self.genRegsModel.refresh()
+        self.specRegsModel.refresh()
+        self.stateRegsModel.refresh()
+        self.memoryModel.refresh()
 
     def show(self):
         self.gui.show()

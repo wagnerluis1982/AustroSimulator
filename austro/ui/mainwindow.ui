@@ -57,38 +57,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QTreeWidget" name="treeSpecificRegs">
-              <column>
-               <property name="text">
-                <string notr="true">Name</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Data</string>
-               </property>
-              </column>
-              <item>
-               <property name="text">
-                <string>PC</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>RI</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>MAR</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>MBR</string>
-               </property>
-              </item>
-             </widget>
+             <widget class="QTreeView" name="treeSpecificRegs"/>
             </item>
            </layout>
           </widget>
@@ -98,38 +67,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <widget class="QTreeWidget" name="treeStateRegs">
-              <column>
-               <property name="text">
-                <string notr="true">Name</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Data</string>
-               </property>
-              </column>
-              <item>
-               <property name="text">
-                <string>N</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Z</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>T</string>
-               </property>
-              </item>
-             </widget>
+             <widget class="QTreeView" name="treeStateRegs"/>
             </item>
            </layout>
           </widget>

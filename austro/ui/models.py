@@ -4,37 +4,20 @@ from austro.simulator.cpu import Memory, Registers
 from austro.ui.datamodel import DataItem, DataModel
 
 
-class GenRegsModel(DataModel):
-    def __init__(self, registers, parent=None):
+class RegistersModel(DataModel):
+    def __init__(self, registers, items, parent=None):
         assert isinstance(registers, Registers), "It's not a Registers object"
-        super(GenRegsModel, self).__init__(("Name", "Data"), parent)
-
+        super(RegistersModel, self).__init__(("Name", "Data"), parent)
         self.registers = registers
 
-        regAX = self.createItem('AX')
-        regAX.appendChild(self.createItem('AH'))
-        regAX.appendChild(self.createItem('AL'))
-        self._rootItem.appendChild(regAX)
-
-        regBX = self.createItem('BX')
-        regBX.appendChild(self.createItem('BH'))
-        regBX.appendChild(self.createItem('BL'))
-        self._rootItem.appendChild(regBX)
-
-        regCX = self.createItem('CX')
-        regCX.appendChild(self.createItem('CH'))
-        regCX.appendChild(self.createItem('CL'))
-        self._rootItem.appendChild(regCX)
-
-        regDX = self.createItem('DX')
-        regDX.appendChild(self.createItem('DH'))
-        regDX.appendChild(self.createItem('DL'))
-        self._rootItem.appendChild(regDX)
-
-        self._rootItem.appendChild(self.createItem('SP'))
-        self._rootItem.appendChild(self.createItem('BP'))
-        self._rootItem.appendChild(self.createItem('SI'))
-        self._rootItem.appendChild(self.createItem('DI'))
+        dataItem = DataItem([])
+        for item in items:
+            if isinstance(item, (tuple, list)):
+                for subItem in item:
+                    dataItem.appendChild(self.createItem(subItem))
+            else:
+                dataItem = self.createItem(item)
+                self._rootItem.appendChild(dataItem)
 
     def createItem(self, name):
         item = (name, self.registers.get_reg(name))
@@ -44,7 +27,7 @@ class GenRegsModel(DataModel):
         if role == Qt.TextAlignmentRole and index.column() == 1:
             return Qt.AlignRight
 
-        return super(GenRegsModel, self).data(index, role)
+        return super(RegistersModel, self).data(index, role)
 
 
 class MemoryModel(DataModel):
