@@ -65,16 +65,35 @@ class MainWindow(object):
         #
         ## Actions
         #
-        actionLoad = gui.findChild(QAction, "actionLoad")
-        actionLoad.triggered.connect(self.loadAssembly)
+        self.actionLoad = gui.findChild(QAction, "actionLoad")
+        self.actionLoad.triggered.connect(self.loadAssembly)
+
+        self.actionRun = gui.findChild(QAction, "actionRun")
+
+        self.actionStep = gui.findChild(QAction, "actionStep")
+
+        self.actionStop = gui.findChild(QAction, "actionStop")
+        self.actionStop.triggered.connect(self.stopAction)
 
     def loadAssembly(self):
         editor = self.asmEdit
         assembly = editor.toPlainText()
         asmd = assembler.assemble(assembly)
 
+        self.cpu.reset()
         self.cpu.set_memory_block(asmd['words'])
         self.memoryModel.refresh()
+
+        self.actionLoad.setEnabled(False)
+        self.actionRun.setEnabled(True)
+        self.actionStep.setEnabled(True)
+        self.actionStop.setEnabled(True)
+
+    def stopAction(self):
+        self.actionLoad.setEnabled(True)
+        self.actionRun.setEnabled(False)
+        self.actionStep.setEnabled(False)
+        self.actionStop.setEnabled(False)
 
     def show(self):
         self.gui.show()
