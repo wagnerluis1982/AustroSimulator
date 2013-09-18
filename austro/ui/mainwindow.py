@@ -61,5 +61,19 @@ class MainWindow(object):
         tblMemory.setModel(memoryModel)
         tblMemory.resizeColumnToContents(0)
 
+        #
+        ## Actions
+        #
+        actionLoad = gui.findChild(QAction, "actionLoad")
+        actionLoad.triggered.connect(self.loadAssembly)
+
+    def loadAssembly(self):
+        editor = self.asmEdit
+        assembly = editor.toPlainText()
+        asmd = assembler.assemble(assembly)
+
+        self.cpu.set_memory_block(asmd['words'])
+        self.memoryModel.refresh()
+
     def show(self):
         self.gui.show()
