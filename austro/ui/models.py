@@ -17,7 +17,3 @@ class MemoryModel(DataModel):
             return Qt.AlignRight
 
         return super(MemoryModel, self).data(index, role)
-
-    def setWord(self, address, data):
-        index = self.index(address, 1)
-        self.setData(index, data)

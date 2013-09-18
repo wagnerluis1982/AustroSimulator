@@ -28,9 +28,6 @@ class DataItem(object):
 
         return self._itemData[column]
 
-    def setData(self, column, value):
-        self._itemData[column] = value
-
     def row(self):
         if self._parentItem:
             return self._parentItem._childItems.index(self)
@@ -131,15 +128,6 @@ class DataModel(QAbstractItemModel):
             return self.format(item.data(column))
 
         return item.data(column)
-
-    def setData(self, index, value, role=Qt.EditRole):
-        if role == Qt.EditRole:
-            column = index.column()
-            index.internalPointer().setData(column, value)
-            self.dataChanged.emit(index, index)
-            return True
-
-        return super(DataModel, self).setData(index, value, role)
 
     def flags(self, index):
         if not index.isValid():
