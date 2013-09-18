@@ -1,6 +1,8 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 
+from austro.asm.assembler import OPCODES, REGISTERS
+
 
 class CodeEditor(QPlainTextEdit):
     lineNumberArea = None
@@ -102,3 +104,44 @@ class LineNumberArea(QWidget):
 
     def paintEvent(self, event):
         self.codeEditor.lineNumberAreaPaintEvent(event)
+
+
+class HighlightingRule(object):
+    pattern = None
+    format = None
+
+
+class AssemblyHighlighter(QSyntaxHighlighter):
+    def __init__(self, parent=None):
+        super(AssemblyHighlighter, self).__init__(parent)
+
+        self.highlightingRules = []
+        self.opcodeFormat = QTextCharFormat()
+        self.registerFormat = QTextCharFormat()
+
+        self.opcodeFormat.setForeground(Qt.darkBlue)
+        self.opcodeFormat.setFontWeight(QFont.Bold)
+        opcodePatterns = OPCODES.keys()
+        for pattern in opcodePatterns:
+            rule = HighlightingRule()
+            rule.pattern = QRegExp(r'\b%s\b' % pattern, Qt.CaseInsensitive)
+            rule.format = self.opcodeFormat
+            self.highlightingRules.append(rule)
+
+        self.registerFormat.setForeground(Qt.darkMagenta);
+        self.registerFormat.setFontWeight(QFont.Bold);
+        registerPatterns = REGISTERS.keys()
+        for pattern in registerPatterns:
+            rule = HighlightingRule()
+            rule.pattern = QRegExp(r'\b%s\b' % pattern, Qt.CaseInsensitive)
+            rule.format = self.registerFormat
+            self.highlightingRules.append(rule)
+
+    def highlightBlock(self, text):
+        for rule in self.highlightingRules:
+            expression = QRegExp(rule.pattern)
+            index = expression.indexIn(text)
+            while index >= 0:
+                length = expression.matchedLength()
+                self.setFormat(index, length, rule.format)
+                index = expression.indexIn(text, index + length)

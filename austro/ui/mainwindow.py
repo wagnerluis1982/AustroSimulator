@@ -7,7 +7,7 @@ from PySide.QtUiTools import QUiLoader
 
 from austro.asm import assembler
 from austro.simulator.cpu import CPU
-from austro.ui.codeeditor import CodeEditor
+from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
 from austro.ui.models import DataModel, MemoryModel
 
 
@@ -29,6 +29,7 @@ class MainWindow(object):
         # Assembly editor get focus on start
         self.asmEdit = gui.findChild(CodeEditor, "asmEdit")
         self.asmEdit.setFocus()
+        AssemblyHighlighter(self.asmEdit.document())
 
         # Set QML file
         cpuDiagram = gui.findChild(QDeclarativeView, "cpuDiagram")

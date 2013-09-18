@@ -262,7 +262,7 @@
               <widget class="CodeEditor" name="asmEdit">
                <property name="font">
                 <font>
-                 <family>Monospace</family>
+                 <family>DejaVu Sans Mono</family>
                  <pointsize>10</pointsize>
                 </font>
                </property>
