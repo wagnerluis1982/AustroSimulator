@@ -7,11 +7,9 @@ class DataItem(object):
         self._itemData = data
         self._childItems = []
 
-    def append(self, item):
-        self._childItems.append(DataItem(item, self))
-
-    def extend(self, items):
-        self._childItems.extend([DataItem(item, self) for item in items])
+    def appendChild(self, item):
+        item._parentItem = self
+        self._childItems.append(item)
 
     def child(self, row):
         return self._childItems[row]
@@ -104,7 +102,7 @@ class DataModel(QAbstractItemModel):
         if not parent.isValid():
             parentItem = self._rootItem
         else:
-            parentItem = parentItem.internalPointer()
+            parentItem = parent.internalPointer()
 
         return parentItem.childCount()
 

@@ -8,7 +8,7 @@ from PySide.QtUiTools import QUiLoader
 from austro.asm import assembler
 from austro.simulator.cpu import CPU
 from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
-from austro.ui.models import DataModel, MemoryModel
+from austro.ui.models import DataModel, GenRegsModel, MemoryModel
 
 
 def _resource(*rsc):
@@ -53,13 +53,18 @@ class MainWindow(object):
         middlesplitter.setStretchFactor(1, 1)
 
         # Models
+        self.genRegsModel = GenRegsModel(cpu.registers)
         self.memoryModel = MemoryModel(cpu.memory)
-        memoryModel = self.memoryModel
 
         # Get trees
-        self.tblMemory = gui.findChild(QTableView, "tblMemory")
-        tblMemory = self.tblMemory
-        tblMemory.setModel(memoryModel)
+        treeGenericRegs = gui.findChild(QTreeView, "treeGenericRegs")
+        treeGenericRegs.setModel(self.genRegsModel)
+        treeGenericRegs.expandAll()
+        treeGenericRegs.resizeColumnToContents(0)
+        treeGenericRegs.resizeColumnToContents(1)
+
+        tblMemory = gui.findChild(QTableView, "tblMemory")
+        tblMemory.setModel(self.memoryModel)
         tblMemory.resizeColumnToContents(0)
 
         #
@@ -82,6 +87,7 @@ class MainWindow(object):
 
         self.cpu.reset()
         self.cpu.set_memory_block(asmd['words'])
+        self.genRegsModel.refresh()
         self.memoryModel.refresh()
 
         self.actionLoad.setEnabled(False)
