@@ -96,6 +96,7 @@ class MainWindow(object):
         self.actionLoad.triggered.connect(self.loadAssembly)
 
         self.actionRun = gui.findChild(QAction, "actionRun")
+        self.actionRun.triggered.connect(self.runAction)
 
         self.actionStep = gui.findChild(QAction, "actionStep")
 
@@ -115,6 +116,10 @@ class MainWindow(object):
         self.actionRun.setEnabled(True)
         self.actionStep.setEnabled(True)
         self.actionStop.setEnabled(True)
+
+    def runAction(self):
+        self.cpu.start()
+        self.refreshModels()
 
     def stopAction(self):
         self.actionLoad.setEnabled(True)
