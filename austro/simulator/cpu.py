@@ -612,7 +612,9 @@ class Registers(object):
 class Memory(object):
     def __init__(self, size):
         self._size = size
-        self._space = [None]*size
+        self._space = []
+        for i in xrange(size):
+            self._space.append(Word())
 
     def set_word(self, address, word):
         assert isinstance(address, int)
@@ -621,15 +623,17 @@ class Memory(object):
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
 
-        self._space[address] = word
+        space_word = self._space[address]
+        space_word.is_instruction = word.is_instruction
+        space_word.value = word.value
+        if word.is_instruction:
+            space_word.lineno = word.lineno
 
     def get_word(self, address):
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
-        if not self._space[address]:
-            self._space[address] = Word()
 
         return self._space[address]
 
@@ -639,8 +643,6 @@ class Memory(object):
 
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
-        if not self._space[address]:
-            self._space[address] = Word()
 
         self._space[address].value = data
 
@@ -649,7 +651,8 @@ class Memory(object):
 
         if not (0 <= address < self._size):
             raise Exception("Address out of memory range")
-        if not self._space[address]:
-            self._space[address] = Word()
 
         return self._space[address].value
+
+    def size(self):
+        return self._size
