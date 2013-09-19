@@ -26,6 +26,7 @@ class ModelsUpdater(StepEvent):
         # Highlight current execution line
         lineno = self.cpu.registers.get_word('RI').lineno
         self.win.asmEdit.highlightLine(lineno)
+        self.win.memoryModel.pc = self.cpu.registers['PC']
 
         self.win.refreshModels()
         if self.to_pause:
@@ -103,9 +104,10 @@ class MainWindow(object):
         treeStateRegs.resizeColumnToContents(0)
         treeStateRegs.resizeColumnToContents(1)
 
-        tblMemory = gui.findChild(QTableView, "tblMemory")
-        tblMemory.setModel(self.memoryModel)
-        tblMemory.resizeColumnToContents(0)
+        treeMemory = gui.findChild(QTreeView, "treeMemory")
+        treeMemory.setModel(self.memoryModel)
+        treeMemory.resizeColumnToContents(0)
+        treeMemory.resizeColumnToContents(1)
 
         #
         ## Actions
@@ -178,6 +180,9 @@ class MainWindow(object):
         # Re-enable editor
         self.asmEdit.setEnabled()
         self.asmEdit.setFocus()
+        # Reset MemoryModel internal PC
+        self.memoryModel.pc = -1
+        self.memoryModel.refresh()
 
     def refreshModels(self):
         self.genRegsModel.refresh()

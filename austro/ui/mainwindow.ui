@@ -144,6 +144,9 @@
            </widget>
           </widget>
           <widget class="QTabWidget" name="bottomTabWidget">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <widget class="QWidget" name="tabConsole">
             <attribute name="title">
              <string>Console</string>
@@ -181,22 +184,13 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QTableView" name="tblMemory">
+            <widget class="QTreeView" name="treeMemory">
              <property name="alternatingRowColors">
               <bool>true</bool>
              </property>
-             <property name="gridStyle">
-              <enum>Qt::NoPen</enum>
-             </property>
-             <property name="wordWrap">
+             <property name="rootIsDecorated">
               <bool>false</bool>
              </property>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderDefaultSectionSize">
-              <number>18</number>
-             </attribute>
             </widget>
            </item>
           </layout>
@@ -494,7 +488,7 @@
   <tabstop>treeGenericRegs</tabstop>
   <tabstop>treeSpecificRegs</tabstop>
   <tabstop>treeStateRegs</tabstop>
-  <tabstop>tblMemory</tabstop>
+  <tabstop>treeMemory</tabstop>
   <tabstop>txtConsole</tabstop>
   <tabstop>mainTabWidget</tabstop>
   <tabstop>bottomTabWidget</tabstop>

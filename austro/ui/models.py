@@ -1,4 +1,5 @@
 from PySide.QtCore import Qt
+from PySide.QtGui import QBrush, QColor
 
 from austro.simulator.cpu import Memory, Registers
 from austro.ui.datamodel import DataItem, DataModel
@@ -35,6 +36,8 @@ class MemoryModel(DataModel):
         assert isinstance(memory, Memory), "It's not a memory object"
         super(MemoryModel, self).__init__(("Addr.", "Data"), parent)
 
+        self.pc = -1  # invalid program counter
+
         for addr in xrange(memory.size()):
             item = (addr, memory.get_word(addr))
             self._rootItem.appendChild(DataItem(item))
@@ -42,5 +45,8 @@ class MemoryModel(DataModel):
     def data(self, index, role):
         if role == Qt.TextAlignmentRole:
             return Qt.AlignRight
+        elif role == Qt.BackgroundRole and self.pc >= 0 and \
+                index.row() == self.pc:
+            return QBrush(QColor("#C6DBAE"))
 
         return super(MemoryModel, self).data(index, role)
