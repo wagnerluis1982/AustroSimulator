@@ -111,7 +111,12 @@ class CPU(object):
                 registers['MAR'] = registers['PC']
                 registers.set_word('MBR', memory.get_word(registers['MAR']))
                 registers.set_word('RI', registers.get_word('MBR'))
+
+                # Emit event and see if stop method was called
                 event.on_fetch()
+                if self.stage == Stage.STOPPED:
+                    return
+
                 self.stage = Stage.DECODE
 
             # Decode stage
@@ -159,6 +164,9 @@ class CPU(object):
                 self.stage = Stage.FETCH
 
         return True
+
+    def stop(self):
+        self.stage = Stage.STOPPED
 
     def reset(self):
         self.memory.clear()
