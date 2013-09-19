@@ -118,7 +118,7 @@ class MainWindow(object):
         menu = self.dataContextMenu
         decAction = menu.addAction("Decimal")
         decAction.setData(DataModel.F_DEC)
-        negAction = menu.addAction("Negative (2's complement")
+        negAction = menu.addAction("Negative (2's complement)")
         negAction.setData(DataModel.F_DEC_NEG)
         binAction = menu.addAction("Binary")
         binAction.setData(DataModel.F_BIN)
