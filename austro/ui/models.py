@@ -8,7 +8,7 @@ from austro.ui.datamodel import DataItem, DataModel
 class RegistersModel(DataModel):
     def __init__(self, registers, items, parent=None):
         assert isinstance(registers, Registers), "It's not a Registers object"
-        super(RegistersModel, self).__init__(("Name", "Data"), parent)
+        super(RegistersModel, self).__init__(("Name", "Data (%s)"), parent)
         self.registers = registers
 
         dataItem = DataItem([])
@@ -34,7 +34,7 @@ class RegistersModel(DataModel):
 class MemoryModel(DataModel):
     def __init__(self, memory, parent=None):
         assert isinstance(memory, Memory), "It's not a memory object"
-        super(MemoryModel, self).__init__(("Addr.", "Data"), parent)
+        super(MemoryModel, self).__init__(("Addr.", "Data (%s)"), parent)
 
         self.pc = -1  # invalid program counter
 

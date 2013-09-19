@@ -85,7 +85,9 @@ class MainWindow(object):
             ))
         self.memoryModel = MemoryModel(cpu.memory)
 
-        # Get trees
+        #
+        ## Get trees
+        #
         treeGenericRegs = gui.findChild(QTreeView, "treeGenericRegs")
         treeGenericRegs.setModel(self.genRegsModel)
         treeGenericRegs.expandAll()
@@ -108,6 +110,38 @@ class MainWindow(object):
         treeMemory.setModel(self.memoryModel)
         treeMemory.resizeColumnToContents(0)
         treeMemory.resizeColumnToContents(1)
+
+        #
+        ## Add a context menu to tree headers to select data format
+        #
+        self.dataContextMenu = QMenu()
+        menu = self.dataContextMenu
+        decAction = menu.addAction("Decimal")
+        decAction.setData(DataModel.F_DEC)
+        negAction = menu.addAction("Negative (2's complement")
+        negAction.setData(DataModel.F_DEC_NEG)
+        binAction = menu.addAction("Binary")
+        binAction.setData(DataModel.F_BIN)
+        octAction = menu.addAction("Octal")
+        octAction.setData(DataModel.F_OCT)
+        hexAction = menu.addAction("Hexadecimal")
+        hexAction.setData(DataModel.F_HEX)
+
+        treeGenericRegs.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        treeGenericRegs.header().customContextMenuRequested.connect(
+                lambda pos: self.headerMenu(pos, treeGenericRegs))
+
+        treeSpecificRegs.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        treeSpecificRegs.header().customContextMenuRequested.connect(
+                lambda pos: self.headerMenu(pos, treeSpecificRegs))
+
+        treeStateRegs.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        treeStateRegs.header().customContextMenuRequested.connect(
+                lambda pos: self.headerMenu(pos, treeStateRegs))
+
+        treeMemory.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        treeMemory.header().customContextMenuRequested.connect(
+                lambda pos: self.headerMenu(pos, treeMemory))
 
         #
         ## Actions
@@ -170,6 +204,16 @@ class MainWindow(object):
             self.event.pause.exit()
 
         self.restoreEditor()
+
+    def headerMenu(self, pos, tree=None):
+        if tree is None:
+            return
+
+        column = tree.header().logicalIndexAt(pos)
+        if column == 1:
+            action = self.dataContextMenu.exec_(tree.mapToGlobal(pos))
+            if action:
+                tree.model().setDataFormat(action.data())
 
     def restoreEditor(self):
         # Enable/Disable actions

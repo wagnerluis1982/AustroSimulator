@@ -1,3 +1,5 @@
+import ctypes
+
 from PySide.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 
@@ -19,6 +21,10 @@ class DataItem(object):
 
     def columnCount(self):
         return len(self._itemData)
+
+    def bits(self):
+        if self.parent() != None:
+            return self._itemData[1].bits
 
     def data(self, column):
         if self.parent() != None and column == 1:
@@ -42,12 +48,20 @@ class DataModel(QAbstractItemModel):
     F_OCT = 8
     F_DEC = 10
     F_HEX = 16
-    F_DEC_TWO = 0
+    F_DEC_NEG = 0
 
     FORMATS = {
             F_BIN: "0b{0:b}",
             F_OCT: "0{0:o}",
             F_HEX: "0x{0:x}",
+        }
+
+    FMT_HEADER = {
+            F_BIN: 'BIN',
+            F_OCT: 'OCT',
+            F_DEC: 'DEC',
+            F_HEX: 'HEX',
+            F_DEC_NEG: 'NEG',
         }
 
     def __init__(self, header, parent=None):
@@ -58,11 +72,19 @@ class DataModel(QAbstractItemModel):
 
     def setDataFormat(self, noFormat):
         self._fmt = noFormat
+        self.headerDataChanged.emit(Qt.Horizontal, 1, 1)
         self.refresh()
 
-    def format(self, data):
-        if self._fmt in (DataModel.F_DEC, DataModel.F_DEC_TWO):
+    def format(self, data, bits):
+        if self._fmt == DataModel.F_DEC:
             return data
+        elif self._fmt == DataModel.F_DEC_NEG:
+            if bits == 8:
+                return ctypes.c_int8(data).value
+            elif bits == 16:
+                return ctypes.c_int16(data).value
+            else:
+                return data
         elif self._fmt == DataModel.F_OCT and data == 0:
             return 0
 
@@ -123,7 +145,7 @@ class DataModel(QAbstractItemModel):
 
         column = index.column()
         if column == 1:
-            return self.format(item.data(column))
+            return self.format(item.data(column), item.bits())
 
         return item.data(column)
 
@@ -134,8 +156,14 @@ class DataModel(QAbstractItemModel):
         return Qt.ItemIsEnabled
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._rootItem.data(section)
+            if section == 0:
+                return self._rootItem.data(section)
+            else:
+                header = self._rootItem.data(section)
+                return header % DataModel.FMT_HEADER[self._fmt]
 
         return None
 
