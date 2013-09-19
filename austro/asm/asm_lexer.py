@@ -75,7 +75,11 @@ def t_error(t):
     raise Exception("Scanning error. Illegal character '%s' at line %d" % \
             (t.value[0], t.lineno))
 
-lexer = lex.lex()
+
+def get_lexer():
+    return lex.lex()
+
 
 if __name__ == "__main__":
+    get_lexer()
     lex.runmain()

@@ -18,7 +18,7 @@
 # Austro Simulator Assembler
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 
-from austro.asm.asm_lexer import lexer
+from austro.asm.asm_lexer import get_lexer
 from austro.asm.memword import Word
 
 
@@ -193,6 +193,7 @@ def assemble(code):
     The Word object (instruction) carry lineno attribute that is the associated
     line number in assembly file.
     """
+    lexer = get_lexer()
     lexer.input(code)
 
     # Structures to store labels and memory words
