@@ -64,13 +64,11 @@ class CodeEditor(QPlainTextEdit):
     def updateLineNumberAreaWidth(self, newBlockCount):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
 
-    def highlightCurrentLine(self):
+    def highlightCurrentLine(self, lineColor=QColor("#F8F7F6")):
         extraSelections = []
 
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-
-            lineColor = QColor("#F8F7F6")
 
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
@@ -89,6 +87,25 @@ class CodeEditor(QPlainTextEdit):
 
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
+
+    def setDisabled(self, disable=True):
+        super(CodeEditor, self).setDisabled(disable)
+        self.setEnabled(not disable)
+
+    def setEnabled(self, enable=True):
+        super(CodeEditor, self).setEnabled(enable)
+
+        if not enable:
+            self.deselect()
+            self.highlightCurrentLine(Qt.transparent)
+            self.cursorPositionChanged.disconnect()
+        else:
+            self.highlightCurrentLine()
+            self.cursorPositionChanged.connect(self.highlightCurrentLine)
+
+    def deselect(self):
+        self.moveCursor(QTextCursor.End)
+        self.moveCursor(QTextCursor.Left)
 
 
 class LineNumberArea(QWidget):
