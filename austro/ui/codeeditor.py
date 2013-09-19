@@ -103,6 +103,24 @@ class CodeEditor(QPlainTextEdit):
             self.highlightCurrentLine()
             self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
+    def highlightLine(self, lineNo, lineColor=QColor("#C6DBAE")):
+        if lineNo > 0:
+            block = self.document().findBlockByLineNumber(lineNo-1)
+            cursor = self.textCursor()
+            cursor.setPosition(block.position())
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
+
+            selection = QTextEdit.ExtraSelection()
+            selection.format.setBackground(lineColor)
+            selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+            selection.cursor = cursor
+
+            extraSelections = [selection]
+            self.setExtraSelections(extraSelections)
+        else:
+            self.highlightCurrentLine(Qt.transparent)
+
     def deselect(self):
         self.moveCursor(QTextCursor.End)
         self.moveCursor(QTextCursor.Left)
