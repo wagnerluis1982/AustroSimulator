@@ -17,8 +17,10 @@
 
 import ctypes
 
+from austro.abstractdata import AbstractData
 
-class Word(ctypes.Structure):
+
+class Word(AbstractData, ctypes.Structure):
     '''Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits
@@ -28,6 +30,7 @@ class Word(ctypes.Structure):
                 ('_flags', ctypes.c_ubyte, 3),
                 ('_operand', ctypes.c_ubyte, 8),
                 ('_value', ctypes.c_uint16)]
+    _bits = 16
 
     def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None,
             is_instruction=False):
