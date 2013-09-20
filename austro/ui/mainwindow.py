@@ -245,7 +245,7 @@ class MainWindow(object):
     def emitStart(self):
         while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
             self.cpu.next()
-            QThread.msleep(100)
+            QThread.msleep(200)
 
         self.refreshModels()
         self.restoreEditor()
