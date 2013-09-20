@@ -58,7 +58,7 @@ def memory_words(opcode, op1=None, op2=None):
     try:
         instr_word = Word(OPCODES[opname], lineno=opcode.lineno, is_instruction=True)
     except KeyError:
-        raise Exception("Invalid instruction '%s'" % opname, opcode.lineno)
+        raise AssembleException("Invalid instruction '%s'" % opname, opcode.lineno)
 
     # zero-operand instructions
     if op1 is None:
@@ -76,8 +76,9 @@ def memory_words(opcode, op1=None, op2=None):
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
-                except KeyError, e:
-                    raise Exception("Error: bad register name '%s'" % e.args)
+                except KeyError:
+                    raise AssembleException("Error: bad register name '%s'" %
+                            op1.value)
 
                 return (instr_word,)
             elif op1.type == 'REFERENCE':
@@ -96,7 +97,8 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError:
-                    raise Exception("Error: bad register name '%s'" % e.args)
+                    raise AssembleException("Error: bad register name '%s'" %
+                            op1.value)
 
                 return (instr_word,)
             elif op1.type == 'REFERENCE':
@@ -117,8 +119,8 @@ def memory_words(opcode, op1=None, op2=None):
                         instr_word.operand = REGISTERS[op1.value.upper()] << 4
                         instr_word.flags = 0
                     except KeyError:
-                        raise Exception("Error: bad register name '%s'" % \
-                                e.args)
+                        raise AssembleException(
+                                "Error: bad register name '%s'" % op1.value)
 
                     return (instr_word, Word(op2.value))
                 elif op1.type == 'REFERENCE':
@@ -136,7 +138,10 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand |= REGISTERS[op2.value.upper()]
                     # flag x00 - no needs to set
                 except KeyError, e:
-                    raise Exception("Error: bad register name '%s'" % e.args)
+                    bad_reg = op1.value if e.args == op1.value.upper() else \
+                            op2.value
+                    raise AssembleException("Error: bad register name '%s'" %
+                            bad_reg)
 
                 return (instr_word,)
             elif op1.type == 'NAME' and op2.type == 'REFERENCE':
@@ -144,7 +149,8 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b001  # flag x01
                 except KeyError:
-                    raise Exception("Error: bad register name '%s'" % e.args)
+                    raise AssembleException("Error: bad register name '%s'" %
+                            op1.value)
 
                 return (instr_word, Word(op2.value))
             elif op1.type == 'NAME' and op2.type == 'NUMBER':
@@ -152,7 +158,8 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b010  # flag x10
                 except KeyError:
-                    raise Exception("Error: bad register name '%s'" % e.args)
+                    raise AssembleException("Error: bad register name '%s'" %
+                            op1.value)
 
                 return (instr_word, Word(op2.value))
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
@@ -160,7 +167,8 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op2.value.upper()] << 4
                     instr_word.flags |= 0b011  # flag x11
                 except KeyError:
-                    raise Exception("Error: bad register name '%s'" % e.args)
+                    raise AssembleException("Error: bad register name '%s'" %
+                            op2.value)
 
                 return (instr_word, Word(op1.value))
 
@@ -206,7 +214,7 @@ def assemble(code):
         while pend_labels:
             lbl = pend_labels.pop()
             if lbl.value in labels:
-                raise Exception("Error: symbol '%s' is already defined." %
+                raise AssembleException("Error: symbol '%s' is already defined." %
                         lbl.value, lbl.lineno)
             # Point the label to the next word pending attribution
             position = len(words)
@@ -263,19 +271,19 @@ def assemble(code):
                     miss_labels[lbl_name].append(words[-1])
                 continue
             if tok.type != 'COMMA':
-                raise Exception("Invalid token", tok.lineno)
+                raise AssembleException("Invalid token", tok.lineno)
 
             # Get second operator if available
             tok = lexer.token()
             if not tok or tok.lineno != opcode.lineno:
-                raise Exception("Invalid syntax", opcode.lineno)
+                raise AssembleException("Invalid syntax", opcode.lineno)
             op2 = tok
 
             words.extend(memory_words(opcode, op1, op2))  # 2-arg opcode
 
         # At start of line, only labels and opcodes are allowed
         else:
-            raise Exception("Invalid token", tok.lineno)
+            raise AssembleException("Invalid token", tok.lineno)
 
         tok = lexer.token()
 
@@ -284,9 +292,13 @@ def assemble(code):
 
     # Interrupt assembling if has any jump missing label
     for mlb in miss_labels.items():
-        raise Exception("Invalid label '%s'" % mlb[0], mlb[1][0].lineno)
+        raise AssembleException("Invalid label '%s'" % mlb[0], mlb[1][0].lineno)
 
     return {'labels': labels, 'words': words}
+
+
+class AssembleException(Exception):
+    pass
 
 
 def main():
