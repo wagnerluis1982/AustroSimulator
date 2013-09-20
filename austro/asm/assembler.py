@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+# along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
 # Austro Simulator Assembler
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
