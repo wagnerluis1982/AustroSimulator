@@ -34,79 +34,91 @@ class ModelsUpdater(StepEvent):
 
 
 class MainWindow(object):
-    def __init__(self):
+    def __init__(self, qApp=None):
         self.event = ModelsUpdater(self)
-
         self.cpu = CPU(self.event)
-        cpu = self.cpu
+        self.emitter = None
+
+        qApp.lastWindowClosed.connect(self.stopAndWait)
 
         loader = QUiLoader()
         loader.registerCustomWidget(CodeEditor)
         self.gui = loader.load(_resource('mainwindow.ui'))
-        gui = self.gui
 
+        self.setupEditorAndDiagram()
+        self.setupSplitters()
+        self.setupModels()
+        self.setupTrees()
+        self.setupActions()
+
+    def setupEditorAndDiagram(self):
         # Assembly editor get focus on start
-        self.asmEdit = gui.findChild(CodeEditor, "asmEdit")
+        self.asmEdit = self.gui.findChild(CodeEditor, "asmEdit")
         self.asmEdit.setFocus()
         AssemblyHighlighter(self.asmEdit.document())
 
         # Set QML file
-        cpuDiagram = gui.findChild(QDeclarativeView, "cpuDiagram")
+        cpuDiagram = self.gui.findChild(QDeclarativeView, "cpuDiagram")
         cpuDiagram.setSource(_resource('qml', 'computer.qml'))
 
-        #
-        # In the following, define size factor for each splitted region.
-        #
-        mainsplitter = gui.findChild(QSplitter, "mainsplitter")
+    #
+    ## Define size factor for each splitted region.
+    #
+    def setupSplitters(self):
+        mainsplitter = self.gui.findChild(QSplitter, "mainsplitter")
         mainsplitter.setStretchFactor(0, 3)
         mainsplitter.setStretchFactor(1, 8)
         mainsplitter.setStretchFactor(2, 3)
 
-        leftsplitter = gui.findChild(QSplitter, "leftsplitter")
+        leftsplitter = self.gui.findChild(QSplitter, "leftsplitter")
         leftsplitter.setStretchFactor(0, 5)
         leftsplitter.setStretchFactor(1, 2)
         leftsplitter.setStretchFactor(2, 2)
 
-        middlesplitter = gui.findChild(QSplitter, "middlesplitter")
+        middlesplitter = self.gui.findChild(QSplitter, "middlesplitter")
         middlesplitter.setStretchFactor(0, 2)
         middlesplitter.setStretchFactor(1, 1)
 
-        # Models
-        self.genRegsModel = RegistersModel(cpu.registers, (
+    #
+    ## Models
+    #
+    def setupModels(self):
+        self.genRegsModel = RegistersModel(self.cpu.registers, (
                 'AX', ('AH', 'AL'), 'BX', ('BH', 'BL'),
                 'CX', ('CH', 'CL'), 'DX', ('DH', 'DL'),
                 'SP', 'BP', 'SI', 'DI',
             ))
-        self.specRegsModel = RegistersModel(cpu.registers, (
+        self.specRegsModel = RegistersModel(self.cpu.registers, (
                 'PC', 'RI', 'MAR', 'MBR',
             ))
-        self.stateRegsModel = RegistersModel(cpu.registers, (
+        self.stateRegsModel = RegistersModel(self.cpu.registers, (
                 'N', 'Z', 'V', 'T',
             ))
-        self.memoryModel = MemoryModel(cpu.memory)
+        self.memoryModel = MemoryModel(self.cpu.memory)
 
-        #
-        ## Get trees
-        #
-        treeGenericRegs = gui.findChild(QTreeView, "treeGenericRegs")
+    #
+    ## Get trees
+    #
+    def setupTrees(self):
+        treeGenericRegs = self.gui.findChild(QTreeView, "treeGenericRegs")
         treeGenericRegs.setModel(self.genRegsModel)
         treeGenericRegs.expandAll()
         treeGenericRegs.resizeColumnToContents(0)
         treeGenericRegs.resizeColumnToContents(1)
 
-        treeSpecificRegs = gui.findChild(QTreeView, "treeSpecificRegs")
+        treeSpecificRegs = self.gui.findChild(QTreeView, "treeSpecificRegs")
         treeSpecificRegs.setModel(self.specRegsModel)
         treeSpecificRegs.expandAll()
         treeSpecificRegs.resizeColumnToContents(0)
         treeSpecificRegs.resizeColumnToContents(1)
 
-        treeStateRegs = gui.findChild(QTreeView, "treeStateRegs")
+        treeStateRegs = self.gui.findChild(QTreeView, "treeStateRegs")
         treeStateRegs.setModel(self.stateRegsModel)
         treeStateRegs.expandAll()
         treeStateRegs.resizeColumnToContents(0)
         treeStateRegs.resizeColumnToContents(1)
 
-        self.treeMemory = gui.findChild(QTreeView, "treeMemory")
+        self.treeMemory = self.gui.findChild(QTreeView, "treeMemory")
         treeMemory = self.treeMemory
         treeMemory.setModel(self.memoryModel)
         treeMemory.resizeColumnToContents(0)
@@ -114,7 +126,6 @@ class MainWindow(object):
 
         #
         ## Add a context menu to tree headers to select data format
-        #
         self.dataContextMenu = QMenu()
         menu = self.dataContextMenu
         decAction = menu.addAction("Decimal")
@@ -144,19 +155,20 @@ class MainWindow(object):
         treeMemory.header().customContextMenuRequested.connect(
                 lambda pos: self.headerMenu(pos, treeMemory))
 
-        #
-        ## Actions
-        #
-        self.actionLoad = gui.findChild(QAction, "actionLoad")
+    #
+    ## Actions
+    #
+    def setupActions(self):
+        self.actionLoad = self.gui.findChild(QAction, "actionLoad")
         self.actionLoad.triggered.connect(self.loadAssembly)
 
-        self.actionRun = gui.findChild(QAction, "actionRun")
+        self.actionRun = self.gui.findChild(QAction, "actionRun")
         self.actionRun.triggered.connect(self.runAction)
 
-        self.actionStep = gui.findChild(QAction, "actionStep")
+        self.actionStep = self.gui.findChild(QAction, "actionStep")
         self.actionStep.triggered.connect(self.nextInstruction)
 
-        self.actionStop = gui.findChild(QAction, "actionStop")
+        self.actionStop = self.gui.findChild(QAction, "actionStop")
         self.actionStop.triggered.connect(self.stopAction)
 
     def loadAssembly(self):
@@ -200,9 +212,14 @@ class MainWindow(object):
         if self.cpu.stage == Stage.HALTED:
             self.restoreEditor()
 
-    def stopAction(self):
+    def stopAndWait(self):
         # Stop correctly
         self.cpu.stop()
+        if self.emitter is not None:
+            self.emitter.wait()
+
+    def stopAction(self):
+        self.stopAndWait()
         self.restoreEditor()
 
     def headerMenu(self, pos, tree=None):
