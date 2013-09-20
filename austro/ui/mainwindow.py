@@ -12,8 +12,8 @@ from austro.ui.models import DataModel, RegistersModel, MemoryModel
 
 
 __version__ = "0.0.1"
-_about_ = """<h1>Austro Simulator v%s</h1>
-             <p>Copyright &copy; 2013  Wagner Macedo</p>
+_about_ = """<h3>Austro Simulator %s</h3>
+             <p>Copyright (C) 2013  Wagner Macedo</p>
 
              <p> Austro Simulator is free software: you can redistribute it
              and/or modify it under the terms of the GNU General Public
@@ -25,10 +25,6 @@ _about_ = """<h1>Austro Simulator v%s</h1>
              useful, but WITHOUT ANY WARRANTY; without even the implied
              warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
              See the GNU General Public License for more details.</p>
-
-             <p>You should have received a copy of the GNU General Public
-             License along with Austro Simulator. If not, see
-             &lt;http://www.gnu.org/licenses/&gt;.</p>
              """ % __version__
 
 
@@ -195,6 +191,10 @@ class MainWindow(object):
         self.actionAbout = self.gui.findChild(QAction, "actionAbout")
         self.actionAbout.triggered.connect(self.about)
 
+        self.actionAboutQt = self.gui.findChild(QAction, "actionAboutQt")
+        self.actionAboutQt.setIcon(QIcon(_resource('images', 'qt-logo.png')))
+        self.actionAboutQt.triggered.connect(self.aboutQt)
+
     def loadAssembly(self):
         # Disable editor so will reflect the running program
         editor = self.asmEdit
@@ -277,6 +277,9 @@ class MainWindow(object):
 
     def about(self):
         QMessageBox.about(self.gui, "About Austro Simulator", _about_)
+
+    def aboutQt(self):
+        QMessageBox.aboutQt(self.gui)
 
     def show(self):
         self.gui.show()
