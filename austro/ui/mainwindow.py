@@ -12,6 +12,24 @@ from austro.ui.models import DataModel, RegistersModel, MemoryModel
 
 
 __version__ = "0.0.1"
+_about_ = """<h1>Austro Simulator v%s</h1>
+             <p>Copyright &copy; 2013  Wagner Macedo</p>
+
+             <p> Austro Simulator is free software: you can redistribute it
+             and/or modify it under the terms of the GNU General Public
+             License as published by the Free Software Foundation, either
+             version 3 of the License, or (at your option) any later version.
+             </p>
+
+             <p>Austro Simulator is distributed in the hope that it will be
+             useful, but WITHOUT ANY WARRANTY; without even the implied
+             warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+             See the GNU General Public License for more details.</p>
+
+             <p>You should have received a copy of the GNU General Public
+             License along with Austro Simulator. If not, see
+             &lt;http://www.gnu.org/licenses/&gt;.</p>
+             """ % __version__
 
 
 def _resource(*rsc):
@@ -258,31 +276,7 @@ class MainWindow(object):
         self.memoryModel.refresh()
 
     def about(self):
-        QMessageBox.about(self.gui, "About Austro Simulator",
-                """<h2>Austro Simulator v%s</h2>
-                <p>Copyright &copy; 2013  Wagner Macedo</p>
-
-                <p>
-                Austro Simulator is free software: you can redistribute it
-                and/or modify it under the terms of the GNU General Public
-                License as published by the Free Software Foundation, either
-                version 3 of the License, or (at your option) any later version.
-                </p>
-
-                <p>
-                Austro Simulator is distributed in the hope that it will be
-                useful, but WITHOUT ANY WARRANTY; without even the implied
-                warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-                See the GNU General Public License for more details.
-                </p>
-
-                <p>
-                You should have received a copy of the GNU General Public
-                License along with Austro Simulator. If not, see
-                &lt;http://www.gnu.org/licenses/&gt;.
-                </p>
-
-                """ % __version__)
+        QMessageBox.about(self.gui, "About Austro Simulator", _about_)
 
     def show(self):
         self.gui.show()
