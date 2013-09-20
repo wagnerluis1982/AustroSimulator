@@ -1,7 +1,7 @@
 import os
 
 from PySide.QtGui import *
-from PySide.QtCore import Qt
+from PySide.QtCore import Qt, QThread
 from PySide.QtDeclarative import QDeclarativeView
 from PySide.QtUiTools import QUiLoader
 
@@ -25,9 +25,12 @@ class ModelsUpdater(StepEvent):
         lineno = self.cpu.registers.get_word('RI').lineno
         self.win.asmEdit.highlightLine(lineno)
 
-        # And highlight current memory position
+        # Highlight current memory position
         self.win.memoryModel.pc = self.cpu.registers['PC']
         self.win.refreshModels()
+        # Ensure memory position is visible
+        index = self.win.memoryModel.index(self.cpu.registers['PC'], 0)
+        self.win.treeMemory.scrollTo(index)
 
 
 class MainWindow(object):
@@ -103,7 +106,8 @@ class MainWindow(object):
         treeStateRegs.resizeColumnToContents(0)
         treeStateRegs.resizeColumnToContents(1)
 
-        treeMemory = gui.findChild(QTreeView, "treeMemory")
+        self.treeMemory = gui.findChild(QTreeView, "treeMemory")
+        treeMemory = self.treeMemory
         treeMemory.setModel(self.memoryModel)
         treeMemory.resizeColumnToContents(0)
         treeMemory.resizeColumnToContents(1)
@@ -175,10 +179,20 @@ class MainWindow(object):
         self.actionStep.setEnabled(True)
         self.actionStop.setEnabled(True)
 
-    def runAction(self):
-        self.cpu.start()
-        self.restoreEditor()
+    def emitStart(self):
+        while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
+            self.cpu.next()
+            QThread.msleep(100)
+
         self.refreshModels()
+        self.restoreEditor()
+
+    def runAction(self):
+        self.actionRun.setEnabled(False)
+        self.actionStep.setEnabled(False)
+
+        self.emitter = Emitter(self.emitStart)
+        self.emitter.start()
 
     def nextInstruction(self):
         self.cpu.next()
@@ -222,3 +236,12 @@ class MainWindow(object):
 
     def show(self):
         self.gui.show()
+
+
+class Emitter(QThread):
+    def __init__(self, fn):
+        super(Emitter, self).__init__()
+        self.fn = fn
+
+    def run(self):
+        self.fn()
