@@ -16,7 +16,7 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# The code here was based on Qt Tutorials. See: <http://qt-project.org>
+## The code here was vastly based on Qt Tutorials. See: <http://qt-project.org>
 #
 
 from PySide.QtGui import *
@@ -85,19 +85,18 @@ class CodeEditor(QPlainTextEdit):
     def updateLineNumberAreaWidth(self, newBlockCount):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
 
-    def highlightCurrentLine(self, lineColor=QColor("#F8F7F6")):
-        extraSelections = []
+    def highlightCurrentLine(self, lineColor=QColor("#F8F7F6"), force=False):
+        if not self.isReadOnly() or force:
+            extraSelections = []
 
-        if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
             selection.cursor.clearSelection()
             extraSelections.append(selection)
 
-        self.setExtraSelections(extraSelections)
+            self.setExtraSelections(extraSelections)
 
     def updateLineNumberArea(self, rect, dy):
         if dy:
@@ -109,20 +108,14 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
-    def setDisabled(self, disable=True):
-        super(CodeEditor, self).setDisabled(disable)
-        self.setEnabled(not disable)
+    def setReadOnly(self, enable=True):
+        super(CodeEditor, self).setReadOnly(enable)
 
-    def setEnabled(self, enable=True):
-        super(CodeEditor, self).setEnabled(enable)
-
-        if not enable:
+        if enable:
+            self.highlightCurrentLine(Qt.transparent, force=True)
             self.deselect()
-            self.highlightCurrentLine(Qt.transparent)
-            self.cursorPositionChanged.disconnect()
         else:
             self.highlightCurrentLine()
-            self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
     def highlightLine(self, lineNo, lineColor=QColor("#C6DBAE")):
         if lineNo > 0:
@@ -140,7 +133,7 @@ class CodeEditor(QPlainTextEdit):
             extraSelections = [selection]
             self.setExtraSelections(extraSelections)
         else:
-            self.highlightCurrentLine(Qt.transparent)
+            self.highlightCurrentLine(Qt.transparent, force=True)
 
     def deselect(self):
         self.moveCursor(QTextCursor.End)

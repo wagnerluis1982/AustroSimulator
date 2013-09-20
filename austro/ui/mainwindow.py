@@ -223,7 +223,7 @@ class MainWindow(object):
 
         # Disable editor so will reflect the simulated running program
         editor = self.asmEdit
-        editor.setDisabled()
+        editor.setReadOnly()
 
         try:
             # Assemble the program
@@ -309,7 +309,7 @@ class MainWindow(object):
         self.actionStep.setEnabled(False)
         self.actionStop.setEnabled(False)
         # Re-enable editor
-        self.asmEdit.setEnabled()
+        self.asmEdit.setReadOnly(False)
         self.asmEdit.setFocus()
         # Reset MemoryModel internal PC
         self.memoryModel.pc = -1
