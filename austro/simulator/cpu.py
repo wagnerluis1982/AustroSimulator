@@ -55,12 +55,13 @@ class Decode(object):
 
 
 class Stage:
-    STOPPED = 0
-    FETCH = 1
-    DECODE = 2
-    EXECUTE = 3
-    STORE = 4
-    HALTED = 5
+    INITIAL = 0
+    STOPPED = 1
+    FETCH = 2
+    DECODE = 3
+    EXECUTE = 4
+    STORE = 5
+    HALTED = 6
 
 
 class CPU(object):
@@ -74,14 +75,14 @@ class CPU(object):
     # Special UC actions
     UC_LOAD = 128
 
-    def __init__(self, event=None):
-        self.event = event if event else DummyStepEvent()
-        assert isinstance(self.event, StepEvent)
-        self.event.cpu = self
+    def __init__(self, event=DummyStepEvent()):
+        assert isinstance(event, StepEvent)
+        event.cpu = self
+        self.event = event
 
         self.memory = Memory(CPU.ADDRESS_SPACE)
         self.registers = Registers()
-        self.stage = Stage.STOPPED
+        self.stage = Stage.INITIAL
 
     def set_memory_block(self, words, start=0):
         assert isinstance(words, (list, tuple))
@@ -92,77 +93,92 @@ class CPU(object):
         return True
 
     def start(self):
+        while self.stage not in (Stage.HALTED, Stage.STOPPED):
+            self.next()
+
+        if self.stage == Stage.STOPPED:
+            return False
+
+        return True
+
+    def next(self):
         registers = self.registers
         memory = self.memory
-        event = self.event
-        _ = self._opcodes  # alias to improve visual of code
 
-        # For starting, PC=0
-        registers['PC'] = 0
-        self.stage = Stage.FETCH
+        # See if stop method was called
+        if self.stage == Stage.STOPPED:
+            return False
 
-        # Machine cycles state machine
-        while True:
-            if registers['PC'] >= CPU.ADDRESS_SPACE:
-                raise Exception("PC register greater than address space")
+        # Initial state, for starting, PC=0.
+        elif self.stage == Stage.INITIAL:
+            registers['PC'] = 0
+            return self.fetch()
 
-            # Fetch stage
-            if self.stage == Stage.FETCH:
-                registers['MAR'] = registers['PC']
-                registers.set_word('MBR', memory.get_word(registers['MAR']))
-                registers.set_word('RI', registers.get_word('MBR'))
+        # Decode stage
+        elif self.stage == Stage.DECODE:
+            decode = self.decode(registers.get_word('RI'))
+            op1_val = None if decode.op1 is None else registers[decode.op1]
+            op2_val = None if decode.op2 is None else registers[decode.op2]
+            # Next state
+            self.stage = Stage.EXECUTE
 
-                # Emit event and see if stop method was called
-                event.on_fetch()
-                if self.stage == Stage.STOPPED:
-                    return
+        # Execute stage
+        if self.stage == Stage.EXECUTE:
+            # Call ALU (Arithmetic and Logic Unit)
+            if decode.unit == self.ALU:
+                result = self.alu(decode.operation, op1_val, op2_val)
+                # Invalid instructions behave as NOP
+                if result is None:
+                    decode.store = None
+            # Call UC (Control Unit)
+            elif decode.unit == self.UC:
+                self.uc(decode.operation, decode.op1, decode.op2)
+                if self.stage == Stage.HALTED:  # halt found
+                    return True
+                if self.stage == Stage.FETCH:  # a jump found
+                    return self.fetch()
+            # Call SU (Shift Unit)
+            elif decode.unit == self.SHIFT:
+                result = self.shift(decode.operation, op1_val, op2_val)
 
-                self.stage = Stage.DECODE
-
-            # Decode stage
-            elif self.stage == Stage.DECODE:
-                decode = self.decode(registers.get_word('RI'))
-                op1_val = None if decode.op1 is None else registers[decode.op1]
-                op2_val = None if decode.op2 is None else registers[decode.op2]
-                # Next state
-                self.stage = Stage.EXECUTE
-
-            # Execute stage
-            elif self.stage == Stage.EXECUTE:
-                # Call ALU (Arithmetic and Logic Unit)
-                if decode.unit == self.ALU:
-                    result = self.alu(decode.operation, op1_val, op2_val)
-                    # Invalid instructions behave as NOP
-                    if result is None:
-                        decode.store = None
-                # Call UC (Control Unit)
-                elif decode.unit == self.UC:
-                    self.uc(decode.operation, decode.op1, decode.op2)
-                    if self.stage == Stage.HALTED:
-                        break
-                    if self.stage == Stage.FETCH:
-                        continue
-                # Call SU (Shift Unit)
-                elif decode.unit == self.SHIFT:
-                    result = self.shift(decode.operation, op1_val, op2_val)
-
-                # Next state: store or fetch
+            # Next state: store or fetch
+            if self.stage != Stage.FETCH:
                 if decode.store is True or decode.store is not None:
                     self.stage = Stage.STORE
                 else:
                     self.stage = Stage.FETCH
+                    registers['PC'] += 1
+                    return self.fetch()
 
-                registers['PC'] += 1
+        # Store stage
+        if self.stage == Stage.STORE:
+            if decode.unit != self.UC:
+                self.uc(CPU.UC_LOAD, decode.op1, result)
+            if decode.store is not True:
+                memory[decode.store] = registers[decode.op1]
 
-            # Store stage
-            elif self.stage == Stage.STORE:
-                if decode.unit != self.UC:
-                    self.uc(CPU.UC_LOAD, decode.op1, result)
-                if decode.store is not True:
-                    memory[decode.store] = registers[decode.op1]
-                # Next state
-                self.stage = Stage.FETCH
+        # Fetch stage
+        self.stage = Stage.FETCH
+        registers['PC'] += 1
+        return self.fetch()
 
+    def fetch(self):
+        registers = self.registers
+        memory = self.memory
+        event = self.event
+
+        # PC can't be greater than address space
+        if registers['PC'] >= CPU.ADDRESS_SPACE:
+            raise Exception("PC register greater than address space")
+
+        registers['MAR'] = registers['PC']
+        registers.set_word('MBR', memory.get_word(registers['MAR']))
+        registers.set_word('RI', registers.get_word('MBR'))
+
+        # Emit event
+        event.on_fetch()
+
+        self.stage = Stage.DECODE
         return True
 
     def stop(self):
@@ -171,7 +187,7 @@ class CPU(object):
     def reset(self):
         self.memory.clear()
         self.registers.clear()
-        self.stage = Stage.STOPPED
+        self.stage = Stage.INITIAL
 
     #
     ## Implementation of CPU execution units

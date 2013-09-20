@@ -1,7 +1,7 @@
 import os
 
 from PySide.QtGui import *
-from PySide.QtCore import QEventLoop, Qt, QSize
+from PySide.QtCore import Qt
 from PySide.QtDeclarative import QDeclarativeView
 from PySide.QtUiTools import QUiLoader
 
@@ -19,18 +19,15 @@ def _resource(*rsc):
 class ModelsUpdater(StepEvent):
     def __init__(self, win):
         self.win = win
-        self.pause = QEventLoop()
-        self.to_pause = False
 
     def on_fetch(self):
         # Highlight current execution line
         lineno = self.cpu.registers.get_word('RI').lineno
         self.win.asmEdit.highlightLine(lineno)
-        self.win.memoryModel.pc = self.cpu.registers['PC']
 
+        # And highlight current memory position
+        self.win.memoryModel.pc = self.cpu.registers['PC']
         self.win.refreshModels()
-        if self.to_pause:
-            self.pause.exec_()
 
 
 class MainWindow(object):
@@ -179,20 +176,12 @@ class MainWindow(object):
         self.actionStop.setEnabled(True)
 
     def runAction(self):
-        self.event.to_pause = False
-        if self.cpu.stage == Stage.STOPPED:
-            self.cpu.start()
-        else:
-            self.event.pause.exit()
-
+        self.cpu.start()
         self.restoreEditor()
+        self.refreshModels()
 
     def nextInstruction(self):
-        if self.cpu.stage == Stage.STOPPED:
-            self.event.to_pause = True
-            self.cpu.start()
-        else:
-            self.event.pause.exit()
+        self.cpu.next()
 
         if self.cpu.stage == Stage.HALTED:
             self.restoreEditor()
@@ -200,9 +189,6 @@ class MainWindow(object):
     def stopAction(self):
         # Stop correctly
         self.cpu.stop()
-        if self.event.pause.isRunning():
-            self.event.pause.exit()
-
         self.restoreEditor()
 
     def headerMenu(self, pos, tree=None):

@@ -291,7 +291,6 @@ def assemble(code):
 
 def main():
     import sys
-    import os
     try:
         filename = sys.argv[1]
         f = open(filename)
