@@ -67,12 +67,6 @@ class DataModel(QAbstractItemModel):
     F_HEX = 16
     F_DEC_NEG = 0
 
-    FORMATS = {
-            F_BIN: "0b{0:b}",
-            F_OCT: "0{0:o}",
-            F_HEX: "0x{0:x}",
-        }
-
     FMT_HEADER = {
             F_BIN: 'BIN',
             F_OCT: 'OCT',
@@ -93,19 +87,19 @@ class DataModel(QAbstractItemModel):
         self.refresh()
 
     def format(self, data, bits):
-        if self._fmt == DataModel.F_DEC:
-            return data
-        elif self._fmt == DataModel.F_DEC_NEG:
+        if self._fmt == DataModel.F_DEC_NEG:
             if bits == 8:
                 return ctypes.c_int8(data).value
             elif bits == 16:
                 return ctypes.c_int16(data).value
-            else:
-                return data
-        elif self._fmt == DataModel.F_OCT and data == 0:
-            return 0
+        elif self._fmt == DataModel.F_BIN:
+            return str.format("0b{0:0%db}" % bits, data)
+        elif self._fmt == DataModel.F_HEX:
+            return str.format("0x{0:0%dx}" % bits//4, data)
+        elif self._fmt == DataModel.F_OCT and data != 0:
+            return str.format("0{0:0%do}" % bits//3, data)
 
-        return str.format(DataModel.FORMATS[self._fmt], data)
+        return data
 
     def index(self, row, column=0, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
