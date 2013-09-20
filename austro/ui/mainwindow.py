@@ -7,7 +7,7 @@ from PySide.QtDeclarative import QDeclarativeView
 from PySide.QtUiTools import QUiLoader
 
 from austro.asm import assembler, asm_lexer
-from austro.simulator.cpu import CPU, Stage, StepEvent
+from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
 from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
 from austro.ui.models import DataModel, RegistersModel, MemoryModel
 
@@ -236,16 +236,28 @@ class MainWindow(object):
             self.console.appendPlainText(e.message)
             self.restoreEditor()
         else:
-            # Reset and set the memory with the written program
-            self.cpu.reset()
-            self.cpu.set_memory_block(asmd['words'])
-            self.refreshModels()
-
+            try:
+                # Reset and set the memory with the written program
+                self.cpu.reset()
+                self.cpu.set_memory_block(asmd['words'])
+                self.refreshModels()
+            except CPUException, e:
+                self.console.appendPlainText(
+                        "Attempt to load failed (%s)" % datetime.now())
+                self.console.appendPlainText(e.message)
+                self.restoreEditor()
 
     def emitStart(self):
         while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
-            self.cpu.next()
-            QThread.msleep(200)
+            try:
+                self.cpu.next()
+                QThread.msleep(200)
+            except CPUException, e:
+                self.cpu.stop()
+                self.console.appendPlainText(
+                        "Execution failed (%s)" % datetime.now())
+                self.console.appendPlainText(e.message)
+                self.restoreEditor()
 
         self.refreshModels()
         self.restoreEditor()
@@ -258,10 +270,17 @@ class MainWindow(object):
         self.emitter.start()
 
     def nextInstruction(self):
-        self.cpu.next()
-
-        if self.cpu.stage == Stage.HALTED:
+        try:
+            self.cpu.next()
+        except CPUException, e:
+            self.console.appendPlainText(
+                    "Execution failed (%s)" % datetime.now())
+            self.console.appendPlainText(e.message)
             self.restoreEditor()
+        else:
+            if self.cpu.stage == Stage.HALTED:
+                self.refreshModels()
+                self.restoreEditor()
 
     def stopAndWait(self):
         # Stop correctly
