@@ -11,6 +11,9 @@ from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
 from austro.ui.models import DataModel, RegistersModel, MemoryModel
 
 
+__version__ = "0.0.1"
+
+
 def _resource(*rsc):
     directory = os.path.dirname(__file__).decode("utf8")
     return os.path.join(directory, *rsc)
@@ -171,6 +174,9 @@ class MainWindow(object):
         self.actionStop = self.gui.findChild(QAction, "actionStop")
         self.actionStop.triggered.connect(self.stopAction)
 
+        self.actionAbout = self.gui.findChild(QAction, "actionAbout")
+        self.actionAbout.triggered.connect(self.about)
+
     def loadAssembly(self):
         # Disable editor so will reflect the running program
         editor = self.asmEdit
@@ -250,6 +256,33 @@ class MainWindow(object):
         self.specRegsModel.refresh()
         self.stateRegsModel.refresh()
         self.memoryModel.refresh()
+
+    def about(self):
+        QMessageBox.about(self.gui, "About Austro Simulator",
+                """<h2>Austro Simulator v%s</h2>
+                <p>Copyright &copy; 2013  Wagner Macedo</p>
+
+                <p>
+                Austro Simulator is free software: you can redistribute it
+                and/or modify it under the terms of the GNU General Public
+                License as published by the Free Software Foundation, either
+                version 3 of the License, or (at your option) any later version.
+                </p>
+
+                <p>
+                Austro Simulator is distributed in the hope that it will be
+                useful, but WITHOUT ANY WARRANTY; without even the implied
+                warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+                See the GNU General Public License for more details.
+                </p>
+
+                <p>
+                You should have received a copy of the GNU General Public
+                License along with Austro Simulator. If not, see
+                &lt;http://www.gnu.org/licenses/&gt;.
+                </p>
+
+                """ % __version__)
 
     def show(self):
         self.gui.show()
