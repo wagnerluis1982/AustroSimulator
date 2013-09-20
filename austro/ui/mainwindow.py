@@ -229,7 +229,7 @@ class MainWindow(object):
             # Assemble the program
             assembly = editor.toPlainText()
             asmd = assembler.assemble(assembly)
-        except asm_lexer.LexerException, e:
+        except (asm_lexer.LexerException, assembler.AssembleException), e:
             self.console.clear()
             self.console.appendPlainText(
                     "Attempt to load failed (%s)" % datetime.now())
