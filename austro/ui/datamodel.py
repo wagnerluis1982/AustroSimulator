@@ -107,7 +107,7 @@ class DataModel(QAbstractItemModel):
 
         return str.format(DataModel.FORMATS[self._fmt], data)
 
-    def index(self, row, column, parent=QModelIndex()):
+    def index(self, row, column=0, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 

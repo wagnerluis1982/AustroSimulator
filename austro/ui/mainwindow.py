@@ -46,7 +46,7 @@ class ModelsUpdater(StepEvent):
         self.win.memoryModel.pc = self.cpu.registers['PC']
         self.win.refreshModels()
         # Ensure memory position is visible
-        index = self.win.memoryModel.index(self.cpu.registers['PC'], 0)
+        index = self.win.memoryModel.index(self.cpu.registers['PC'])
         self.win.treeMemory.scrollTo(index)
 
 
