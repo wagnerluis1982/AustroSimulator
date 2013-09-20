@@ -282,7 +282,7 @@
     <string>Create a new program</string>
    </property>
    <property name="statusTip">
-    <string>Iniciar um novo programa</string>
+    <string>Start a new program</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -304,7 +304,7 @@
     <string>Open a saved program</string>
    </property>
    <property name="statusTip">
-    <string>Escolha um novo programa para exibir</string>
+    <string>Choose a new program to view</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -326,7 +326,7 @@
     <string>Save current program</string>
    </property>
    <property name="statusTip">
-    <string>Salva p programa atual no disco</string>
+    <string>Save current program on disk</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -342,7 +342,7 @@
     <string>&amp;Quit</string>
    </property>
    <property name="statusTip">
-    <string>Sair do Simulador Austro</string>
+    <string>Exit from Austro Simulator</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -361,7 +361,7 @@
     <string>Load program on memory</string>
    </property>
    <property name="statusTip">
-    <string>Carrega o programa atual na memória do simulador</string>
+    <string>Load current program on simulator's memory</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -383,7 +383,7 @@
     <string>Run all instructions until the end</string>
    </property>
    <property name="statusTip">
-    <string>Executa o programa por completo</string>
+    <string>Run whole program</string>
    </property>
    <property name="shortcut">
     <string>F5</string>
@@ -405,7 +405,7 @@
     <string>Step over current instruction</string>
    </property>
    <property name="statusTip">
-    <string>Execução instrução por instrução</string>
+    <string>Instruction by instruction execution</string>
    </property>
    <property name="shortcut">
     <string>F8</string>
@@ -427,7 +427,7 @@
     <string>See steps until the end of instruction</string>
    </property>
    <property name="statusTip">
-    <string>Mostra os pequenos passos para executar cada instrução</string>
+    <string>Show small steps to execute each instruction</string>
    </property>
    <property name="shortcut">
     <string>F9</string>
@@ -452,7 +452,7 @@
     <string>Stop the computer execution</string>
    </property>
    <property name="statusTip">
-    <string>Para a execução do programa</string>
+    <string>Stop program execution</string>
    </property>
    <property name="shortcut">
     <string>F10, F10</string>
@@ -468,12 +468,15 @@
     <string>&amp;About</string>
    </property>
    <property name="statusTip">
-    <string>Sobre o Simulador Austro</string>
+    <string>About Austro Simulator</string>
    </property>
   </action>
   <action name="actionAboutQt">
    <property name="text">
     <string>About &amp;Qt</string>
+   </property>
+   <property name="statusTip">
+    <string>About Qt</string>
    </property>
   </action>
  </widget>
