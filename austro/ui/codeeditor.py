@@ -30,6 +30,7 @@ class CodeEditor(QPlainTextEdit):
 
     def __init__(self, parent=None):
         super(CodeEditor, self).__init__(parent)
+        self.setTabStopWidth(40)
         self.lineNumberArea = LineNumberArea(self)
 
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
