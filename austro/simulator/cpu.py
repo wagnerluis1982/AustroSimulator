@@ -86,6 +86,10 @@ class CPU(object):
 
     def set_memory_block(self, words, start=0):
         assert isinstance(words, (list, tuple))
+        if len(words) > CPU.ADDRESS_SPACE:
+            raise CPUException(
+                    "Error: tried to set more memory than address space")
+
         for word in words:
             self.memory.set_word(start, word)
             start += 1
@@ -169,7 +173,7 @@ class CPU(object):
 
         # PC can't be greater than address space
         if registers['PC'] >= CPU.ADDRESS_SPACE:
-            raise Exception("PC register greater than address space")
+            raise CPUException("PC register greater than address space")
 
         registers['MAR'] = registers['PC']
         registers.set_word('MBR', memory.get_word(registers['MAR']))
@@ -616,7 +620,7 @@ class Registers(object):
         self._words[key] = word
         self[key] = word.value
         if self[key] != word.value:
-            raise Exception("Word data too large for the register")
+            raise CPUException("Word data too large for the register")
 
     def get_word(self, key):
         assert isinstance(key, (int, basestring))
@@ -656,7 +660,7 @@ class Memory(object):
         assert isinstance(word, Word)
 
         if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
+            raise CPUException("Address out of memory range")
 
         space_word = self._space[address]
         space_word.is_instruction = word.is_instruction
@@ -668,7 +672,7 @@ class Memory(object):
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
+            raise CPUException("Address out of memory range")
 
         return self._space[address]
 
@@ -677,7 +681,7 @@ class Memory(object):
         assert isinstance(data, int)
 
         if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
+            raise CPUException("Address out of memory range")
 
         self._space[address].value = data
 
@@ -685,7 +689,7 @@ class Memory(object):
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
-            raise Exception("Address out of memory range")
+            raise CPUException("Address out of memory range")
 
         return self._space[address].value
 
@@ -695,3 +699,7 @@ class Memory(object):
 
     def size(self):
         return self._size
+
+
+class CPUException(Exception):
+    pass
