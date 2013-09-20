@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import time
 
 from PySide.QtGui import *
 from PySide.QtCore import Qt, QThread
@@ -251,7 +252,7 @@ class MainWindow(object):
         while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
             try:
                 self.cpu.next()
-                QThread.msleep(200)
+                time.sleep(0.2)
             except CPUException, e:
                 self.cpu.stop()
                 self.console.appendPlainText(
