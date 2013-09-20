@@ -112,6 +112,7 @@ class MainWindow(object):
                 'N', 'Z', 'V', 'T',
             ))
         self.memoryModel = MemoryModel(self.cpu.memory)
+        self.memoryModel2 = MemoryModel(self.cpu.memory)
 
     #
     ## Get trees
@@ -135,11 +136,21 @@ class MainWindow(object):
         treeStateRegs.resizeColumnToContents(0)
         treeStateRegs.resizeColumnToContents(1)
 
+        # Main vision tree memory
         self.treeMemory = self.gui.findChild(QTreeView, "treeMemory")
         treeMemory = self.treeMemory
         treeMemory.setModel(self.memoryModel)
         treeMemory.resizeColumnToContents(0)
         treeMemory.resizeColumnToContents(1)
+
+        # Data vision tree memoy
+        treeMemory2 = self.gui.findChild(QTreeView, "treeMemory2")
+        treeMemory2.setModel(self.memoryModel2)
+        treeMemory2.resizeColumnToContents(0)
+        treeMemory2.resizeColumnToContents(1)
+        # Initially scroll to half of memory
+        index = self.memoryModel2.index(self.cpu.memory.size()//2)
+        treeMemory2.scrollTo(index)
 
         #
         ## Add a context menu to tree headers to select data format
@@ -171,6 +182,10 @@ class MainWindow(object):
         treeMemory.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeMemory.header().customContextMenuRequested.connect(
                 lambda pos: self.headerMenu(pos, treeMemory))
+
+        treeMemory2.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        treeMemory2.header().customContextMenuRequested.connect(
+                lambda pos: self.headerMenu(pos, treeMemory2))
 
     #
     ## Actions
@@ -274,6 +289,7 @@ class MainWindow(object):
         self.specRegsModel.refresh()
         self.stateRegsModel.refresh()
         self.memoryModel.refresh()
+        self.memoryModel2.refresh()
 
     def about(self):
         QMessageBox.about(self.gui, "About Austro Simulator", _about_)

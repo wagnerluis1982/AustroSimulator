@@ -176,24 +176,46 @@
        </layout>
       </widget>
       <widget class="QWidget" name="rightWidget" native="true">
-       <layout class="QGridLayout" name="gridLayout_7">
+       <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="QGroupBox" name="grpMemory">
-          <property name="title">
-           <string>Memory</string>
+         <widget class="QSplitter" name="memorySplitter">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QTreeView" name="treeMemory">
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-             <property name="rootIsDecorated">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="grpMemory">
+           <property name="title">
+            <string>Memory</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QTreeView" name="treeMemory">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="rootIsDecorated">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="grpMemory2">
+           <property name="title">
+            <string>Memory (data vision)</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QTreeView" name="treeMemory2">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="rootIsDecorated">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
