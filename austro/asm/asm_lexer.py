@@ -72,12 +72,16 @@ def t_NUMBER(t):
     return t
 
 def t_error(t):
-    raise Exception("Scanning error. Illegal character '%s' at line %d" % \
+    raise LexerException("Scanning error. Illegal character '%s' at line %d" % \
             (t.value[0], t.lineno))
 
 
 def get_lexer():
     return lex.lex()
+
+
+class LexerException(Exception):
+    pass
 
 
 if __name__ == "__main__":

@@ -145,7 +145,7 @@
           </widget>
           <widget class="QTabWidget" name="bottomTabWidget">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <widget class="QWidget" name="tabConsole">
             <attribute name="title">

@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 
 from PySide.QtGui import *
@@ -5,7 +6,7 @@ from PySide.QtCore import Qt, QThread
 from PySide.QtDeclarative import QDeclarativeView
 from PySide.QtUiTools import QUiLoader
 
-from austro.asm import assembler
+from austro.asm import assembler, asm_lexer
 from austro.simulator.cpu import CPU, Stage, StepEvent
 from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
 from austro.ui.models import DataModel, RegistersModel, MemoryModel
@@ -73,6 +74,9 @@ class MainWindow(object):
         self.asmEdit = self.gui.findChild(CodeEditor, "asmEdit")
         self.asmEdit.setFocus()
         AssemblyHighlighter(self.asmEdit.document())
+
+        # Get console area
+        self.console = self.gui.findChild(QPlainTextEdit, "txtConsole")
 
         # Set QML file
         cpuDiagram = self.gui.findChild(QDeclarativeView, "cpuDiagram")
@@ -211,24 +215,32 @@ class MainWindow(object):
         self.actionAboutQt.triggered.connect(self.aboutQt)
 
     def loadAssembly(self):
-        # Disable editor so will reflect the running program
-        editor = self.asmEdit
-        editor.setDisabled()
-
-        # Assemble the program
-        assembly = editor.toPlainText()
-        asmd = assembler.assemble(assembly)
-
-        # Reset and set the memory with the written program
-        self.cpu.reset()
-        self.cpu.set_memory_block(asmd['words'])
-        self.refreshModels()
-
         # Enable/Disable actions
         self.actionLoad.setEnabled(False)
         self.actionRun.setEnabled(True)
         self.actionStep.setEnabled(True)
         self.actionStop.setEnabled(True)
+
+        # Disable editor so will reflect the simulated running program
+        editor = self.asmEdit
+        editor.setDisabled()
+
+        try:
+            # Assemble the program
+            assembly = editor.toPlainText()
+            asmd = assembler.assemble(assembly)
+        except asm_lexer.LexerException, e:
+            self.console.clear()
+            self.console.appendPlainText(
+                    "Attempt to load failed (%s)" % datetime.now())
+            self.console.appendPlainText(e.message)
+            self.restoreEditor()
+        else:
+            # Reset and set the memory with the written program
+            self.cpu.reset()
+            self.cpu.set_memory_block(asmd['words'])
+            self.refreshModels()
+
 
     def emitStart(self):
         while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
