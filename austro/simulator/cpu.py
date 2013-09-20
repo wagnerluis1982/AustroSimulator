@@ -216,27 +216,27 @@ class CPU(object):
                 self._jump_to(registers[op1])
         elif opcode in _('JNZ', 'JNE'):
             if registers['Z'] == 0:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JN', 'JLT'):
             if registers['N'] == 1:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JP', 'JGT'):
             if registers['Z'] == 0 and registers['N'] == 0:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JGE'):
             if registers['N'] == 0:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JLE'):
             if registers['Z'] == 1 or registers['N'] == 1:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JV'):
             if registers['V'] == 1:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JT'):
             if registers['T'] == 1:
-                self._jump(registers[op1])
+                self._jump_to(registers[op1])
         elif opcode in _('JMP'):
-            self._jump(registers[op1])
+            self._jump_to(registers[op1])
         # opcode == 'NOP' or invalid
         else:
             registers['PC'] += 1
