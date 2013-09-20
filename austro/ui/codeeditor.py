@@ -39,6 +39,11 @@ class CodeEditor(QPlainTextEdit):
         self.updateLineNumberAreaWidth(0)
         self.highlightCurrentLine()
 
+        self.defaultPalette = self.palette()
+        self.readOnlyPalette = self.palette()
+        self.readOnlyPalette.setColor(QPalette.Active, QPalette.Base,
+                QColor("#F4F4F4"))
+
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
         painter.fillRect(event.rect(), self.palette().color(QPalette.Window))
@@ -114,8 +119,10 @@ class CodeEditor(QPlainTextEdit):
         if enable:
             self.highlightCurrentLine(Qt.transparent, force=True)
             self.deselect()
+            self.setPalette(self.readOnlyPalette)
         else:
             self.highlightCurrentLine()
+            self.setPalette(self.defaultPalette)
 
     def highlightLine(self, lineNo, lineColor=QColor("#C6DBAE")):
         if lineNo > 0:
