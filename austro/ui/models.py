@@ -48,12 +48,11 @@ class RegistersModel(DataModel):
         return super(RegistersModel, self).data(index, role)
 
 
+# Model for memory data vision
 class MemoryModel(DataModel):
     def __init__(self, memory, parent=None):
         assert isinstance(memory, Memory), "It's not a memory object"
         super(MemoryModel, self).__init__(("Addr.", "Data (%s)"), parent)
-
-        self.pc = -1  # invalid program counter
 
         for addr in xrange(memory.size()):
             item = (addr, memory.get_word(addr))
@@ -62,8 +61,32 @@ class MemoryModel(DataModel):
     def data(self, index, role):
         if role == Qt.TextAlignmentRole:
             return Qt.AlignRight
-        elif role == Qt.BackgroundRole and self.pc >= 0 and \
+
+        return super(MemoryModel, self).data(index, role)
+
+
+# Model for memory general vision
+class GeneralMemoryModel(MemoryModel):
+    # New format option
+    F_INSTR = 5
+
+    def __init__(self, memory, parent=None):
+        super(GeneralMemoryModel, self).__init__(memory, parent)
+
+        # Invalid program counter
+        self.pc = -1
+
+        # Create reverse OPCODES mapping
+        from austro.asm.assembler import OPCODES
+        self.OPCODES = dict([(code, name) for name, code in OPCODES.items()
+                if name not in ('IMUL', 'IDIV', 'IMOD', 'ICMP')])
+
+    def data(self, index, role):
+        if role == Qt.BackgroundRole and self.pc >= 0 and \
                 index.row() == self.pc:
             return QBrush(QColor("#C6DBAE"))
 
-        return super(MemoryModel, self).data(index, role)
+        return super(GeneralMemoryModel, self).data(index, role)
+
+    def format(self, data, bits):
+        return super(GeneralMemoryModel, self).format(data, bits)

@@ -10,7 +10,8 @@ from PySide.QtUiTools import QUiLoader
 from austro.asm import assembler, asm_lexer
 from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
 from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
-from austro.ui.models import DataModel, RegistersModel, MemoryModel
+from austro.ui.models import (DataModel, RegistersModel, MemoryModel,
+        GeneralMemoryModel)
 
 
 __version__ = "0.0.1"
@@ -116,7 +117,7 @@ class MainWindow(object):
         self.stateRegsModel = RegistersModel(self.cpu.registers, (
                 'N', 'Z', 'V', 'T',
             ))
-        self.memoryModel = MemoryModel(self.cpu.memory)
+        self.memoryModel = GeneralMemoryModel(self.cpu.memory)
         self.memoryModel2 = MemoryModel(self.cpu.memory)
 
     #
