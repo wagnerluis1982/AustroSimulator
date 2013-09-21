@@ -95,9 +95,9 @@ class DataModel(QAbstractItemModel):
         elif self._fmt == DataModel.F_BIN:
             return str.format("0b{0:0%db}" % bits, data)
         elif self._fmt == DataModel.F_HEX:
-            return str.format("0x{0:0%dx}" % bits//4, data)
-        elif self._fmt == DataModel.F_OCT and data != 0:
-            return str.format("0{0:0%do}" % bits//3, data)
+            return str.format("0x{0:0%dx}" % (bits//4), data)
+        elif self._fmt == DataModel.F_OCT:
+            return str.format("0o{0:0%do}" % (bits//3), data)
 
         return data
 
@@ -153,7 +153,6 @@ class DataModel(QAbstractItemModel):
             return None
 
         item = index.internalPointer()
-
         column = index.column()
         if column == 1:
             return self.format(item.data(column), item.bits())
