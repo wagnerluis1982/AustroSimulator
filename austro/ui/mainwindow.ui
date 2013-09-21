@@ -323,9 +323,6 @@
    </property>
   </action>
   <action name="actionOpen">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="icon">
     <iconset theme="document-open">
      <normaloff/>
