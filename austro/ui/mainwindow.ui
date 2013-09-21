@@ -250,7 +250,19 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuExecute">
+    <property name="title">
+     <string>E&amp;xecute</string>
+    </property>
+    <addaction name="actionLoad"/>
+    <addaction name="separator"/>
+    <addaction name="actionRun"/>
+    <addaction name="actionStep"/>
+    <addaction name="actionMicrostep "/>
+    <addaction name="actionStop"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuExecute"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
