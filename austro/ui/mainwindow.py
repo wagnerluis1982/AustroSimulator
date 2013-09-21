@@ -14,7 +14,7 @@ from austro.ui.models import (DataModel, RegistersModel, MemoryModel,
         GeneralMemoryModel)
 
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 _about_ = """<h3>Austro Simulator %s</h3>
              <p>Copyright (C) 2013  Wagner Macedo</p>
 
@@ -185,13 +185,23 @@ class MainWindow(object):
         treeStateRegs.header().customContextMenuRequested.connect(
                 lambda pos: self.headerMenu(pos, treeStateRegs))
 
-        treeMemory.header().setContextMenuPolicy(Qt.CustomContextMenu)
-        treeMemory.header().customContextMenuRequested.connect(
-                lambda pos: self.headerMenu(pos, treeMemory))
-
         treeMemory2.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeMemory2.header().customContextMenuRequested.connect(
                 lambda pos: self.headerMenu(pos, treeMemory2))
+
+        # Context menu of general memory vision
+        contextMenu = QMenu()
+        contextMenu.addAction(decAction)
+        contextMenu.addAction(negAction)
+        contextMenu.addAction(binAction)
+        contextMenu.addAction(octAction)
+        contextMenu.addAction(hexAction)
+        instrAction = contextMenu.addAction("Instruction")
+        instrAction.setData(GeneralMemoryModel.F_INSTR)
+
+        treeMemory.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        treeMemory.header().customContextMenuRequested.connect(
+                lambda pos: self.headerMenu(pos, treeMemory, contextMenu))
 
     #
     ## Actions
@@ -294,13 +304,16 @@ class MainWindow(object):
         self.stopAndWait()
         self.restoreEditor()
 
-    def headerMenu(self, pos, tree=None):
+    def headerMenu(self, pos, tree=None, contextMenu=None):
         if tree is None:
             return
 
+        if contextMenu is None:
+            contextMenu = self.dataContextMenu
+
         column = tree.header().logicalIndexAt(pos)
         if column == 1:
-            action = self.dataContextMenu.exec_(tree.mapToGlobal(pos))
+            action = contextMenu.exec_(tree.mapToGlobal(pos))
             if action:
                 tree.model().setDataFormat(action.data())
 

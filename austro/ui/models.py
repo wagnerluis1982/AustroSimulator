@@ -86,7 +86,19 @@ class GeneralMemoryModel(MemoryModel):
                 index.row() == self.pc:
             return QBrush(QColor("#C6DBAE"))
 
+        if self._fmt == self.F_INSTR and role == Qt.DisplayRole and \
+                index.isValid() and index.column() == 1:
+            word = index.internalPointer()._itemData[1]
+            if word.is_instruction:
+                return self.OPCODES[word.opcode]
+
         return super(GeneralMemoryModel, self).data(index, role)
 
-    def format(self, data, bits):
-        return super(GeneralMemoryModel, self).format(data, bits)
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if self._fmt == self.F_INSTR and orientation == Qt.Horizontal and \
+                role == Qt.DisplayRole and section == 1:
+            header = self._rootItem.data(section)
+            return header % 'INSTR.'
+
+        return super(GeneralMemoryModel, self).headerData(section, orientation,
+                role)
