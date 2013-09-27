@@ -23,15 +23,19 @@ from austro.asm.memword import Word
 
 
 OPCODES = {
+        # Control Unit instructions
         'NOP': 0b00000, 'HALT': 0b00001, 'MOV': 0b00010,  'JZ':  0b00011,
         'JE':  0b00011, 'JNZ':  0b00100, 'JNE': 0b00100,  'JN':  0b00101,
         'JLT': 0b00101, 'JP':   0b00110, 'JGT': 0b00110,  'JGE': 0b00111,
         'JLE': 0b01000, 'JV':   0b01001, 'JT':  0b01010,  'JMP': 0b01011,
-        'SHR': 0b01100, 'SHL':  0b01101, 'ADD': 0b10000,  'INC': 0b10001,
-        'DEC': 0b10010, 'SUB':  0b10011, 'MUL': 0b10100, 'IMUL': 0b10100,
-        'OR':  0b10101, 'AND':  0b10110, 'NOT': 0b10111, 'XOR':  0b11000,
-        'DIV': 0b11001, 'IDIV': 0b11001, 'MOD': 0b11010, 'IMOD': 0b11010,
-        'CMP': 0b11011, 'ICMP': 0b11011,
+        'SEG': 0b01110,
+        # Shift Unit instructions
+        'SHR': 0b01100, 'SHL':  0b01101,
+        # ALU instructions
+        'ADD': 0b10000,  'INC': 0b10001, 'DEC': 0b10010, 'SUB':  0b10011,
+        'MUL': 0b10100, 'IMUL': 0b10100, 'OR':  0b10101, 'AND':  0b10110,
+        'NOT': 0b10111, 'XOR':  0b11000, 'DIV': 0b11001, 'IDIV': 0b11001,
+        'MOD': 0b11010, 'IMOD': 0b11010, 'CMP': 0b11011, 'ICMP': 0b11011,
     }
 
 REGISTERS = {
@@ -70,7 +74,7 @@ def memory_words(opcode, op1=None, op2=None):
     elif op2 is None:
         jumps = ('JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
                  'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ',)
-        others = ('DEC', 'INC', 'NOT',)
+        others = ('DEC', 'INC', 'NOT', 'SEG')
         # Jump instructions
         if opname in jumps:
             if op1.type == 'NAME':
@@ -91,7 +95,7 @@ def memory_words(opcode, op1=None, op2=None):
                 instr_word.flags = 2
                 return (instr_word,)
 
-        # INC, DEC and NOT instructions
+        # INC, DEC, NOT and SEG instructions
         elif opname in others:
             if op1.type == 'NAME':
                 try:

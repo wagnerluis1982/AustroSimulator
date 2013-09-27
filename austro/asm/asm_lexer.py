@@ -21,7 +21,7 @@ instructions = (
         'ADD', 'AND', 'CMP', 'DEC', 'DIV', 'HALT', 'ICMP', 'IDIV', 'IMOD',
         'IMUL', 'INC', 'JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP', 'JN', 'JNE',
         'JNZ', 'JP', 'JT', 'JV', 'JZ', 'MOD', 'MOV', 'MUL', 'NOP', 'NOT', 'OR',
-        'SHL', 'SHR', 'SUB', 'XOR',
+        'SHL', 'SHR', 'SUB', 'XOR', 'SEG'
     )
 tokens = ("LABEL", "OPCODE", "NAME", "REFERENCE", "NUMBER", "COMMA", "COMMENT")
 
