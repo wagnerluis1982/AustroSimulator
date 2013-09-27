@@ -323,7 +323,7 @@ class MainWindow(object):
             if answer == QMessageBox.Cancel:
                 return
 
-            self.asmEdit.setPlainText(open(filename).read())
+        self.asmEdit.setPlainText(open(filename).read())
 
     def headerMenu(self, pos, tree=None, contextMenu=None):
         if tree is None:
