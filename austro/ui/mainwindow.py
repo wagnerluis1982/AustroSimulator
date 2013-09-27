@@ -4,6 +4,7 @@ import time
 
 from PySide.QtGui import *
 from PySide.QtCore import Qt, QThread
+from PySide.QtWebKit import QWebView
 from PySide.QtDeclarative import QDeclarativeView
 from PySide.QtUiTools import QUiLoader
 
@@ -83,6 +84,9 @@ class MainWindow(object):
         # Set QML file
         cpuDiagram = self.gui.findChild(QDeclarativeView, "cpuDiagram")
         cpuDiagram.setSource(_resource('qml', 'computer.qml'))
+
+        webInstruct = self.gui.findChild(QWebView, "webInstruct")
+        webInstruct.setUrl(_resource('html', 'instructions.html'))
 
     #
     ## Define size factor for each splitted region.

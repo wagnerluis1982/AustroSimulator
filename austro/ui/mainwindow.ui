@@ -142,6 +142,26 @@
              </item>
             </layout>
            </widget>
+           <widget class="QWidget" name="tabInstr">
+            <attribute name="icon">
+             <iconset theme="user-identity"/>
+            </attribute>
+            <attribute name="title">
+             <string>Instructions</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QWebView" name="webInstruct">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
           <widget class="QTabWidget" name="bottomTabWidget">
            <property name="enabled">
@@ -516,6 +536,11 @@
    <class>QDeclarativeView</class>
    <extends>QGraphicsView</extends>
    <header>QtDeclarative/QDeclarativeView</header>
+  </customwidget>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
   <customwidget>
    <class>CodeEditor</class>
