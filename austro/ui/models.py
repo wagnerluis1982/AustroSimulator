@@ -54,7 +54,7 @@ class MemoryModel(DataModel):
         assert isinstance(memory, Memory), "It's not a memory object"
         super(MemoryModel, self).__init__(("Addr.", "Data (%s)"), parent)
 
-        for addr in xrange(memory.size()):
+        for addr in range(memory.size()):
             item = (addr, memory.get_word(addr))
             self._rootItem.appendChild(DataItem(item))
 
@@ -78,7 +78,7 @@ class GeneralMemoryModel(MemoryModel):
 
         # Create reverse OPCODES mapping
         from austro.asm.assembler import OPCODES
-        self.OPCODES = dict([(code, name) for name, code in OPCODES.items()
+        self.OPCODES = dict([(code, name) for name, code in list(OPCODES.items())
                 if name not in ('IMUL', 'IDIV', 'IMOD', 'ICMP')])
 
     def data(self, index, role):

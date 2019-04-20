@@ -145,7 +145,7 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.operand |= REGISTERS[op2.value.upper()]
                     # flag x00 - no needs to set
-                except KeyError, e:
+                except KeyError as e:
                     bad_reg = op1 if e.args == op1.value.upper() else op2
                     raise AssembleException("Error: bad register name '%s'" %
                             bad_reg.value, bad_reg.lineno)
@@ -304,7 +304,7 @@ def assemble(code):
     verify_pending_labels()
 
     # Interrupt assembling if has any jump missing label
-    for mlb in miss_labels.items():
+    for mlb in list(miss_labels.items()):
         raise AssembleException("Invalid label '%s'" % mlb[0],
                 mlb[1][0].lineno)
 

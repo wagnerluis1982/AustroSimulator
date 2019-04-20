@@ -65,7 +65,7 @@ class CodeEditor(QPlainTextEdit):
                 painter.drawText(0, top, areaWidth - rightMargin,
                         self.fontMetrics().height(), Qt.AlignRight, number)
 
-            block = block.next()
+            block = next(block)
             top = bottom
             bottom = top + self.blockBoundingRect(block).height()
             blockNumber += 1
@@ -178,7 +178,7 @@ class AssemblyHighlighter(QSyntaxHighlighter):
 
         self.opcodeFormat.setForeground(Qt.darkBlue)
         self.opcodeFormat.setFontWeight(QFont.Bold)
-        opcodePatterns = OPCODES.keys()
+        opcodePatterns = list(OPCODES.keys())
         for pattern in opcodePatterns:
             rule = HighlightingRule()
             rule.pattern = QRegExp(r'\b%s\b' % pattern, Qt.CaseInsensitive)
@@ -187,7 +187,7 @@ class AssemblyHighlighter(QSyntaxHighlighter):
 
         self.registerFormat.setForeground(Qt.darkMagenta);
         self.registerFormat.setFontWeight(QFont.Bold);
-        registerPatterns = REGISTERS.keys()
+        registerPatterns = list(REGISTERS.keys())
         for pattern in registerPatterns:
             rule = HighlightingRule()
             rule.pattern = QRegExp(r'\b%s\b' % pattern, Qt.CaseInsensitive)

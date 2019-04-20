@@ -248,7 +248,7 @@ class MainWindow(object):
             # Assemble the program
             assembly = editor.toPlainText()
             asmd = assembler.assemble(assembly)
-        except (asm_lexer.LexerException, assembler.AssembleException), e:
+        except (asm_lexer.LexerException, assembler.AssembleException) as e:
             self.console.clear()
             self.console.appendPlainText(
                     "Attempt to load failed (%s)" % datetime.now())
@@ -260,7 +260,7 @@ class MainWindow(object):
                 self.cpu.reset()
                 self.cpu.set_memory_block(asmd['words'])
                 self.refreshModels()
-            except CPUException, e:
+            except CPUException as e:
                 self.console.appendPlainText(
                         "Attempt to load failed (%s)" % datetime.now())
                 self.console.appendPlainText(e.message)
@@ -269,9 +269,9 @@ class MainWindow(object):
     def emitStart(self):
         while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
             try:
-                self.cpu.next()
+                next(self.cpu)
                 time.sleep(0.2)
-            except CPUException, e:
+            except CPUException as e:
                 self.cpu.stop()
                 self.console.appendPlainText(
                         "Execution failed (%s)" % datetime.now())
@@ -290,8 +290,8 @@ class MainWindow(object):
 
     def nextInstruction(self):
         try:
-            self.cpu.next()
-        except CPUException, e:
+            next(self.cpu)
+        except CPUException as e:
             self.console.appendPlainText(
                     "Execution failed (%s)" % datetime.now())
             self.console.appendPlainText(e.message)

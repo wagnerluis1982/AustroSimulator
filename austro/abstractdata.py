@@ -23,4 +23,4 @@ class AbstractData(object):
         return self._bits
     @bits.setter
     def bits(self, value):
-        self._bits == value
+        self._bits = value

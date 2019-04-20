@@ -25,8 +25,7 @@ from austro.asm.memword import Word
 from austro.simulator.register import *
 
 
-class StepEvent(object):
-    __metaclass__ = ABCMeta
+class StepEvent(object, metaclass=ABCMeta):
     _cpu = None
 
     @abstractmethod
@@ -98,14 +97,14 @@ class CPU(object):
 
     def start(self):
         while self.stage not in (Stage.HALTED, Stage.STOPPED):
-            self.next()
+            next(self)
 
         if self.stage == Stage.STOPPED:
             return False
 
         return True
 
-    def next(self):
+    def __next__(self):
         registers = self.registers
         memory = self.memory
 
@@ -521,7 +520,7 @@ class Registers(object):
     '''Container to store the CPU registers'''
 
     # Map of register names as keys and it number identifiers as values
-    INDEX = dict(REGISTERS.items() + [
+    INDEX = dict(list(REGISTERS.items()) + [
             # Specific registers
             ('PC', 16),
             ('RI', 17),
@@ -582,24 +581,24 @@ class Registers(object):
         init_register('TMP', Reg16())
 
     def clear(self):
-        for reg in self._regs.values():
+        for reg in list(self._regs.values()):
             reg.value = 0
 
         self._words.clear()
 
     def set_reg(self, key, reg):
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, str))
         assert isinstance(reg, BaseReg)
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = Registers.INDEX[key]
 
         self._regs[key].value = reg.value
 
     def get_reg(self, key):
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, str))
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = Registers.INDEX[key]
 
         return self._regs[key]
@@ -611,10 +610,10 @@ class Registers(object):
         register value is changed, the changes will not back to the original
         word.
         """
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, str))
         assert isinstance(word, Word)
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = Registers.INDEX[key]
 
         self._words[key] = word
@@ -623,26 +622,26 @@ class Registers(object):
             raise CPUException("Word data too large for the register")
 
     def get_word(self, key):
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, str))
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = Registers.INDEX[key]
 
         return self._words[key]
 
     def __setitem__(self, key, value):
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, str))
         assert isinstance(value, int)
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = Registers.INDEX[key]
 
         self._regs[key].value = value
 
     def __getitem__(self, key):
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, str))
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = Registers.INDEX[key]
 
         return self._regs[key].value
@@ -652,7 +651,7 @@ class Memory(object):
     def __init__(self, size):
         self._size = size
         self._space = []
-        for i in xrange(size):
+        for i in range(size):
             self._space.append(Word())
 
     def set_word(self, address, word):
@@ -702,4 +701,6 @@ class Memory(object):
 
 
 class CPUException(Exception):
-    pass
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
