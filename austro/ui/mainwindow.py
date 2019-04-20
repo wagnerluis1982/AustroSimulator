@@ -2,11 +2,13 @@ from datetime import datetime
 import os
 import time
 
-from PySide.QtGui import *
-from PySide.QtCore import Qt, QThread
-from PySide.QtWebKit import QWebView
-from PySide.QtDeclarative import QDeclarativeView
-from PySide.QtUiTools import QUiLoader
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QThread
+# from PyQt5.QtWebKit import QWebView
+# from PyQt5.QtDeclarative import QDeclarativeView
+# from PyQt5.QtUiTools import QUiLoader
+from PyQt5 import uic
 
 from austro.asm import assembler, asm_lexer
 from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
@@ -33,7 +35,7 @@ _about_ = """<h3>Austro Simulator %s</h3>
 
 
 def _resource(*rsc):
-    directory = os.path.dirname(__file__).decode("utf8")
+    directory = os.path.dirname(__file__)
     return os.path.join(directory, *rsc)
 
 
@@ -62,9 +64,9 @@ class MainWindow(object):
 
         qApp.lastWindowClosed.connect(self.stopAndWait)
 
-        loader = QUiLoader()
-        loader.registerCustomWidget(CodeEditor)
-        self.gui = loader.load(_resource('mainwindow.ui'))
+        # loader = QUiLoader()
+        # loader.registerCustomWidget(CodeEditor)
+        self.gui = uic.loadUi(_resource('mainwindow.ui'))
 
         self.setupEditorAndDiagram()
         self.setupSplitters()
@@ -82,11 +84,11 @@ class MainWindow(object):
         self.console = self.gui.findChild(QPlainTextEdit, "txtConsole")
 
         # Set QML file
-        cpuDiagram = self.gui.findChild(QDeclarativeView, "cpuDiagram")
-        cpuDiagram.setSource(_resource('qml', 'computer.qml'))
+        # cpuDiagram = self.gui.findChild(QDeclarativeView, "cpuDiagram")
+        # cpuDiagram.setSource(_resource('qml', 'computer.qml'))
 
-        webInstruct = self.gui.findChild(QWebView, "webInstruct")
-        webInstruct.setUrl(_resource('html', 'instructions.html'))
+        # webInstruct = self.gui.findChild(QWebView, "webInstruct")
+        # webInstruct.setUrl(_resource('html', 'instructions.html'))
 
     #
     ## Define size factor for each splitted region.

@@ -19,8 +19,9 @@
 ## The code here was vastly based on Qt Tutorials. See: <http://qt-project.org>
 #
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 from austro.asm.assembler import OPCODES, REGISTERS
 
@@ -65,7 +66,7 @@ class CodeEditor(QPlainTextEdit):
                 painter.drawText(0, top, areaWidth - rightMargin,
                         self.fontMetrics().height(), Qt.AlignRight, number)
 
-            block = next(block)
+            block = block.next()
             top = bottom
             bottom = top + self.blockBoundingRect(block).height()
             blockNumber += 1
@@ -185,8 +186,8 @@ class AssemblyHighlighter(QSyntaxHighlighter):
             rule.format = self.opcodeFormat
             self.highlightingRules.append(rule)
 
-        self.registerFormat.setForeground(Qt.darkMagenta);
-        self.registerFormat.setFontWeight(QFont.Bold);
+        self.registerFormat.setForeground(Qt.darkMagenta)
+        self.registerFormat.setFontWeight(QFont.Bold)
         registerPatterns = list(REGISTERS.keys())
         for pattern in registerPatterns:
             rule = HighlightingRule()

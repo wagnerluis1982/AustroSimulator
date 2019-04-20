@@ -1,6 +1,6 @@
 import sys
 
-from PySide.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 from austro.ui.mainwindow import MainWindow
 
 

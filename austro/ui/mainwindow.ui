@@ -18,8 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset theme="cpu">
-    <normaloff/>
-   </iconset>
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <widget class="QWidget" name="mainwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -95,8 +94,7 @@
            <widget class="QWidget" name="tabPrg">
             <attribute name="icon">
              <iconset theme="document-edit">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string>Program</string>
@@ -120,8 +118,7 @@
            <widget class="QWidget" name="tabCpt">
             <attribute name="icon">
              <iconset theme="computer">
-              <normaloff/>
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string>Computer</string>
@@ -129,38 +126,17 @@
             <attribute name="toolTip">
              <string>Computer diagram</string>
             </attribute>
-            <layout class="QGridLayout" name="gridLayout_6">
-             <item row="0" column="0">
-              <widget class="QDeclarativeView" name="cpuDiagram">
-               <property name="verticalScrollBarPolicy">
-                <enum>Qt::ScrollBarAsNeeded</enum>
-               </property>
-               <property name="horizontalScrollBarPolicy">
-                <enum>Qt::ScrollBarAsNeeded</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <layout class="QGridLayout" name="gridLayout_6"/>
            </widget>
            <widget class="QWidget" name="tabInstr">
             <attribute name="icon">
-             <iconset theme="user-identity"/>
+             <iconset theme="user-identity">
+              <normaloff>.</normaloff>.</iconset>
             </attribute>
             <attribute name="title">
              <string>Instructions</string>
             </attribute>
-            <layout class="QGridLayout" name="gridLayout_3">
-             <item row="0" column="0">
-              <widget class="QWebView" name="webInstruct">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <layout class="QGridLayout" name="gridLayout_3"/>
            </widget>
           </widget>
           <widget class="QTabWidget" name="bottomTabWidget">
@@ -250,7 +226,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>21</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -326,8 +302,7 @@
    </property>
    <property name="icon">
     <iconset theme="document-new">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -345,8 +320,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset theme="document-open">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Open</string>
@@ -367,8 +341,7 @@
    </property>
    <property name="icon">
     <iconset theme="document-save">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -386,8 +359,7 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset theme="application-exit">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -402,11 +374,10 @@
   <action name="actionLoad">
    <property name="icon">
     <iconset theme="media-flash">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Load</string>
+    <string>&amp;Load</string>
    </property>
    <property name="toolTip">
     <string>Load program on memory</string>
@@ -424,11 +395,10 @@
    </property>
    <property name="icon">
     <iconset theme="system-run">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Run</string>
+    <string>&amp;Run</string>
    </property>
    <property name="toolTip">
     <string>Run all instructions until the end</string>
@@ -446,11 +416,10 @@
    </property>
    <property name="icon">
     <iconset theme="debug-step-over">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Step</string>
+    <string>&amp;Step</string>
    </property>
    <property name="toolTip">
     <string>Step over current instruction</string>
@@ -468,11 +437,10 @@
    </property>
    <property name="icon">
     <iconset theme="debug-step-into">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Micro-step</string>
+    <string>&amp;Micro-step</string>
    </property>
    <property name="toolTip">
     <string>See steps until the end of instruction</string>
@@ -493,11 +461,10 @@
    </property>
    <property name="icon">
     <iconset theme="process-stop">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Stop</string>
+    <string>St&amp;op</string>
    </property>
    <property name="toolTip">
     <string>Stop the computer execution</string>
@@ -512,8 +479,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset theme="help-about">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;About</string>
@@ -533,19 +499,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QDeclarativeView</class>
-   <extends>QGraphicsView</extends>
-   <header>QtDeclarative/QDeclarativeView</header>
-  </customwidget>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
-  <customwidget>
    <class>CodeEditor</class>
    <extends>QPlainTextEdit</extends>
-   <header>codeeditor.h</header>
+   <header>austro/ui/codeeditor.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -557,7 +513,6 @@
   <tabstop>txtConsole</tabstop>
   <tabstop>mainTabWidget</tabstop>
   <tabstop>bottomTabWidget</tabstop>
-  <tabstop>cpuDiagram</tabstop>
  </tabstops>
  <resources/>
  <connections>

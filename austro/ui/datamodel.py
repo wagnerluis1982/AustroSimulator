@@ -17,7 +17,7 @@
 
 import ctypes
 
-from PySide.QtCore import QAbstractItemModel, QModelIndex, Qt
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 
 class DataItem(object):
