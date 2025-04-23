@@ -1,6 +1,12 @@
+# Documentation
+/doc/html/
+
+# Python bytecode
+*.py[co]
+
+# IDEs & editors
 /aplicacao.pro
 /aplicacao.pro.user
-/doc/html/
 *.autosave
-*.py[co]
 *.swp
+.idea/
