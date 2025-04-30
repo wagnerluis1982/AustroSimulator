@@ -304,7 +304,7 @@ def assemble(code):
     verify_pending_labels()
 
     # Interrupt assembling if has any jump missing label
-    for mlb in list(miss_labels.items()):
+    for mlb in miss_labels.items():
         raise AssembleException("Invalid label '%s'" % mlb[0],
                 mlb[1][0].lineno)
 
@@ -312,9 +312,11 @@ def assemble(code):
 
 
 class AssembleException(Exception):
+    message: str
+
     def __init__(self, message, lineno):
-        super(AssembleException, self).__init__(message +
-                " at line %d" % lineno)
+        self.message = message + " at line %d" % lineno
+        super().__init__(self.message)
 
 
 def main():

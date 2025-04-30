@@ -520,20 +520,23 @@ class Registers(object):
     '''Container to store the CPU registers'''
 
     # Map of register names as keys and it number identifiers as values
-    INDEX = dict(list(REGISTERS.items()) + [
+    INDEX = {
+        **REGISTERS,
+        **{
             # Specific registers
-            ('PC', 16),
-            ('RI', 17),
-            ('MAR', 18),
-            ('MBR', 19),
+            "PC": 16,
+            "RI": 17,
+            "MAR": 18,
+            "MBR": 19,
             # State registers
-            ('N', 20),
-            ('Z', 21),
-            ('V', 22),
-            ('T', 23),
+            "N": 20,
+            "Z": 21,
+            "V": 22,
+            "T": 23,
             # Internal (not visible)
-            ('TMP', 90),
-        ])
+            "TMP": 90,
+        },
+    }
 
     def __init__(self):
         self._regs = {}
@@ -581,7 +584,7 @@ class Registers(object):
         init_register('TMP', Reg16())
 
     def clear(self):
-        for reg in list(self._regs.values()):
+        for reg in self._regs.values():
             reg.value = 0
 
         self._words.clear()
