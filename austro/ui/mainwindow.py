@@ -270,18 +270,8 @@ class MainWindow(object):
 
     def emitStart(self):
         while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
-            try:
-                next(self.cpu)
-                time.sleep(0.2)
-            except CPUException as e:
-                self.cpu.stop()
-                self.console.appendPlainText(
-                        "Execution failed (%s)" % datetime.now())
-                self.console.appendPlainText(e.message)
-                self.restoreEditor()
-
-        self.refreshModels()
-        self.restoreEditor()
+            self.nextInstruction()
+            time.sleep(0.2)
 
     def runAction(self):
         self.actionRun.setEnabled(False)
@@ -297,17 +287,17 @@ class MainWindow(object):
             self.console.appendPlainText(
                     "Execution failed (%s)" % datetime.now())
             self.console.appendPlainText(e.message)
+
+        if self.cpu.stage in (Stage.HALTED, Stage.STOPPED):
+            self.refreshModels()
             self.restoreEditor()
-        else:
-            if self.cpu.stage == Stage.HALTED:
-                self.refreshModels()
-                self.restoreEditor()
 
     def stopAndWait(self):
         # Stop correctly
         self.cpu.stop()
         if self.emitter is not None:
             self.emitter.wait()
+            self.emitter = None
 
     def stopAction(self):
         self.stopAndWait()
@@ -372,7 +362,7 @@ class MainWindow(object):
 
 class Emitter(QThread):
     def __init__(self, fn):
-        super(Emitter, self).__init__()
+        super().__init__()
         self.fn = fn
 
     def run(self):

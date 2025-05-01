@@ -105,6 +105,13 @@ class CPU(object):
         return True
 
     def __next__(self):
+        try:
+            return self._do_next()
+        except CPUException:
+            self.stage = Stage.STOPPED
+            raise
+
+    def _do_next(self):
         registers = self.registers
         memory = self.memory
 
@@ -704,6 +711,8 @@ class Memory(object):
 
 
 class CPUException(Exception):
+    message: str
+
     def __init__(self, message):
         super().__init__(message)
         self.message = message
