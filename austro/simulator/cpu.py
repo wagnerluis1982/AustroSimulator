@@ -22,6 +22,7 @@ from abc import ABCMeta, abstractmethod
 
 from austro.asm.assembler import REGISTERS, OPCODES
 from austro.asm.memword import Word
+from austro.shared import AustroException
 from austro.simulator.register import *
 
 
@@ -710,9 +711,5 @@ class Memory(object):
         return self._size
 
 
-class CPUException(Exception):
-    message: str
-
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
+class CPUException(AustroException):
+    pass

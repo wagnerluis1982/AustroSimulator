@@ -17,7 +17,7 @@
 
 import ctypes
 
-from austro.abstractdata import AbstractData
+from austro.shared import AbstractData
 
 
 class BaseReg(AbstractData):

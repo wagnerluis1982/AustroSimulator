@@ -20,6 +20,7 @@
 
 from austro.asm.asm_lexer import get_lexer
 from austro.asm.memword import Word
+from austro.shared import AustroException
 
 
 OPCODES = {
@@ -311,12 +312,9 @@ def assemble(code):
     return {'labels': labels, 'words': words}
 
 
-class AssembleException(Exception):
-    message: str
-
+class AssembleException(AustroException):
     def __init__(self, message, lineno):
-        self.message = message + " at line %d" % lineno
-        super().__init__(self.message)
+        super().__init__(message + " at line %d" % lineno)
 
 
 def main():
