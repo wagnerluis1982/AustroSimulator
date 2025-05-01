@@ -617,7 +617,7 @@ class Registers(object):
     def set_word(self, key, word):
         """Convenient way to store a word in a register
 
-        WARNING: althought this method set the current register value, if a
+        WARNING: although this method set the current register value, if a
         register value is changed, the changes will not back to the original
         word.
         """
