@@ -15,12 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
+
 class AbstractData(object):
     _bits = 0
 
     @property
     def bits(self):
         return self._bits
+
     @bits.setter
     def bits(self, value):
         self._bits = value
+
+
+class AustroException(Exception):
+    message: str
+
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message

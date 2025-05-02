@@ -22,6 +22,7 @@ from abc import ABCMeta, abstractmethod
 
 from austro.asm.assembler import REGISTERS, OPCODES
 from austro.asm.memword import Word
+from austro.shared import AustroException
 from austro.simulator.register import *
 
 
@@ -105,6 +106,13 @@ class CPU(object):
         return True
 
     def __next__(self):
+        try:
+            return self._do_next()
+        except CPUException:
+            self.stage = Stage.STOPPED
+            raise
+
+    def _do_next(self):
         registers = self.registers
         memory = self.memory
 
@@ -520,20 +528,23 @@ class Registers(object):
     '''Container to store the CPU registers'''
 
     # Map of register names as keys and it number identifiers as values
-    INDEX = dict(list(REGISTERS.items()) + [
+    INDEX = {
+        **REGISTERS,
+        **{
             # Specific registers
-            ('PC', 16),
-            ('RI', 17),
-            ('MAR', 18),
-            ('MBR', 19),
+            "PC": 16,
+            "RI": 17,
+            "MAR": 18,
+            "MBR": 19,
             # State registers
-            ('N', 20),
-            ('Z', 21),
-            ('V', 22),
-            ('T', 23),
+            "N": 20,
+            "Z": 21,
+            "V": 22,
+            "T": 23,
             # Internal (not visible)
-            ('TMP', 90),
-        ])
+            "TMP": 90,
+        },
+    }
 
     def __init__(self):
         self._regs = {}
@@ -581,7 +592,7 @@ class Registers(object):
         init_register('TMP', Reg16())
 
     def clear(self):
-        for reg in list(self._regs.values()):
+        for reg in self._regs.values():
             reg.value = 0
 
         self._words.clear()
@@ -606,7 +617,7 @@ class Registers(object):
     def set_word(self, key, word):
         """Convenient way to store a word in a register
 
-        WARNING: althought this method set the current register value, if a
+        WARNING: although this method set the current register value, if a
         register value is changed, the changes will not back to the original
         word.
         """
@@ -700,7 +711,5 @@ class Memory(object):
         return self._size
 
 
-class CPUException(Exception):
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
+class CPUException(AustroException):
+    pass

@@ -17,6 +17,8 @@
 
 from ply import lex
 
+from austro.shared import AustroException
+
 instructions = (
         'ADD', 'AND', 'CMP', 'DEC', 'DIV', 'HALT', 'ICMP', 'IDIV', 'IMOD',
         'IMUL', 'INC', 'JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP', 'JN', 'JNE',
@@ -80,7 +82,7 @@ def get_lexer():
     return lex.lex()
 
 
-class LexerException(Exception):
+class LexerException(AustroException):
     pass
 
 

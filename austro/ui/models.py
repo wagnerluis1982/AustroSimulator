@@ -78,7 +78,7 @@ class GeneralMemoryModel(MemoryModel):
 
         # Create reverse OPCODES mapping
         from austro.asm.assembler import OPCODES
-        self.OPCODES = dict([(code, name) for name, code in list(OPCODES.items())
+        self.OPCODES = dict([(code, name) for name, code in OPCODES.items()
                 if name not in ('IMUL', 'IDIV', 'IMOD', 'ICMP')])
 
     def data(self, index, role):

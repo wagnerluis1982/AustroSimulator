@@ -20,6 +20,7 @@
 
 from austro.asm.asm_lexer import get_lexer
 from austro.asm.memword import Word
+from austro.shared import AustroException
 
 
 OPCODES = {
@@ -45,6 +46,18 @@ REGISTERS = {
         'SP': 0b1100, 'BP': 0b1101, 'SI': 0b1110, 'DI': 0b1111,
     }
 
+OP_ZERO_ARGS = ("NOP", "HALT")
+OP_ONE_ARGS = (
+    "JE", "JGE", "JGT", "JLE", "JLT", "JMP",
+    "JN", "JNE", "JNZ", "JP", "JT", "JV", "JZ",
+    "DEC", "INC", "NOT", "SEG",
+)
+OP_TWO_ARGS = (
+    "SHR", "SHL",
+    "MOV", "CMP", "ICMP", "DIV", "IDIV", "MOD", "IMOD",
+    "MUL", "IMUL", "AND", "OR", "XOR", "ADD", "SUB",
+)
+
 
 def memory_words(opcode, op1=None, op2=None):
     """Construct memory words using Word objects
@@ -62,28 +75,30 @@ def memory_words(opcode, op1=None, op2=None):
     try:
         instr_word = Word(OPCODES[opname], lineno=opcode.lineno, is_instruction=True)
     except KeyError:
-        raise AssembleException("Invalid instruction '%s'" % opname,
-                opcode.lineno)
+        raise AssembleException(f"Invalid instruction '{opname}'", opcode.lineno)
 
     # zero-operand instructions
-    if op1 is None:
-        if opname in ('NOP', 'HALT'):
-            return (instr_word,)
+    if opname in OP_ZERO_ARGS:
+        if op1 is not None:
+            raise AssembleException(f"Error: operand '{op1.value}' found for no-arg '{opname}'", opcode.lineno)
+
+        return (instr_word,)
 
     # 1-operand instructions
-    elif op2 is None:
-        jumps = ('JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
-                 'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ',)
-        others = ('DEC', 'INC', 'NOT', 'SEG')
+    elif opname in OP_ONE_ARGS:
+        if op1 is None:
+            raise AssembleException(f"Error: missing operand for '{opname}'", opcode.lineno)
+        if op2 is not None:
+            raise AssembleException(f"Error: second operand '{op2.value}' found for 1-arg '{opname}'", opcode.lineno)
+
         # Jump instructions
-        if opname in jumps:
+        if opname.startswith("J"):
             if op1.type == 'NAME':
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError:
-                    raise AssembleException("Error: bad register name '%s'" %
-                            op1.value, op1.lineno)
+                    raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
                 return (instr_word,)
             elif op1.type == 'REFERENCE':
@@ -96,14 +111,13 @@ def memory_words(opcode, op1=None, op2=None):
                 return (instr_word,)
 
         # INC, DEC, NOT and SEG instructions
-        elif opname in others:
+        else:
             if op1.type == 'NAME':
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError:
-                    raise AssembleException("Error: bad register name '%s'" %
-                            op1.value, op1.lineno)
+                    raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
                 return (instr_word,)
             elif op1.type == 'REFERENCE':
@@ -112,20 +126,21 @@ def memory_words(opcode, op1=None, op2=None):
                 return (instr_word,)
 
     # 2-operand instructions
-    else:
-        shifts = ('SHR', 'SHL',)
-        others = ('MOV', 'CMP', 'ICMP', 'DIV', 'IDIV', 'MOD', 'IMOD',
-                  'MUL', 'IMUL', 'AND', 'OR', 'XOR', 'ADD', 'SUB',)
+    elif opname in OP_TWO_ARGS:
+        if op1 is None:
+            raise AssembleException(f"Error: missing operands for '{opname}'", opcode.lineno)
+        if op2 is None:
+            raise AssembleException(f"Error: missing second operand for '{opname}'", opcode.lineno)
+
         # Shift instructions
-        if opname in shifts:
+        if opname in ("SHR", "SHL"):
             if op2.type == 'NUMBER':
                 if op1.type == 'NAME':
                     try:
                         instr_word.operand = REGISTERS[op1.value.upper()] << 4
                         instr_word.flags = 0
                     except KeyError:
-                        raise AssembleException("Error: bad register name '%s'"
-                                % op1.value, op1.lineno)
+                        raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
                     return (instr_word, Word(op2.value))
                 elif op1.type == 'REFERENCE':
@@ -133,10 +148,10 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.flags = 1
                     return (instr_word, Word(op2.value))
                 else:
-                    raise AssembleException("Error: invalid operands",
-                            op1.lineno)
+                    raise AssembleException("Error: invalid operands", op1.lineno)
+
         # All other instructions
-        elif opname in others:
+        else:
             if opname in ('ICMP', 'IDIV', 'IMOD', 'IMUL',):
                 instr_word.flags = 0b100  # signed instructions
 
@@ -147,8 +162,7 @@ def memory_words(opcode, op1=None, op2=None):
                     # flag x00 - no needs to set
                 except KeyError as e:
                     bad_reg = op1 if e.args == op1.value.upper() else op2
-                    raise AssembleException("Error: bad register name '%s'" %
-                            bad_reg.value, bad_reg.lineno)
+                    raise AssembleException(f"Error: bad register name '{bad_reg.value}'", bad_reg.lineno)
 
                 return (instr_word,)
             elif op1.type == 'NAME' and op2.type == 'REFERENCE':
@@ -165,8 +179,7 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b010  # flag x10
                 except KeyError:
-                    raise AssembleException("Error: bad register name '%s'" %
-                            op1.value, op1.lineno)
+                    raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
                 return (instr_word, Word(op2.value))
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
@@ -174,15 +187,13 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand = REGISTERS[op2.value.upper()] << 4
                     instr_word.flags |= 0b011  # flag x11
                 except KeyError:
-                    raise AssembleException("Error: bad register name '%s'" %
-                            op2.value, op2.lineno)
+                    raise AssembleException(f"Error: bad register name '{op2.value}'", op2.lineno)
 
                 return (instr_word, Word(op1.value))
             else:
-                raise AssembleException("Error: invalid operands",
-                        op1.lineno)
+                raise AssembleException("Error: invalid operands", op1.lineno)
 
-    return None
+    return AssembleException(f"Unknown error while encoding '{opname}'", opcode.lineno)
 
 
 def assemble(code):
@@ -304,20 +315,19 @@ def assemble(code):
     verify_pending_labels()
 
     # Interrupt assembling if has any jump missing label
-    for mlb in list(miss_labels.items()):
+    for mlb in miss_labels.items():
         raise AssembleException("Invalid label '%s'" % mlb[0],
                 mlb[1][0].lineno)
 
     return {'labels': labels, 'words': words}
 
 
-class AssembleException(Exception):
+class AssembleException(AustroException):
     def __init__(self, message, lineno):
-        super(AssembleException, self).__init__(message +
-                " at line %d" % lineno)
+        super().__init__(message + " at line %d" % lineno)
 
 
-def main():
+if __name__ == "__main__":
     import sys
     try:
         filename = sys.argv[1]
@@ -329,7 +339,3 @@ def main():
 
     from pprint import pprint
     pprint(assemble(data))
-
-
-if __name__ == "__main__":
-    main()
