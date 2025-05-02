@@ -1,10 +1,9 @@
 from datetime import datetime
 import os
-import time
 
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QThread
+from PyQt5.QtCore import Qt, QTimer
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
 # from PyQt5.QtUiTools import QUiLoader
@@ -268,17 +267,18 @@ class MainWindow(object):
                 self.console.appendPlainText(e.message)
                 self.restoreEditor()
 
-    def emitStart(self):
-        while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
-            self.nextInstruction()
-            time.sleep(0.2)
-
     def runAction(self):
         self.actionRun.setEnabled(False)
         self.actionStep.setEnabled(False)
 
-        self.emitter = Emitter(self.emitStart)
-        self.emitter.start()
+        def do_action():
+            if self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
+                self.nextInstruction()
+                QTimer.singleShot(200, do_action)
+            else:
+                self.restoreEditor()
+
+        do_action()
 
     def nextInstruction(self):
         try:
@@ -358,12 +358,3 @@ class MainWindow(object):
 
     def show(self):
         self.gui.show()
-
-
-class Emitter(QThread):
-    def __init__(self, fn):
-        super().__init__()
-        self.fn = fn
-
-    def run(self):
-        self.fn()
