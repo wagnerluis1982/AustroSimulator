@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 import os
 
@@ -39,7 +41,7 @@ def _resource(*rsc):
 
 
 class ModelsUpdater(StepEvent):
-    def __init__(self, win):
+    def __init__(self, win: MainWindow):
         self.win = win
 
     def on_fetch(self):
@@ -55,8 +57,8 @@ class ModelsUpdater(StepEvent):
         self.win.treeMemory.scrollTo(index)
 
 
-class MainWindow(object):
-    def __init__(self, qApp=None):
+class MainWindow(QMainWindow):
+    def __init__(self, qApp: QApplication = None):
         self.event = ModelsUpdater(self)
         self.cpu = CPU(self.event)
         self.emitter = None
