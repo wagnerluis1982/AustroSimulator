@@ -306,17 +306,18 @@ class MainWindow(object):
 
     def openAction(self):
         filename = QFileDialog().getOpenFileName(self.gui, "Open File")[0]
-        if os.path.exists(filename) and self.asmEdit.document().isModified():
-            answer = QMessageBox.question(self.gui, "Modified Code",
-                """<b>The current code is modified</b>
-                   <p>What do you want to do?</p>
-                """,
-                QMessageBox.Discard | QMessageBox.Cancel,
-                QMessageBox.Cancel)
-            if answer == QMessageBox.Cancel:
-                return
 
-        self.asmEdit.setPlainText(open(filename).read())
+        if os.path.exists(filename):
+            if self.asmEdit.document().isModified():
+                answer = QMessageBox.question(self.gui, "Modified Code",
+                    """<b>The current code is modified</b>
+                    <p>What do you want to do?</p>
+                    """,
+                    QMessageBox.Discard | QMessageBox.Cancel,
+                    QMessageBox.Cancel)
+                if answer == QMessageBox.Cancel:
+                    return
+            self.asmEdit.setPlainText(open(filename).read())
 
     def headerMenu(self, pos, tree=None, contextMenu=None):
         if tree is None:
