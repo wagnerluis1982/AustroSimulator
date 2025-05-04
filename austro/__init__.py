@@ -1,17 +1,17 @@
-import sys
-
-from PyQt5.QtWidgets import QApplication
-from austro.ui.mainwindow import MainWindow
+__all__ = ["__version__"]
 
 
-def main():
-    app = QApplication(sys.argv)
+def _pyproject_version() -> str:
+    import re
+    from pathlib import Path
 
-    win = MainWindow(app)
-    win.show()
+    file: Path = Path(__file__).parents[1].joinpath("pyproject.toml")
+    for line in file.open():
+        m = re.match(r'^version = "(.+)"', line)
+        if m:
+            return m.group(1)
 
-    sys.exit(app.exec_())
+    raise RuntimeError("A version was not found in pyproject.toml")
 
 
-if __name__ == "__main__":
-    main()
+__version__ = _pyproject_version()
