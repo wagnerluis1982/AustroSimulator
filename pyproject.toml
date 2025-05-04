@@ -14,12 +14,13 @@ packages = [
 austrosim = "austro.script:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 ply = "^3.11"
 pyqt5 = "^5.15.11"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
 
 [build-system]
 requires = ["poetry-core"]
