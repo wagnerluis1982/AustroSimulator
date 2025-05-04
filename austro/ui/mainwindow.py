@@ -57,13 +57,16 @@ class ModelsUpdater(StepEvent):
         self.win.treeMemory.scrollTo(index)
 
 
-class MainWindow(QMainWindow):
+class MainWindow(object):
+    event: StepEvent
+    cpu: CPU
+    gui: QMainWindow
+
     def __init__(self, qApp: QApplication = None):
         self.event = ModelsUpdater(self)
         self.cpu = CPU(self.event)
-        self.emitter = None
 
-        qApp.lastWindowClosed.connect(self.stopAndWait)
+        qApp.lastWindowClosed.connect(self.stop)
 
         # loader = QUiLoader()
         # loader.registerCustomWidget(CodeEditor)
@@ -294,15 +297,11 @@ class MainWindow(QMainWindow):
             self.refreshModels()
             self.restoreEditor()
 
-    def stopAndWait(self):
-        # Stop correctly
+    def stop(self):
         self.cpu.stop()
-        if self.emitter is not None:
-            self.emitter.wait()
-            self.emitter = None
 
     def stopAction(self):
-        self.stopAndWait()
+        self.stop()
         self.restoreEditor()
 
     def openAction(self):
