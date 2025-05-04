@@ -424,7 +424,7 @@ class CPU(object):
                 # Fetching memory reference
                 registers['MAR'] = registers['PC']
                 registers['PC'] = operand
-                registers['TMP'] = memory(registers['PC'])
+                registers['TMP'] = memory[registers['PC']]
                 registers['PC'] = registers['MAR']
                 dcd.op1 = Registers.INDEX['TMP']
                 # Setting memory address for store stage
@@ -445,7 +445,7 @@ class CPU(object):
                 # Fetching memory reference
                 registers['MAR'] = registers['PC']
                 registers['PC'] = operand
-                registers['TMP'] = memory(registers['PC'])
+                registers['TMP'] = memory[registers['PC']]
                 registers['PC'] = registers['MAR']
                 dcd.op1 = Registers.INDEX['TMP']
             # End => Constant
@@ -464,7 +464,7 @@ class CPU(object):
                 # Fetching memory reference
                 registers['MAR'] = registers['PC']
                 registers['PC'] = operand
-                registers['TMP'] = memory(registers['PC'])
+                registers['TMP'] = memory[registers['PC']]
                 registers['PC'] = registers['MAR']
                 dcd.op1 = Registers.INDEX['TMP']
                 # Setting memory address for store stage
