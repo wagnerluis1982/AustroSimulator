@@ -44,8 +44,7 @@ class Reg1(StructReg):
 
 
 class RegX(StructReg):
-    _fields_ = [("_h", ctypes.c_uint8),
-                ("_l", ctypes.c_uint8)]
+    _fields_ = [("_h", ctypes.c_uint8), ("_l", ctypes.c_uint8)]
     _bits = 16
 
     def __init__(self, val=0):
@@ -55,6 +54,7 @@ class RegX(StructReg):
     @property
     def h(self):
         return self._h
+
     @h.setter
     def h(self, val):
         self._h = val
@@ -62,6 +62,7 @@ class RegX(StructReg):
     @property
     def l(self):
         return self._l
+
     @l.setter
     def l(self, val):
         self._l = val
@@ -69,6 +70,7 @@ class RegX(StructReg):
     @property
     def value(self):
         return self._h << 8 | self._l
+
     @value.setter
     def value(self, val):
         self._h = val >> 8
@@ -78,16 +80,14 @@ class RegX(StructReg):
 class RegH(BaseReg):
     _bits = 8
 
-    def __init__(self, regx, val=None):
+    def __init__(self, regx):
         assert isinstance(regx, RegX)
-
         self.regx = regx
-        if val is not None:
-            regx.h = val
 
     @property
     def value(self):
         return self.regx.h
+
     @value.setter
     def value(self, val):
         self.regx.h = val
@@ -96,16 +96,14 @@ class RegH(BaseReg):
 class RegL(BaseReg):
     _bits = 8
 
-    def __init__(self, regx, val=None):
+    def __init__(self, regx):
         assert isinstance(regx, RegX)
-
         self.regx = regx
-        if val is not None:
-            regx.l = val
 
     @property
     def value(self):
         return self.regx.l
+
     @value.setter
     def value(self, val):
         self.regx.l = val

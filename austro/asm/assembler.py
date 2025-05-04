@@ -196,7 +196,7 @@ def memory_words(opcode, op1=None, op2=None):
     return AssembleException(f"Unknown error while encoding '{opname}'", opcode.lineno)
 
 
-def assemble(code):
+def assemble(code: str) -> dict:
     """Analyzes assembly code and returns a dict of labels and memory words
 
     The returned dict is in the following format:

@@ -78,7 +78,7 @@ def t_error(t):
             (t.value[0], t.lineno))
 
 
-def get_lexer():
+def get_lexer() -> lex.Lexer:
     return lex.lex()
 
 

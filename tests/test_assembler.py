@@ -1,11 +1,20 @@
 import unittest
 
 from ply.lex import LexToken
-from austro.asm.assembler import Word, memory_words
+import pytest
+from austro.asm.asm_lexer import LexerException
+from austro.asm.assembler import Word, assemble, memory_words
 
 
 class ModuleTest(unittest.TestCase):
     """asm.assembler"""
+
+    def test_error(self):
+        """#assemble should throw LexerException on illegal character"""
+        with pytest.raises(LexerException) as e_info:
+            assemble("+mov ax, 1")  # symbol '+' is not allowed
+
+        e_info.match(r"Scanning error. Illegal character '\+' at line 1")
 
     def test_memory_words(self):
         """#memory_words should return a tuple of Word objects (two at max)"""
