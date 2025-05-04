@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from datetime import datetime
 import os
-import time
 
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QThread
+from PyQt5.QtCore import Qt, QTimer
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
 # from PyQt5.QtUiTools import QUiLoader
@@ -17,7 +18,7 @@ from austro.ui.models import (DataModel, RegistersModel, MemoryModel,
         GeneralMemoryModel)
 
 
-__version__ = "0.0.2"
+__version__ = "0.1.1.dev1"
 _about_ = """<h3>Austro Simulator %s</h3>
              <p>Copyright (C) 2013  Wagner Macedo</p>
 
@@ -40,7 +41,7 @@ def _resource(*rsc):
 
 
 class ModelsUpdater(StepEvent):
-    def __init__(self, win):
+    def __init__(self, win: MainWindow):
         self.win = win
 
     def on_fetch(self):
@@ -57,12 +58,15 @@ class ModelsUpdater(StepEvent):
 
 
 class MainWindow(object):
-    def __init__(self, qApp=None):
+    event: StepEvent
+    cpu: CPU
+    gui: QMainWindow
+
+    def __init__(self, qApp: QApplication = None):
         self.event = ModelsUpdater(self)
         self.cpu = CPU(self.event)
-        self.emitter = None
 
-        qApp.lastWindowClosed.connect(self.stopAndWait)
+        qApp.lastWindowClosed.connect(self.stop)
 
         # loader = QUiLoader()
         # loader.registerCustomWidget(CodeEditor)
@@ -268,17 +272,18 @@ class MainWindow(object):
                 self.console.appendPlainText(e.message)
                 self.restoreEditor()
 
-    def emitStart(self):
-        while self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
-            self.nextInstruction()
-            time.sleep(0.2)
-
     def runAction(self):
         self.actionRun.setEnabled(False)
         self.actionStep.setEnabled(False)
 
-        self.emitter = Emitter(self.emitStart)
-        self.emitter.start()
+        def do_action():
+            if self.cpu.stage not in (Stage.HALTED, Stage.STOPPED):
+                self.nextInstruction()
+                QTimer.singleShot(200, do_action)
+            else:
+                self.restoreEditor()
+
+        do_action()
 
     def nextInstruction(self):
         try:
@@ -292,15 +297,11 @@ class MainWindow(object):
             self.refreshModels()
             self.restoreEditor()
 
-    def stopAndWait(self):
-        # Stop correctly
+    def stop(self):
         self.cpu.stop()
-        if self.emitter is not None:
-            self.emitter.wait()
-            self.emitter = None
 
     def stopAction(self):
-        self.stopAndWait()
+        self.stop()
         self.restoreEditor()
 
     def openAction(self):
@@ -358,12 +359,3 @@ class MainWindow(object):
 
     def show(self):
         self.gui.show()
-
-
-class Emitter(QThread):
-    def __init__(self, fn):
-        super().__init__()
-        self.fn = fn
-
-    def run(self):
-        self.fn()
