@@ -84,8 +84,3 @@ def get_lexer() -> lex.Lexer:
 
 class LexerException(AustroException):
     pass
-
-
-if __name__ == "__main__":
-    get_lexer()
-    lex.runmain()
