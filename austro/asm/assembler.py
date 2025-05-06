@@ -19,7 +19,7 @@
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 
 from austro.asm.asm_lexer import get_lexer
-from austro.asm.memword import Word
+from austro.asm.memword import DWord, IWord
 from austro.shared import AustroException
 
 
@@ -73,7 +73,7 @@ def memory_words(opcode, op1=None, op2=None):
     """
     opname = opcode.value.upper()
     try:
-        instr_word = Word(OPCODES[opname], lineno=opcode.lineno, is_instruction=True)
+        instr_word = IWord(OPCODES[opname], lineno=opcode.lineno)
     except KeyError:
         raise AssembleException(f"Invalid instruction '{opname}'", opcode.lineno)
 
@@ -142,11 +142,13 @@ def memory_words(opcode, op1=None, op2=None):
                     except KeyError:
                         raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
-                    return (instr_word, Word(op2.value))
+                    return (instr_word, DWord(op2.value))
+
                 elif op1.type == 'REFERENCE':
                     instr_word.operand = op1.value
                     instr_word.flags = 1
-                    return (instr_word, Word(op2.value))
+                    return (instr_word, DWord(op2.value))
+
                 else:
                     raise AssembleException("Error: invalid operands", op1.lineno)
 
@@ -165,6 +167,7 @@ def memory_words(opcode, op1=None, op2=None):
                     raise AssembleException(f"Error: bad register name '{bad_reg.value}'", bad_reg.lineno)
 
                 return (instr_word,)
+
             elif op1.type == 'NAME' and op2.type == 'REFERENCE':
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
@@ -173,7 +176,8 @@ def memory_words(opcode, op1=None, op2=None):
                     raise AssembleException("Error: bad register name '%s'" %
                             op1.value, op1.lineno)
 
-                return (instr_word, Word(op2.value))
+                return (instr_word, DWord(op2.value))
+
             elif op1.type == 'NAME' and op2.type == 'NUMBER':
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
@@ -181,7 +185,8 @@ def memory_words(opcode, op1=None, op2=None):
                 except KeyError:
                     raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
-                return (instr_word, Word(op2.value))
+                return (instr_word, DWord(op2.value))
+
             elif op1.type == 'REFERENCE' and op2.type == 'NAME':
                 try:
                     instr_word.operand = REGISTERS[op2.value.upper()] << 4
@@ -189,7 +194,8 @@ def memory_words(opcode, op1=None, op2=None):
                 except KeyError:
                     raise AssembleException(f"Error: bad register name '{op2.value}'", op2.lineno)
 
-                return (instr_word, Word(op1.value))
+                return (instr_word, DWord(op1.value))
+
             else:
                 raise AssembleException("Error: invalid operands", op1.lineno)
 
@@ -207,8 +213,8 @@ def assemble(code: str) -> dict:
                 ...
             }
          'words': [
-                Word(5, 7, 46, lineno=1),  # instruction word
-                Word(2028),                # data word
+                IWord(5, 7, 46, lineno=1),  # instruction word
+                DWord(2028),                # data word
                 ...
             ]
         }
@@ -236,7 +242,7 @@ def assemble(code: str) -> dict:
             lbl = pend_labels.pop()
             if lbl.value in labels:
                 raise AssembleException(
-                        "Error: symbol '%s' is already defined." % lbl.value,
+                        f"Error: symbol '{lbl.value}' is already defined",
                         lbl.lineno)
             # Point the label to the next word pending attribution
             position = len(words)
@@ -325,17 +331,3 @@ def assemble(code: str) -> dict:
 class AssembleException(AustroException):
     def __init__(self, message, lineno):
         super().__init__(message + " at line %d" % lineno)
-
-
-if __name__ == "__main__":
-    import sys
-    try:
-        filename = sys.argv[1]
-        f = open(filename)
-        data = f.read()
-        f.close()
-    except IndexError:
-        data = sys.stdin.read()
-
-    from pprint import pprint
-    pprint(assemble(data))

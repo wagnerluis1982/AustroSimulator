@@ -21,7 +21,7 @@ from ctypes import c_int8, c_int16
 from abc import ABCMeta, abstractmethod
 
 from austro.asm.assembler import REGISTERS, OPCODES
-from austro.asm.memword import Word
+from austro.asm.memword import DWord
 from austro.shared import AustroException
 from austro.simulator.register import *
 
@@ -622,7 +622,7 @@ class Registers(object):
         word.
         """
         assert isinstance(key, (int, str))
-        assert isinstance(word, Word)
+        assert isinstance(word, DWord)
 
         if isinstance(key, str):
             key = Registers.INDEX[key]
@@ -663,11 +663,11 @@ class Memory(object):
         self._size = size
         self._space = []
         for i in range(size):
-            self._space.append(Word())
+            self._space.append(DWord())
 
     def set_word(self, address, word):
         assert isinstance(address, int)
-        assert isinstance(word, Word)
+        assert isinstance(word, DWord)
 
         if not (0 <= address < self._size):
             raise CPUException("Address out of memory range")
