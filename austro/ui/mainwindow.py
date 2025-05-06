@@ -18,7 +18,7 @@ from austro.ui.models import (DataModel, RegistersModel, MemoryModel,
         GeneralMemoryModel)
 
 
-__version__ = "0.1.1.dev2"
+__version__ = "0.1.1-dev3"
 _about_ = """<h3>Austro Simulator %s</h3>
              <p>Copyright (C) 2013  Wagner Macedo</p>
 
