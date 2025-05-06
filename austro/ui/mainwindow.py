@@ -11,7 +11,6 @@ from PyQt5.QtCore import Qt, QTimer
 # from PyQt5.QtUiTools import QUiLoader
 from PyQt5 import uic
 
-from austro import __version__
 from austro.asm import assembler, asm_lexer
 from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
 from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
@@ -19,6 +18,7 @@ from austro.ui.models import (DataModel, RegistersModel, MemoryModel,
         GeneralMemoryModel)
 
 
+__version__ = "0.1.1.dev2"
 _about_ = """<h3>Austro Simulator %s</h3>
              <p>Copyright (C) 2013  Wagner Macedo</p>
 

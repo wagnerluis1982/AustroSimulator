@@ -9,9 +9,6 @@ readme = "README.md"
 packages = [
     { include = "austro", from = "." },
 ]
-include = [
-    { path = "pyproject.toml" },
-]
 
 [tool.poetry.scripts]
 austrosim = "austro.script:main"
