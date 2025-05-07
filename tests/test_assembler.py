@@ -10,7 +10,7 @@ from austro.asm.memword import DWord, IWord
 
 class Module_assemble_Test(unittest.TestCase):
 
-    def test_it_works(self):
+    def test_assemble_works(self):
         """#assemble should work fine with valid code"""
         r = assemble(
             """
@@ -73,18 +73,22 @@ class Module_assemble_Test(unittest.TestCase):
 
         e_info.match(r"Error: symbol 'rambo' is already defined at line 4")
 
-    def test_memory_words(self):
+
+class Module_memory_words_Test(unittest.TestCase):
+
+    def test_memory_words_work(self):
         """#memory_words should return a tuple of Word objects (two at max)"""
-        opc = self.lexToken('OPCODE', 'mov', line=1)
-        op1 = self.lexToken('NAME', 'ax', line=1)
-        op2 = self.lexToken('NUMBER', 234, line=1)
+        opc = lexToken("OPCODE", "mov", line=1)
+        op1 = lexToken("NAME", "ax", line=1)
+        op2 = lexToken("NUMBER", 234, line=1)
 
         self.assertEqual(
             memory_words(opc, op1, op2), (IWord(2, 2, 8 << 4, lineno=1), DWord(234))
         )
 
-    def lexToken(self, typ, val, line, lexpos=0):
-        # Method helper to construct a LexToken
-        lt = LexToken()
-        lt.type, lt.value, lt.lineno, lt.lexpos = typ, val, line, lexpos
-        return lt
+
+def lexToken(typ, val, line, lexpos=0):
+    # Method helper to construct a LexToken
+    lt = LexToken()
+    lt.type, lt.value, lt.lineno, lt.lexpos = typ, val, line, lexpos
+    return lt

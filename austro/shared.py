@@ -17,7 +17,7 @@
 
 
 class AbstractData(object):
-    _bits = 0
+    _bits: int
 
     @property
     def bits(self):
