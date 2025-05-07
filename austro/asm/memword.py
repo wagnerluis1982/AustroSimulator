@@ -35,7 +35,7 @@ class Word(AbstractData, ctypes.Structure):
     _bits = 16
 
     def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False):
-        # Flag to know if this word should act as a instruction
+        # Flag to know if this word should act as an instruction
         self._instruction = is_instruction
         # Set an associated assembly code line number (for instructions)
         self.lineno = lineno
@@ -67,32 +67,32 @@ class Word(AbstractData, ctypes.Structure):
 
     @property
     def opcode(self):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         return self._opcode
 
     @opcode.setter
     def opcode(self, value):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         self._opcode = value
 
     @property
     def flags(self):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         return self._flags
 
     @flags.setter
     def flags(self, value):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         self._flags = value
 
     @property
     def operand(self):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         return self._operand
 
     @operand.setter
     def operand(self, value):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         self._operand = value
 
     @property
@@ -102,14 +102,15 @@ class Word(AbstractData, ctypes.Structure):
     @is_instruction.setter
     def is_instruction(self, switch):
         if switch:
+            # DWord stores value in field `_value`. Here we interpret the value as an instruction after became an IWord.
             if not self._instruction:
                 self._instruction = True
                 self.value = self._value
         else:
+            # IWord stores value in a struct. Here we take the interpreted value before became a DWord.
             if self._instruction:
-                value = self.value
+                self._value = self.value
                 self._instruction = False
-                self.value = value
 
     def __eq__(self, o):
         return self.value == o.value
