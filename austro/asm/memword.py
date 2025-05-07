@@ -20,7 +20,7 @@ import ctypes
 from austro.shared import AbstractData
 
 
-class _Word(AbstractData, ctypes.Structure):
+class Word(AbstractData, ctypes.Structure):
     '''Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits
@@ -122,7 +122,7 @@ class _Word(AbstractData, ctypes.Structure):
             return f"DWord({self._value})"
 
 
-class IWord(_Word):
+class IWord(Word):
     """Instruction Word"""
 
     def __init__(self, opcode=0, flags=0, operand=0, lineno=0):
@@ -132,7 +132,7 @@ class IWord(_Word):
         return f"IWord({self.opcode}, {self.flags}, {self.operand}, lineno={self.lineno})"
 
 
-class DWord(_Word):
+class DWord(Word):
     """Data Word"""
 
     def __init__(self, value=0):

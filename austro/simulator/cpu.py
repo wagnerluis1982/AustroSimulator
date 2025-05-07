@@ -21,7 +21,7 @@ from ctypes import c_int8, c_int16
 from abc import ABCMeta, abstractmethod
 
 from austro.asm.assembler import REGISTERS, OPCODES
-from austro.asm.memword import DWord
+from austro.asm.memword import DWord, Word
 from austro.shared import AustroException
 from austro.simulator.register import *
 
@@ -667,7 +667,7 @@ class Memory(object):
 
     def set_word(self, address, word):
         assert isinstance(address, int)
-        assert isinstance(word, DWord)
+        assert isinstance(word, Word)
 
         if not (0 <= address < self._size):
             raise CPUException("Address out of memory range")
