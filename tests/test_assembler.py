@@ -45,6 +45,30 @@ class Module_assemble_Test(unittest.TestCase):
             ],
         }
 
+    def test_jump_forward(self):
+        """#assemble should be able to jump forward"""
+        r = assemble(
+            """
+            cmp ax, 0
+            je quit
+
+            quit:
+            halt
+            """
+        )
+
+        assert r == {
+            "labels": {"quit": 5},
+            "words": [
+                IWord(2, 2, 128, lineno=2),
+                DWord(1),
+                IWord(27, 2, 128, lineno=3),
+                DWord(1),
+                IWord(3, 2, 5, lineno=4),
+                IWord(1, 0, 0, lineno=7),
+            ],
+        }
+
     def test_scanning_error(self):
         """#assemble should raise error on illegal character"""
         with pytest.raises(LexerException) as e_info:
@@ -52,12 +76,33 @@ class Module_assemble_Test(unittest.TestCase):
 
         e_info.match(r"Scanning error. Illegal character '\+' at line 1")
 
-    def test_invalid_token(self):
-        """#assemble should raise error on invalid token"""
+    def test_invalid_opcode(self):
+        """#assemble should raise error on invalid opcode"""
         with pytest.raises(AssembleException) as e_info:
             assemble("blah ax, 1")
 
         e_info.match(r"Invalid token 'blah' at line 1")
+
+    def test_missing_comma(self):
+        """#assemble should raise error on missing comma"""
+        with pytest.raises(AssembleException) as e_info:
+            assemble("mov ah 255")
+
+        e_info.match(r"Invalid token '255' at line 1")
+
+    def test_invalid_syntax(self):
+        """#assemble should raise error on invalid syntax"""
+        with pytest.raises(AssembleException) as e_info:
+            assemble("mov ax,")
+
+        e_info.match(r"Invalid syntax at line 1")
+
+    def test_missing_label(self):
+        """#assemble should raise error on jump to undefined label"""
+        with pytest.raises(AssembleException) as e_info:
+            assemble("jne rambo")
+
+        e_info.match(r"Invalid label 'rambo' at line 1")
 
     def test_duplicated_label(self):
         """#assemble should raise error on label double defined"""
