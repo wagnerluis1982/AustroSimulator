@@ -622,7 +622,7 @@ class Registers(object):
         word.
         """
         assert isinstance(key, (int, str))
-        assert isinstance(word, DWord)
+        assert isinstance(word, Word)
 
         if isinstance(key, str):
             key = Registers.INDEX[key]

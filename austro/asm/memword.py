@@ -111,14 +111,6 @@ class Word(AbstractData, ctypes.Structure):
                 self._instruction = False
                 self.value = value
 
-    @property
-    def is_data(self):
-        return not self._instruction
-
-    @is_data.setter
-    def is_data(self, switch):
-        self.is_instruction = not switch
-
     def __eq__(self, o):
         return self.value == o.value
 
@@ -129,21 +121,11 @@ class Word(AbstractData, ctypes.Structure):
             return f"DWord({self._value})"
 
 
-class IWord(Word):
-    """Instruction Word"""
-
-    def __init__(self, opcode=0, flags=0, operand=0, lineno=0):
-        super().__init__(opcode, flags, operand, lineno, is_instruction=True)
-
-    def __repr__(self):
-        return f"IWord({self.opcode}, {self.flags}, {self.operand}, lineno={self.lineno})"
+def IWord(opcode=0, flags=0, operand=0, lineno=0) -> Word:
+    """Helper to create an Instruction Word"""
+    return Word(opcode, flags, operand, lineno, is_instruction=True)
 
 
-class DWord(Word):
-    """Data Word"""
-
-    def __init__(self, value=0):
-        super().__init__(value=value)
-
-    def __repr__(self):
-        return f"DWord({self._value})"
+def DWord(value=0):
+    """Helper to create a Data Word"""
+    return Word(value=value)
