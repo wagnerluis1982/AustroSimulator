@@ -16,7 +16,7 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class AbstractData(object):
+class AbstractData:
     _bits: int
 
     @property

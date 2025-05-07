@@ -20,7 +20,7 @@ import ctypes
 from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 
-class DataItem(object):
+class DataItem:
     def __init__(self, data, parent=None):
         self._parentItem = parent
         self._itemData = data

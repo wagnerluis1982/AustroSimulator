@@ -164,7 +164,7 @@ class LineNumberArea(QWidget):
         self.codeEditor.lineNumberAreaPaintEvent(event)
 
 
-class HighlightingRule(object):
+class HighlightingRule:
     pattern = None
     format = None
 

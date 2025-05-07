@@ -26,7 +26,7 @@ from austro.shared import AustroException
 from austro.simulator.register import *
 
 
-class StepEvent(object, metaclass=ABCMeta):
+class StepEvent(metaclass=ABCMeta):
     _cpu = None
 
     @abstractmethod
@@ -46,7 +46,7 @@ class DummyStepEvent(StepEvent):
         pass
 
 
-class Decode(object):
+class Decode:
     unit = None
     operation = None
     op1 = None
@@ -64,7 +64,7 @@ class Stage:
     HALTED = 6
 
 
-class CPU(object):
+class CPU:
     ADDRESS_SPACE = 256
 
     # Execution units
@@ -524,7 +524,7 @@ class CPU(object):
         return 'NOARG'
 
 
-class Registers(object):
+class Registers:
     '''Container to store the CPU registers'''
 
     # Map of register names as keys and it number identifiers as values
@@ -658,7 +658,7 @@ class Registers(object):
         return self._regs[key].value
 
 
-class Memory(object):
+class Memory:
     def __init__(self, size):
         self._size = size
         self._space = []

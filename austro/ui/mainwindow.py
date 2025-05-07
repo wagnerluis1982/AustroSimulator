@@ -57,7 +57,7 @@ class ModelsUpdater(StepEvent):
         self.win.treeMemory.scrollTo(index)
 
 
-class MainWindow(object):
+class MainWindow:
     event: StepEvent
     cpu: CPU
     gui: QMainWindow
