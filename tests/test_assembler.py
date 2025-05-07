@@ -1,14 +1,12 @@
-import unittest
-
 import pytest
 from ply.lex import LexToken
 
 from austro.asm.asm_lexer import LexerException
-from austro.asm.assembler import AssembleException, assemble, memory_words
+from austro.asm.assembler import OPCODES, AssembleException, assemble, memory_words
 from austro.asm.memword import DWord, IWord
 
 
-class Module_assemble_Test(unittest.TestCase):
+class Test_assemble:
 
     def test_assemble(self):
         """#assemble should work fine with valid code"""
@@ -67,42 +65,104 @@ class Module_assemble_Test(unittest.TestCase):
             ],
         }
 
-    def test_scanning_error(self):
+    def test_jump_with_register(self):
+        """#assemble should be able to jump using a register name"""
+        r = assemble("jne ax")
+
+        assert r == {
+            "labels": {},
+            "words": [
+                IWord(4, 0, 128, lineno=1),
+            ],
+        }
+
+    def test_jump_with_memory_reference(self):
+        """#assemble should be able to jump using a memory reference"""
+        r = assemble("jne [128]")
+
+        assert r == {
+            "labels": {},
+            "words": [
+                IWord(4, 1, 128, lineno=1),
+            ],
+        }
+
+    def test_inc_with_memory_reference(self):
+        """#assemble should be able to increment using a memory reference"""
+        r = assemble("inc [128]")
+
+        assert r == {
+            "labels": {},
+            "words": [
+                IWord(17, 1, 128, lineno=1),
+            ],
+        }
+
+    def test_shift_with_memory_reference(self):
+        """#assemble should be able to shift using a memory reference"""
+        r = assemble("shr [128], 1")
+
+        assert r == {
+            "labels": {},
+            "words": [
+                IWord(12, 1, 128, lineno=1),
+                DWord(1),
+            ],
+        }
+
+    def test_error_scanning(self):
         """#assemble should raise error on illegal character"""
         with pytest.raises(LexerException) as e_info:
             assemble("+mov ax, 1")  # symbol '+' is not allowed
 
         e_info.match(r"Scanning error. Illegal character '\+' at line 1")
 
-    def test_invalid_opcode(self):
+    @pytest.mark.parametrize(
+        "reg_name, code",
+        [
+            ("a1", "inc a1"),
+            ("a2", "mov ax, a2"),
+            ("a3", "mov a3, ax"),
+            ("a4", "mov a4, 123"),
+            ("a5", "mov a5, [1]"),
+            ("a6", "mov [1], a6"),
+            ("a7", "shr a7, 1"),
+        ],
+    )
+    def test_error_bad_register(self, reg_name, code):
+        """#assemble should raise error on bad register name"""
+        with pytest.raises(AssembleException, match=f"bad register name '{reg_name}'"):
+            assemble(code)
+
+    def test_error_invalid_opcode(self):
         """#assemble should raise error on invalid opcode"""
         with pytest.raises(AssembleException) as e_info:
             assemble("blah ax, 1")
 
         e_info.match(r"Invalid token 'blah' at line 1")
 
-    def test_missing_comma(self):
+    def test_error_missing_comma(self):
         """#assemble should raise error on missing comma"""
         with pytest.raises(AssembleException) as e_info:
             assemble("mov ah 255")
 
         e_info.match(r"Invalid token '255' at line 1")
 
-    def test_invalid_syntax(self):
+    def test_error_invalid_syntax(self):
         """#assemble should raise error on invalid syntax"""
         with pytest.raises(AssembleException) as e_info:
             assemble("mov ax,")
 
         e_info.match(r"Invalid syntax at line 1")
 
-    def test_missing_label(self):
+    def test_error_missing_label(self):
         """#assemble should raise error on jump to undefined label"""
         with pytest.raises(AssembleException) as e_info:
             assemble("jne rambo")
 
         e_info.match(r"Invalid label 'rambo' at line 1")
 
-    def test_duplicated_label(self):
+    def test_error_duplicated_label(self):
         """#assemble should raise error on label double defined"""
         with pytest.raises(AssembleException) as e_info:
             assemble(
@@ -117,7 +177,7 @@ class Module_assemble_Test(unittest.TestCase):
         e_info.match(r"Error: symbol 'rambo' is already defined at line 4")
 
 
-class Module_memory_words_Test(unittest.TestCase):
+class Test_memory_words:
 
     def test_memory_words(self):
         """#memory_words should return a tuple of Word objects (two at max)"""
@@ -125,10 +185,140 @@ class Module_memory_words_Test(unittest.TestCase):
         op1 = lexToken("NAME", "ax", line=1)
         op2 = lexToken("NUMBER", 234, line=1)
 
-        self.assertEqual(
-            memory_words(opc, op1, op2), (IWord(2, 2, 8 << 4, lineno=1), DWord(234))
-        )
+        assert memory_words(opc, op1, op2), (IWord(2, 2, 8 << 4, lineno=1), DWord(234))
 
+    def test_error_invalid_instruction(self):
+        """#memory_words should raise error on invalid opcode"""
+        opc = lexToken("OPCODE", "blah", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc)
+
+        e_info.match("Invalid instruction 'BLAH' at line 1")
+
+    def test_error_jump_bad_register(self):
+        """#memory_words should raise error on jump to a bad register"""
+        opc = lexToken("OPCODE", "jz", line=1)
+        op1 = lexToken("NAME", "zz", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1)
+
+        e_info.match("bad register name 'zz'")
+
+    def test_error_jump_invalid_operand(self):
+        """#memory_words should raise error on jump with an invalid operand"""
+        opc = lexToken("OPCODE", "jz", line=1)
+        op1 = lexToken("COMMA", ",", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1)
+
+        e_info.match("Error: invalid operand for 'JZ'")
+
+    def test_error_inc_invalid_operand(self):
+        """#memory_words should raise error on increment with an invalid operand"""
+        opc = lexToken("OPCODE", "inc", line=1)
+        op1 = lexToken("NUMBER", 1, line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1)
+
+        e_info.match("Error: invalid operand for 'INC'")
+
+    def test_error_shift_first_operand_not_reg_or_ref(self):
+        """#memory_words should raise error when first operand is neither a register nor a reference"""
+        opc = lexToken("OPCODE", "shr", line=1)
+        op1 = lexToken("NUMBER", 1, line=1)
+        op2 = lexToken("NUMBER", 2, line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1, op2)
+
+        e_info.match("Error: invalid operands for 'SHR'")
+
+    def test_error_shift_second_operand_not_number(self):
+        """#memory_words should raise error when second operand is not a number"""
+        opc = lexToken("OPCODE", "shr", line=1)
+        op1 = lexToken("NAME", "ax", line=1)
+        op2 = lexToken("NAME", "bx", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1, op2)
+
+        e_info.match("Error: invalid operands for 'SHR'")
+
+    def test_error_mov_to_number(self):
+        """#memory_words should raise error when second operand is not a number"""
+        opc = lexToken("OPCODE", "mov", line=1)
+        op1 = lexToken("NUMBER", 1, line=1)
+        op2 = lexToken("NAME", "ax", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1, op2)
+
+        e_info.match("Error: invalid operands for 'MOV'")
+
+    def test_error_no_arg_with_operand(self):
+        """#memory_words should raise error when no-arg opcode has an operand"""
+        opc = lexToken("OPCODE", "nop", line=1)
+        op1 = lexToken("NAME", "ax", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1)
+
+        e_info.match("Error: operand 'ax' found for no-arg 'NOP'")
+
+    def test_error_1_arg_missing_operand(self):
+        """#memory_words should raise error when 1-arg opcode misses the operand"""
+        opc = lexToken("OPCODE", "inc", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1=None)
+
+        e_info.match("Error: missing operand for 'INC'")
+
+    def test_error_1_arg_with_second_operand(self):
+        """#memory_words should raise error when 1-arg opcode has a second operand"""
+        opc = lexToken("OPCODE", "inc", line=1)
+        op1 = lexToken("NAME", "ax", line=1)
+        op2 = lexToken("NUMBER", 234, line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1, op2)
+
+        e_info.match("Error: second operand '234' found for 1-arg 'INC'")
+
+    def test_error_2_args_missing_operands(self):
+        """#memory_words should raise error when 2-args opcode misses operands"""
+        opc = lexToken("OPCODE", "mov", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1=None)
+
+        e_info.match("Error: missing operands for 'MOV'")
+
+    def test_error_2_args_missing_first_operand(self):
+        """#memory_words should raise error when 2-args opcode misses second operand"""
+        opc = lexToken("OPCODE", "mov", line=1)
+        op1 = lexToken("NAME", "ax", line=1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc, op1, op2=None)
+
+        e_info.match("Error: missing second operand for 'MOV'")
+
+    def test_error_unknown(self, monkeypatch: pytest.MonkeyPatch):
+        """#memory_words should raise error when a misconfigured opcode is introduced"""
+        opc = lexToken("OPCODE", "hello", line=1)
+
+        # opcode is in the list of allowed opcodes but it's not implemented
+        monkeypatch.setitem(OPCODES, "HELLO", -1)
+
+        with pytest.raises(AssembleException) as e_info:
+            memory_words(opc)
+
+        e_info.match("Unknown error while encoding 'HELLO'")
 
 def lexToken(typ, val, line, lexpos=0):
     # Method helper to construct a LexToken

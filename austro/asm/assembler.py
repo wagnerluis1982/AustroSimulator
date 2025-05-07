@@ -101,14 +101,18 @@ def memory_words(opcode, op1=None, op2=None):
                     raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
                 return (instr_word,)
+
             elif op1.type == 'REFERENCE':
                 instr_word.operand = op1.value
                 instr_word.flags = 1
                 return (instr_word,)
+
             elif op1.type == 'NUMBER':
                 instr_word.operand = op1.value
                 instr_word.flags = 2
                 return (instr_word,)
+
+            raise AssembleException(f"Error: invalid operand for '{opname}'", op1.lineno) 
 
         # INC, DEC, NOT and SEG instructions
         else:
@@ -125,6 +129,8 @@ def memory_words(opcode, op1=None, op2=None):
                 instr_word.flags = 1
                 return (instr_word,)
 
+            raise AssembleException(f"Error: invalid operand for '{opname}'", op1.lineno) 
+
     # 2-operand instructions
     elif opname in OP_TWO_ARGS:
         if op1 is None:
@@ -139,7 +145,7 @@ def memory_words(opcode, op1=None, op2=None):
                     try:
                         instr_word.operand = REGISTERS[op1.value.upper()] << 4
                         instr_word.flags = 0
-                    except KeyError:
+                    except KeyError: 
                         raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
 
                     return (instr_word, DWord(op2.value))
@@ -149,8 +155,7 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.flags = 1
                     return (instr_word, DWord(op2.value))
 
-                else:
-                    raise AssembleException("Error: invalid operands", op1.lineno)
+            raise AssembleException(f"Error: invalid operands for '{opname}'", op1.lineno)
 
         # All other instructions
         else:
@@ -163,7 +168,7 @@ def memory_words(opcode, op1=None, op2=None):
                     instr_word.operand |= REGISTERS[op2.value.upper()]
                     # flag x00 - no needs to set
                 except KeyError as e:
-                    bad_reg = op1 if e.args == op1.value.upper() else op2
+                    bad_reg = op1 if op1.value.upper() in e.args else op2
                     raise AssembleException(f"Error: bad register name '{bad_reg.value}'", bad_reg.lineno)
 
                 return (instr_word,)
@@ -196,10 +201,9 @@ def memory_words(opcode, op1=None, op2=None):
 
                 return (instr_word, DWord(op1.value))
 
-            else:
-                raise AssembleException("Error: invalid operands", op1.lineno)
+            raise AssembleException(f"Error: invalid operands for '{opname}'", op1.lineno)
 
-    return AssembleException(f"Unknown error while encoding '{opname}'", opcode.lineno)
+    raise AssembleException(f"Unknown error while encoding '{opname}'", opcode.lineno)
 
 
 def assemble(code: str) -> dict:
