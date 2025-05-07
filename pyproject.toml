@@ -34,6 +34,9 @@ addopts = "--cov=austro --cov-report=term --cov-report html"
 
 [tool.coverage.report]
 include_namespace_packages = true
+exclude_also = [
+    "@abstract"
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
