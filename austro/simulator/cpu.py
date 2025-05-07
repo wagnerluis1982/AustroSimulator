@@ -41,11 +41,6 @@ class StepEvent(metaclass=ABCMeta):
         self._cpu = value
 
 
-class DummyStepEvent(StepEvent):
-    def on_fetch(self):
-        pass
-
-
 class Decode:
     unit = None
     operation = None
@@ -75,7 +70,7 @@ class CPU:
     # Special UC actions
     UC_LOAD = 128
 
-    def __init__(self, event=DummyStepEvent()):
+    def __init__(self, event):
         assert isinstance(event, StepEvent)
         event.cpu = self
         self.event = event
