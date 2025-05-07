@@ -21,8 +21,8 @@ class WordTest(unittest.TestCase):
         w.is_instruction = False
         assert w._value == 0xffff
 
-    def test_iword_repr(self):
+    def test_instruction_word_repr(self):
         assert repr(IWord(1, 2, 3, 4)) == "IWord(1, 2, 3, lineno=4)"
 
-    def test_dword_repr(self):
+    def test_data_word_repr(self):
         assert repr(DWord(123)) == "DWord(123)"

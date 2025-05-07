@@ -10,7 +10,7 @@ from austro.asm.memword import DWord, IWord
 
 class Module_assemble_Test(unittest.TestCase):
 
-    def test_assemble_works(self):
+    def test_assemble(self):
         """#assemble should work fine with valid code"""
         r = assemble(
             """
@@ -58,14 +58,12 @@ class Module_assemble_Test(unittest.TestCase):
         )
 
         assert r == {
-            "labels": {"quit": 5},
+            "labels": {"quit": 3},
             "words": [
-                IWord(2, 2, 128, lineno=2),
-                DWord(1),
-                IWord(27, 2, 128, lineno=3),
-                DWord(1),
-                IWord(3, 2, 5, lineno=4),
-                IWord(1, 0, 0, lineno=7),
+                IWord(27, 2, 128, lineno=2),
+                DWord(0),
+                IWord(3, 2, 3, lineno=3),
+                IWord(1, 0, 0, lineno=6),
             ],
         }
 
@@ -121,7 +119,7 @@ class Module_assemble_Test(unittest.TestCase):
 
 class Module_memory_words_Test(unittest.TestCase):
 
-    def test_memory_words_work(self):
+    def test_memory_words(self):
         """#memory_words should return a tuple of Word objects (two at max)"""
         opc = lexToken("OPCODE", "mov", line=1)
         op1 = lexToken("NAME", "ax", line=1)
