@@ -26,14 +26,15 @@ class Word(AbstractData, ctypes.Structure):
     Word objects can act as instruction or data words of 16 bits
     '''
 
-    _fields_ = [('_opcode', ctypes.c_ubyte, 5),
-                ('_flags', ctypes.c_ubyte, 3),
-                ('_operand', ctypes.c_ubyte, 8),
-                ('_value', ctypes.c_uint16)]
+    _fields_ = (
+        ("_opcode", ctypes.c_ubyte, 5),
+        ("_flags", ctypes.c_ubyte, 3),
+        ("_operand", ctypes.c_ubyte, 8),
+        ("_value", ctypes.c_uint16),
+    )
     _bits = 16
 
-    def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None,
-            is_instruction=False):
+    def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False):
         # Flag to know if this word should act as a instruction
         self._instruction = is_instruction
         # Set an associated assembly code line number (for instructions)
@@ -54,6 +55,7 @@ class Word(AbstractData, ctypes.Structure):
             return (self.opcode << 3 | self.flags) << 8 | self.operand
         else:
             return self._value
+
     @value.setter
     def value(self, value):
         if self.is_instruction:
@@ -67,6 +69,7 @@ class Word(AbstractData, ctypes.Structure):
     def opcode(self):
         assert self.is_instruction, "Word is not a instruction"
         return self._opcode
+
     @opcode.setter
     def opcode(self, value):
         assert self.is_instruction, "Word is not a instruction"
@@ -76,6 +79,7 @@ class Word(AbstractData, ctypes.Structure):
     def flags(self):
         assert self.is_instruction, "Word is not a instruction"
         return self._flags
+
     @flags.setter
     def flags(self, value):
         assert self.is_instruction, "Word is not a instruction"
@@ -85,6 +89,7 @@ class Word(AbstractData, ctypes.Structure):
     def operand(self):
         assert self.is_instruction, "Word is not a instruction"
         return self._operand
+
     @operand.setter
     def operand(self, value):
         assert self.is_instruction, "Word is not a instruction"
@@ -93,6 +98,7 @@ class Word(AbstractData, ctypes.Structure):
     @property
     def is_instruction(self):
         return self._instruction
+
     @is_instruction.setter
     def is_instruction(self, switch):
         if switch:
@@ -108,6 +114,7 @@ class Word(AbstractData, ctypes.Structure):
     @property
     def is_data(self):
         return not self._instruction
+
     @is_data.setter
     def is_data(self, switch):
         self.is_instruction = not switch
