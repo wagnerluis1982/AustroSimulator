@@ -26,11 +26,37 @@ packages = [
 ]
 
 [tool.poetry.group.dev.dependencies]
+pre-commit = "^4.2.0"
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
 
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+fix = true
+line-length = 96
+target-version = "py39"
+
+[tool.ruff.lint]
+unfixable = [
+    "ERA", # do not autoremove commented out code
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.isort]
+force-single-line = true
+lines-between-types = 1
+lines-after-imports = 2
+known-first-party = ["austro"]
+required-imports = ["from __future__ import annotations"]
+
 [tool.pytest.ini_options]
 addopts = "--cov-report=term --cov-report html"
+testpaths = ["tests"]
 
 [tool.coverage.run]
 source = [
@@ -40,9 +66,6 @@ source = [
 [tool.coverage.report]
 include_namespace_packages = true
 exclude_also = [
-    "@abstract"
+    "@abstract",
+    "if TYPE_CHECKING:",
 ]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
