@@ -7,7 +7,6 @@ from austro.asm.memword import DWord, IWord
 
 
 class Test_assemble:
-
     def test_assemble(self):
         """#assemble should work fine with valid code"""
         r = assemble(
@@ -178,7 +177,6 @@ class Test_assemble:
 
 
 class Test_memory_words:
-
     def test_memory_words(self):
         """#memory_words should return a tuple of Word objects (two at max)"""
         opc = lexToken("OPCODE", "mov", line=1)
@@ -319,6 +317,7 @@ class Test_memory_words:
             memory_words(opc)
 
         e_info.match("Unknown error while encoding 'HELLO'")
+
 
 def lexToken(typ, val, line, lexpos=0):
     # Method helper to construct a LexToken
