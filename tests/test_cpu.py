@@ -64,7 +64,7 @@ class TestCPU__ALU:
     '''CPU (Arithmetic and Logic Unit)'''
 
     def test_or__reg_reg(self):
-        '''OR should do a bitwise OR on two registers'''
+        '''OR should perform a bitwise OR on two registers'''
 
         # instructions
         assembly = ("mov ax, 0b1001\n"
@@ -77,7 +77,7 @@ class TestCPU__ALU:
         messages = ['AX=0,BX=0',    # before "mov ax, 0b1001"
                     'AX=9,BX=0',    # before "mov bx, 0b1100"
                     'AX=9,BX=12',   # before "or ax, bx"
-                    'AX=13,BX=12']  # before "halt"
+                    'AX=13,BX=12']  # AX = 0b1001 & 0b1100 => 0b1101 => 13
 
         assert_registers(assembly, registers, messages)
 

@@ -54,7 +54,7 @@ class MemoryModel(DataModel):
         assert isinstance(memory, Memory), "It's not a memory object"
         super(MemoryModel, self).__init__(("Addr.", "Data (%s)"), parent)
 
-        for addr in range(memory.size()):
+        for addr in range(memory.size):
             item = (addr, memory.get_word(addr))
             self._rootItem.appendChild(DataItem(item))
 

@@ -165,7 +165,7 @@ class MainWindow:
         treeMemory2.resizeColumnToContents(0)
         treeMemory2.resizeColumnToContents(1)
         # Initially scroll to half of memory
-        index = self.memoryModel2.index(self.cpu.memory.size()//2)
+        index = self.memoryModel2.index(self.cpu.memory.size // 2)
         treeMemory2.scrollTo(index)
 
         #

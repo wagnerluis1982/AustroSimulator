@@ -83,9 +83,12 @@ class CPU:
 
     def set_memory_block(self, words, start=0):
         assert isinstance(words, (list, tuple))
-        if len(words) > CPU.ADDRESS_SPACE:
+        if start + len(words) > self.memory.size:
             raise CPUException(
-                    "Error: tried to set more memory than address space")
+                "Error: tried to set memory to outside address space: {0} > {1}".format(
+                    start + len(words), self.memory.size
+                )
+            )
 
         for word in words:
             self.memory.set_word(start, word)
@@ -704,6 +707,7 @@ class Memory:
         for word in self._space:
             word.value = 0
 
+    @property
     def size(self):
         return self._size
 
