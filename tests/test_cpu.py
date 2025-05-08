@@ -1,10 +1,8 @@
+import pytest
 from austro.asm.assembler import assemble
-from austro.simulator.cpu import CPU, Registers, StepEvent
+from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepEvent
 
 
-#
-## The cpu receives at start a StepEvent class instance. Here two simple examples:
-#
 class ShowRegistersEvent(StepEvent):
     def __init__(self, *names):
         self.messages = []
@@ -28,6 +26,15 @@ class ShowMemoriesEvent(StepEvent):
     def on_fetch(self):
         args = [self.cpu.memory[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
+
+
+@pytest.fixture
+def cpu():
+    class DummyEvent(StepEvent):
+        def on_fetch(self):
+            pass
+
+    return CPU(DummyEvent())
 
 
 def assert_registers(assembly, registers, messages):
@@ -58,6 +65,31 @@ def assert_memory(assembly, addresses, messages):
 
     # Test step event
     assert event.messages == messages
+
+
+class TestCPU:
+    """CPU"""
+
+    def test_start_with_cpu_stopped(self, cpu: CPU):
+        cpu.stop()
+
+        assert cpu.start() is False
+
+    def test_next_with_cpu_stopped(self, cpu: CPU):
+        cpu.stop()
+
+        assert next(cpu) is False
+
+    def test_error_next_with_register_pc_greater_than_address_space(self, cpu: CPU):
+        cpu.stage = Stage.FETCH
+        cpu.registers["PC"] = CPU.ADDRESS_SPACE
+
+        with pytest.raises(CPUException, match="PC register greater than address space"):
+            next(cpu)
+
+    def test_error_set_memory_block_greater_than_address_space(self, cpu: CPU):
+        with pytest.raises(CPUException, match="tried to set memory to outside address space"):
+            cpu.set_memory_block([0] * (CPU.ADDRESS_SPACE + 1))
 
 
 class TestCPU__ALU:

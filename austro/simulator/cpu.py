@@ -81,7 +81,7 @@ class CPU:
         self.registers = Registers()
         self.stage = Stage.INITIAL
 
-    def set_memory_block(self, words, start=0):
+    def set_memory_block(self, words: list | tuple, start=0):
         assert isinstance(words, (list, tuple))
         if start + len(words) > self.memory.size:
             raise CPUException(
@@ -109,7 +109,7 @@ class CPU:
         try:
             return self._do_next()
         except CPUException:
-            self.stage = Stage.STOPPED
+            self.stop()
             raise
 
     def _do_next(self):
@@ -175,19 +175,17 @@ class CPU:
 
     def fetch(self):
         registers = self.registers
-        memory = self.memory
-        event = self.event
 
         # PC can't be greater than address space
         if registers['PC'] >= CPU.ADDRESS_SPACE:
             raise CPUException("PC register greater than address space")
 
         registers['MAR'] = registers['PC']
-        registers.set_word('MBR', memory.get_word(registers['MAR']))
+        registers.set_word('MBR', self.memory.get_word(registers['MAR']))
         registers.set_word('RI', registers.get_word('MBR'))
 
         # Emit event
-        event.on_fetch()
+        self.event.on_fetch()
 
         self.stage = Stage.DECODE
         return True
