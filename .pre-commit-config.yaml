@@ -26,7 +26,8 @@ repos:
       - id: ruff
       - id: ruff-format
 
-  - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.6.0
-    hooks:
-      - id: zizmor
+  # Re-enable once understand the tool better
+  # - repo: https://github.com/woodruffw/zizmor-pre-commit
+  #   rev: v1.6.0
+  #   hooks:
+  #     - id: zizmor
