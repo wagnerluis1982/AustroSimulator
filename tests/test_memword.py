@@ -1,9 +1,7 @@
-import unittest
-
 from austro.asm.memword import DWord, IWord, Word
 
 
-class WordTest(unittest.TestCase):
+class TestWord:
     def test_flag_is_instruction(self):
         w = Word(value=0)
         assert not w.is_instruction

@@ -1,12 +1,11 @@
-import unittest
-
 from austro.asm.assembler import assemble
 from austro.simulator.cpu import CPU, Registers, StepEvent
+
 
 #
 ## The cpu receives at start a StepEvent class instance. Here two simple examples:
 #
-class ShowRegisters(StepEvent):
+class ShowRegistersEvent(StepEvent):
     def __init__(self, *names):
         self.messages = []
         self.fmt = ','.join(['%s=%%d' % nm for nm in names])
@@ -20,7 +19,7 @@ class ShowRegisters(StepEvent):
         self.messages.append(self.fmt % tuple(args))
 
 
-class ShowMemories(StepEvent):
+class ShowMemoriesEvent(StepEvent):
     def __init__(self, *numbers):
         self.messages = []
         self.fmt = ','.join(['[%d]=%%d' % n for n in numbers])
@@ -31,37 +30,37 @@ class ShowMemories(StepEvent):
         self.messages.append(self.fmt % tuple(args))
 
 
-class CPUTestCase(unittest.TestCase):
-    def register_asserts(self, assembly, registers, messages):
-        # instructions
-        asmd = assemble(assembly)
+def assert_registers(assembly, registers, messages):
+    # instructions
+    asmd = assemble(assembly)
 
-        show = ShowRegisters(*registers)
-        cpu = CPU(show)
-        cpu.set_memory_block(asmd['words'])
+    event = ShowRegistersEvent(*registers)
+    cpu = CPU(event)
+    cpu.set_memory_block(asmd['words'])
 
-        # Test run
-        self.assertTrue( cpu.start() )
+    # Test run
+    assert cpu.start() is True
 
-        # Test step event
-        self.assertEqual( show.messages, messages )
-
-    def memory_asserts(self, assembly, addresses, messages):
-        # instructions
-        asmd = assemble(assembly)
-
-        show = ShowMemories(*addresses)
-        cpu = CPU(show)
-        cpu.set_memory_block(asmd['words'])
-
-        # Test run
-        self.assertTrue( cpu.start() )
-
-        # Test step event
-        self.assertEqual( show.messages, messages )
+    # Test step event
+    assert event.messages == messages
 
 
-class TestCPU__ALU(CPUTestCase):
+def assert_memory(assembly, addresses, messages):
+    # instructions
+    asmd = assemble(assembly)
+
+    event = ShowMemoriesEvent(*addresses)
+    cpu = CPU(event)
+    cpu.set_memory_block(asmd['words'])
+
+    # Test run
+    assert cpu.start() is True
+
+    # Test step event
+    assert event.messages == messages
+
+
+class TestCPU__ALU:
     '''CPU (Arithmetic and Logic Unit)'''
 
     def test_or__reg_reg(self):
@@ -80,7 +79,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=9,BX=12',   # before "or ax, bx"
                     'AX=13,BX=12']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_or__flags(self):
         '''OR should set flag Z'''
@@ -100,7 +99,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0',  # before "or ax, 0"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_and__reg_reg(self):
         '''AND should do a bitwise AND on two registers'''
@@ -118,7 +117,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=12,BX=6',  # before "and ax, bx"
                     'AX=4,BX=6']   # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_and__flags(self):
         '''AND should set flag Z'''
@@ -134,7 +133,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0',  # before "and ax, 0"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_not(self):
         '''NOT should invert all bits of a value'''
@@ -150,7 +149,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=%d' % 0xabcd,  # before "not ax"
                     'AX=%d' % 0x5432]  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_not__flags(self):
         '''NOT should set flag Z'''
@@ -166,7 +165,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0',  # before "not ax"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_xor__reg_reg(self):
         '''XOR should do a bitwise XOR on two registers'''
@@ -184,7 +183,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=12,BX=10',  # before "xor ax, bx"
                     'AX=6,BX=10']   # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_xor__flags(self):
         '''XOR should set flag Z'''
@@ -200,7 +199,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0',  # before "xor ax, 1"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_add__reg_reg(self):
         '''ADD should sum two registers'''
@@ -218,7 +217,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=193,BX=297',  # before "add ax, bx"
                     'AX=490,BX=297']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_add__flags(self):
         '''ADD should set flags Z and V'''
@@ -244,7 +243,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0,V=1',  # before "add cl, 1"
                     'Z=1,V=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_sub__reg_reg(self):
         '''SUB should subtract two registers'''
@@ -262,7 +261,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=19,BX=10',  # before "sub ax, bx"
                     'AX=9,BX=10']   # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_sub__flags(self):
         '''SUB should set flags Z and V'''
@@ -284,7 +283,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=1,V=0',  # before "sub bx, 1"
                     'Z=0,V=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_inc(self):
         '''INC should increment one unit of a value'''
@@ -300,7 +299,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=9',   # before "inc ax"
                     'AX=10']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_inc__flags(self):
         '''INC should set flags Z and V'''
@@ -318,7 +317,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0,V=0',  # before "inc ax"
                     'Z=1,V=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_dec(self):
         '''DEC should decrement one unit of a value'''
@@ -334,7 +333,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=100',  # before "dec ax"
                     'AX=99']   # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_dec__flags(self):
         '''DEC should set flags Z and V'''
@@ -352,7 +351,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=1,V=0',  # before "dec ax"
                     'Z=0,V=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mul__reg_reg(self):
         '''MUL should multiply two registers'''
@@ -370,7 +369,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=12,BX=5',  # before "mul ax, bx"
                     'AX=60,BX=5']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mul__transport(self):
         '''MUL should transport excess to SP register'''
@@ -390,7 +389,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=500,SP=8',    # before "mul ax, 850"
                     'AX=31784,SP=6']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mul__flags(self):
         '''MUL should set flags Z and T'''
@@ -408,7 +407,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0,T=1',  # before "mul ax, 0"
                     'Z=1,T=0']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_imul__flags(self):
         '''IMUL should set flags N, Z and V'''
@@ -426,7 +425,7 @@ class TestCPU__ALU(CPUTestCase):
                     'N=1,Z=0,V=1',  # before "imul ax, 0"
                     'N=0,Z=1,V=0']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_div__reg_reg(self):
         '''DIV should calculate quotient of two registers'''
@@ -444,7 +443,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=7,BX=2',  # before "div ax, bx"
                     'AX=3,BX=2']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_div__flags(self):
         '''DIV should set flag Z'''
@@ -462,7 +461,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0',  # before "div ax, 4"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mod__reg_reg(self):
         '''MOD should calculate remainder of two registers'''
@@ -480,7 +479,7 @@ class TestCPU__ALU(CPUTestCase):
                     'AX=7,BX=2',  # before "mod ax, bx"
                     'AX=1,BX=2']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mod__flags(self):
         '''MOD should set flag Z'''
@@ -496,7 +495,7 @@ class TestCPU__ALU(CPUTestCase):
                     'Z=0',  # before "mod ax, 3"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_cmp(self):
         '''CMP should compare two values and set flags N and Z'''
@@ -516,7 +515,7 @@ class TestCPU__ALU(CPUTestCase):
                     'N=1,Z=0',  # before "cmp ax, 4"
                     'N=0,Z=0']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_icmp(self):
         '''ICMP should signed compare two values and set flags N and Z'''
@@ -536,10 +535,10 @@ class TestCPU__ALU(CPUTestCase):
                     'N=1,Z=0',  # before "cmp ax, -15"
                     'N=0,Z=0']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
 
-class TestCPU__UC(CPUTestCase):
+class TestCPU__UC:
     '''CPU (Control Unit)'''
 
     def test_mov__reg_reg(self):
@@ -556,7 +555,7 @@ class TestCPU__UC(CPUTestCase):
                     'AX=3,BX=0',  # before "mov bx, ax"
                     'AX=3,BX=3']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mov__high_low(self):
         '''MOV should allow setting most and less significant register areas'''
@@ -575,7 +574,7 @@ class TestCPU__UC(CPUTestCase):
                 'AX=%d,AH=%d,AL=%d' % (0x109A, 0x10, 0x9A),  # "mov ax, 0x9F8D"
                 'AX=%d,AH=%d,AL=%d' % (0x9F8D, 0x9F, 0x8D)]  # "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mov__reg_const(self):
         '''MOV should load a register from a constant'''
@@ -591,7 +590,7 @@ class TestCPU__UC(CPUTestCase):
                     'AX=9,BX=0',  # before "mov bx, 4"
                     'AX=9,BX=4']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mov__reg_mem(self):
         '''MOV should load a register from a memory position'''
@@ -609,7 +608,7 @@ class TestCPU__UC(CPUTestCase):
                     'BX=0',  # before "mov bx, [128]"
                     'BX=7']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_mov__mem_reg(self):
         '''MOV should load a memory position from a register'''
@@ -619,13 +618,13 @@ class TestCPU__UC(CPUTestCase):
                     "mov [128], ax\n"
                     "halt\n")
         # memory addresses
-        memories = (128,)
+        addresses = (128,)
         # expected messages
         messages = ['[128]=0',  # before "mov ax, 5"
                     '[128]=0',  # before "mov [128], ax"
                     '[128]=5']  # before "halt"
 
-        self.memory_asserts(assembly, memories, messages)
+        assert_memory(assembly, addresses, messages)
 
     def test_jz_je(self):
         '''JZ/JE should set PC register when Z=1'''
@@ -654,10 +653,10 @@ class TestCPU__UC(CPUTestCase):
                     'PC=6',  # before "je detour"
                     'PC=7']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
 
-class TestCPU__SHIFT(CPUTestCase):
+class TestCPU__SHIFT:
     '''CPU (Shift Unit)'''
 
     def test_shl(self):
@@ -674,7 +673,7 @@ class TestCPU__SHIFT(CPUTestCase):
                     'AX=4',   # before "shr ax, bx"
                     'AX=16']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_shl__flags(self):
         '''SHL should set flag Z'''
@@ -692,7 +691,7 @@ class TestCPU__SHIFT(CPUTestCase):
                     'Z=0',  # before "shl ax, 1"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_shr(self):
         '''SHR should shift right a value'''
@@ -708,7 +707,7 @@ class TestCPU__SHIFT(CPUTestCase):
                     'AX=8',  # before "shr ax, bx"
                     'AX=2']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)
 
     def test_shr__flags(self):
         '''SHR should set flag Z'''
@@ -724,4 +723,4 @@ class TestCPU__SHIFT(CPUTestCase):
                     'Z=0',  # before "shr ax, 1"
                     'Z=1']  # before "halt"
 
-        self.register_asserts(assembly, registers, messages)
+        assert_registers(assembly, registers, messages)

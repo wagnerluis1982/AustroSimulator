@@ -17,17 +17,19 @@
 
 '''CPU simulator functionality'''
 
-from ctypes import c_int8, c_int16
-from abc import ABCMeta, abstractmethod
+from __future__ import annotations
 
-from austro.asm.assembler import REGISTERS, OPCODES
+from abc import ABCMeta, abstractmethod
+from ctypes import c_int8, c_int16
+
+from austro.asm.assembler import OPCODES, REGISTERS
 from austro.asm.memword import DWord, Word
 from austro.shared import AustroException
 from austro.simulator.register import *
 
 
 class StepEvent(metaclass=ABCMeta):
-    _cpu = None
+    _cpu: CPU = None
 
     @abstractmethod
     def on_fetch(self):
