@@ -18,10 +18,20 @@
 #
 ## The code here was vastly based on Qt Tutorials. See: <http://qt-project.org>
 #
+from __future__ import annotations
 
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5.QtCore import QRect, QRegExp, QSize, Qt
+from PyQt5.QtGui import (
+    QColor,
+    QFont,
+    QPainter,
+    QPalette,
+    QSyntaxHighlighter,
+    QTextCharFormat,
+    QTextCursor,
+    QTextFormat,
+)
+from PyQt5.QtWidgets import QPlainTextEdit, QTextEdit, QWidget
 
 from austro.asm.assembler import OPCODES, REGISTERS
 
@@ -43,8 +53,7 @@ class CodeEditor(QPlainTextEdit):
 
         self.defaultPalette = self.palette()
         self.readOnlyPalette = self.palette()
-        self.readOnlyPalette.setColor(QPalette.Active, QPalette.Base,
-                QColor("#F4F4F4"))
+        self.readOnlyPalette.setColor(QPalette.Active, QPalette.Base, QColor("#F4F4F4"))
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
@@ -53,8 +62,7 @@ class CodeEditor(QPlainTextEdit):
 
         block = self.firstVisibleBlock()
         blockNumber = block.blockNumber() + 1
-        top = self.blockBoundingGeometry(block)\
-                .translated(self.contentOffset()).top()
+        top = self.blockBoundingGeometry(block).translated(self.contentOffset()).top()
         bottom = top + self.blockBoundingRect(block).height()
 
         areaWidth = self.lineNumberArea.width()
@@ -63,8 +71,14 @@ class CodeEditor(QPlainTextEdit):
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(blockNumber)
-                painter.drawText(0, top, areaWidth - rightMargin,
-                        self.fontMetrics().height(), Qt.AlignRight, number)
+                painter.drawText(
+                    0,
+                    top,
+                    areaWidth - rightMargin,
+                    self.fontMetrics().height(),
+                    Qt.AlignRight,
+                    number,
+                )
 
             block = block.next()
             top = bottom
@@ -78,7 +92,7 @@ class CodeEditor(QPlainTextEdit):
             maxdigs //= 10
             digits += 1
 
-        space = 3 + self.fontMetrics().width('9') * digits
+        space = 3 + self.fontMetrics().width("9") * digits
         rightMargin = self.lineNumberArea.RIGHT_MARGIN
 
         return space + rightMargin
@@ -86,8 +100,9 @@ class CodeEditor(QPlainTextEdit):
     def resizeEvent(self, e):
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
-        self.lineNumberArea.setGeometry(QRect(cr.left(), cr.top(),
-            self.lineNumberAreaWidth(), cr.height()))
+        self.lineNumberArea.setGeometry(
+            QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height())
+        )
 
     def updateLineNumberAreaWidth(self, newBlockCount):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
@@ -109,8 +124,7 @@ class CodeEditor(QPlainTextEdit):
         if dy:
             self.lineNumberArea.scroll(0, dy)
         else:
-            self.lineNumberArea.update(0, rect.y(),
-                    self.lineNumberArea.width(), rect.height())
+            self.lineNumberArea.update(0, rect.y(), self.lineNumberArea.width(), rect.height())
 
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
@@ -128,7 +142,7 @@ class CodeEditor(QPlainTextEdit):
 
     def highlightLine(self, lineNo, lineColor=QColor("#C6DBAE")):
         if lineNo > 0:
-            block = self.document().findBlockByLineNumber(lineNo-1)
+            block = self.document().findBlockByLineNumber(lineNo - 1)
             cursor = self.textCursor()
             cursor.setPosition(block.position())
             cursor.clearSelection()
@@ -164,7 +178,7 @@ class LineNumberArea(QWidget):
         self.codeEditor.lineNumberAreaPaintEvent(event)
 
 
-class HighlightingRule(object):
+class HighlightingRule:
     pattern = None
     format = None
 
@@ -182,7 +196,7 @@ class AssemblyHighlighter(QSyntaxHighlighter):
         opcodePatterns = OPCODES.keys()
         for pattern in opcodePatterns:
             rule = HighlightingRule()
-            rule.pattern = QRegExp(r'\b%s\b' % pattern, Qt.CaseInsensitive)
+            rule.pattern = QRegExp(r"\b%s\b" % pattern, Qt.CaseInsensitive)
             rule.format = self.opcodeFormat
             self.highlightingRules.append(rule)
 
@@ -191,7 +205,7 @@ class AssemblyHighlighter(QSyntaxHighlighter):
         registerPatterns = REGISTERS.keys()
         for pattern in registerPatterns:
             rule = HighlightingRule()
-            rule.pattern = QRegExp(r'\b%s\b' % pattern, Qt.CaseInsensitive)
+            rule.pattern = QRegExp(r"\b%s\b" % pattern, Qt.CaseInsensitive)
             rule.format = self.registerFormat
             self.highlightingRules.append(rule)
 

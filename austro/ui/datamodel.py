@@ -14,13 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 import ctypes
 
 from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 
-class DataItem(object):
+class DataItem:
     def __init__(self, data, parent=None):
         self._parentItem = parent
         self._itemData = data
@@ -40,11 +41,11 @@ class DataItem(object):
         return len(self._itemData)
 
     def bits(self):
-        if self.parent() != None:
+        if self.parent() is not None:
             return self._itemData[1].bits
 
     def data(self, column):
-        if self.parent() != None and column == 1:
+        if self.parent() is not None and column == 1:
             return self._itemData[column].value
 
         return self._itemData[column]
@@ -68,12 +69,12 @@ class DataModel(QAbstractItemModel):
     F_DEC_NEG = 0
 
     FMT_HEADER = {
-            F_BIN: 'BIN',
-            F_OCT: 'OCT',
-            F_DEC: 'DEC',
-            F_HEX: 'HEX',
-            F_DEC_NEG: 'NEG',
-        }
+        F_BIN: "BIN",
+        F_OCT: "OCT",
+        F_DEC: "DEC",
+        F_HEX: "HEX",
+        F_DEC_NEG: "NEG",
+    }
 
     def __init__(self, header, parent=None):
         super(DataModel, self).__init__(parent)
@@ -95,9 +96,9 @@ class DataModel(QAbstractItemModel):
         elif self._fmt == DataModel.F_BIN:
             return str.format("0b{0:0%db}" % bits, data)
         elif self._fmt == DataModel.F_HEX:
-            return str.format("0x{0:0%dx}" % (bits//4), data)
+            return str.format("0x{0:0%dx}" % (bits // 4), data)
         elif self._fmt == DataModel.F_OCT:
-            return str.format("0o{0:0%do}" % (bits//3), data)
+            return str.format("0o{0:0%do}" % (bits // 3), data)
 
         return data
 
@@ -179,5 +180,5 @@ class DataModel(QAbstractItemModel):
 
     def refresh(self):
         first = self.index(0, 0)
-        last = self.index(self.rowCount()-1, self.columnCount()-1)
+        last = self.index(self.rowCount() - 1, self.columnCount() - 1)
         self.dataChanged.emit(first, last)

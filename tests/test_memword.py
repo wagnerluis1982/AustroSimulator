@@ -1,23 +1,28 @@
-import unittest
+from __future__ import annotations
 
-from austro.asm.memword import Word
+from austro.asm.memword import DWord, IWord, Word
 
 
-class WordTest(unittest.TestCase):
-    def test_constructor_3_args(self):
-        """constructor(opcode, flags, operand) should set value"""
-        iw = Word(0b00001, 0b010, 0b00000011, is_instruction=True)
-        self.assertEqual( iw.value, 0b101000000011 )
+class TestWord:
+    def test_flag_is_instruction(self):
+        w = Word(value=0)
+        assert not w.is_instruction
 
-    def test_constructor_1_arg(self):
-        """constructor(value=arg) should set opcode, flags, operand"""
-        iw = Word(value=0b101000000011, is_instruction=True)
-        self.assertEqual( (iw.opcode, iw.flags, iw.operand),
-                          (0b00001, 0b010, 0b00000011) )
+        w.is_instruction = True
+        assert w.is_instruction
 
-    def test_set_value(self):
-        """setting value should set opcode, flags, operand"""
-        iw = Word(is_instruction=True)
-        iw.value = 0b101000000011
-        self.assertEqual( (iw.opcode, iw.flags, iw.operand),
-                          (0b00001, 0b010, 0b00000011) )
+        # set value when is_instruction == True
+        w.value = 0xffff  # fmt: skip
+        assert w._opcode == 31
+        assert w._flags == 7
+        assert w._operand == 255
+
+        # convert IWord to DWord
+        w.is_instruction = False
+        assert w._value == 0xffff  # fmt: skip
+
+    def test_instruction_word_repr(self):
+        assert repr(IWord(1, 2, 3, 4)) == "IWord(1, 2, 3, lineno=4)"
+
+    def test_data_word_repr(self):
+        assert repr(DWord(123)) == "DWord(123)"

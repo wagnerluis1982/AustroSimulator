@@ -14,10 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 
-class AbstractData(object):
-    _bits = 0
+class AbstractData:
+    _bits: int
 
     @property
     def bits(self):

@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 import ctypes
 
@@ -29,23 +30,25 @@ class StructReg(BaseReg, ctypes.Structure):
 
 
 class Reg16(StructReg):
-    _fields_ = [("value", ctypes.c_uint16)]
+    _fields_ = (("value", ctypes.c_uint16),)
     _bits = 16
 
 
 class Reg8(StructReg):
-    _fields_ = [("value", ctypes.c_uint8)]
+    _fields_ = (("value", ctypes.c_uint8),)
     _bits = 8
 
 
 class Reg1(StructReg):
-    _fields_ = [("value", ctypes.c_uint8, 1)]
+    _fields_ = (("value", ctypes.c_uint8, 1),)
     _bits = 1
 
 
 class RegX(StructReg):
-    _fields_ = [("_h", ctypes.c_uint8),
-                ("_l", ctypes.c_uint8)]
+    _fields_ = (
+        ("_h", ctypes.c_uint8),
+        ("_l", ctypes.c_uint8),
+    )
     _bits = 16
 
     def __init__(self, val=0):
@@ -53,22 +56,25 @@ class RegX(StructReg):
         self._l = val
 
     @property
-    def h(self):
+    def high(self):
         return self._h
-    @h.setter
-    def h(self, val):
+
+    @high.setter
+    def high(self, val):
         self._h = val
 
     @property
-    def l(self):
+    def low(self):
         return self._l
-    @l.setter
-    def l(self, val):
+
+    @low.setter
+    def low(self, val):
         self._l = val
 
     @property
     def value(self):
         return self._h << 8 | self._l
+
     @value.setter
     def value(self, val):
         self._h = val >> 8
@@ -77,35 +83,33 @@ class RegX(StructReg):
 
 class RegH(BaseReg):
     _bits = 8
+    regx: RegX
 
-    def __init__(self, regx, val=None):
+    def __init__(self, regx):
         assert isinstance(regx, RegX)
-
         self.regx = regx
-        if val is not None:
-            regx.h = val
 
     @property
     def value(self):
-        return self.regx.h
+        return self.regx.high
+
     @value.setter
     def value(self, val):
-        self.regx.h = val
+        self.regx.high = val
 
 
 class RegL(BaseReg):
     _bits = 8
+    regx: RegX
 
-    def __init__(self, regx, val=None):
+    def __init__(self, regx):
         assert isinstance(regx, RegX)
-
         self.regx = regx
-        if val is not None:
-            regx.l = val
 
     @property
     def value(self):
-        return self.regx.l
+        return self.regx.low
+
     @value.setter
     def value(self, val):
-        self.regx.l = val
+        self.regx.low = val

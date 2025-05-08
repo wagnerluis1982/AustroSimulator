@@ -1,26 +1,71 @@
-[tool.poetry]
+[project]
 name = "austrosim"
-version = "0.1.1.dev2"
+version = "0.1.1-dev3"
 description = "A CPU simulator resembling Intel 8086."
-authors = ["Wagner Macedo <wagnerluis1982@gmail.com>"]
-license = "GPL-3.0-or-later"
+authors = [
+    { name = "Wagner Macedo", email = "wagnerluis1982@gmail.com" },
+]
+license = { text = "GPL-3.0-or-later" }
 readme = "README.md"
 
+requires-python = ">=3.9"
+dependencies = [
+    "ply (>=3.11,<4.0)",
+    "pyqt5 (>=5.15.11,<6.0.0)"
+]
+
+[project.scripts]
+austrosim = "austro.script:main"
+
+[project.gui-scripts]
+austrosim = "austro.script:main"
+
+[tool.poetry]
 packages = [
     { include = "austro", from = "." },
 ]
 
-[tool.poetry.scripts]
-austrosim = "austro.script:main"
-
-[tool.poetry.dependencies]
-python = "^3.8"
-ply = "^3.11"
-pyqt5 = "^5.15.11"
-
 [tool.poetry.group.dev.dependencies]
+pre-commit = "^4.2.0"
 pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+fix = true
+line-length = 96
+target-version = "py39"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+unfixable = [
+    "ERA", # do not autoremove commented out code
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.isort]
+lines-between-types = 1
+lines-after-imports = 2
+known-first-party = ["austro"]
+required-imports = ["from __future__ import annotations"]
+
+[tool.pytest.ini_options]
+addopts = "--cov-report=term --cov-report html"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = [
+    "austro"
+]
+
+[tool.coverage.report]
+include_namespace_packages = true
+exclude_also = [
+    "@abstract",
+    "if TYPE_CHECKING:",
+]

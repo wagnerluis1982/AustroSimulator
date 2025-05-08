@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 import ctypes
 
@@ -21,33 +22,35 @@ from austro.shared import AbstractData
 
 
 class Word(AbstractData, ctypes.Structure):
-    '''Represent the memory word
+    """Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits
-    '''
+    """
 
-    _fields_ = [('_opcode', ctypes.c_ubyte, 5),
-                ('_flags', ctypes.c_ubyte, 3),
-                ('_operand', ctypes.c_ubyte, 8),
-                ('_value', ctypes.c_uint16)]
+    _fields_ = (
+        ("_opcode", ctypes.c_ubyte, 5),
+        ("_flags", ctypes.c_ubyte, 3),
+        ("_operand", ctypes.c_ubyte, 8),
+        ("_value", ctypes.c_uint16),
+    )
     _bits = 16
 
-    def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None,
-            is_instruction=False):
-        # Flag to know if this word should act as a instruction
+    def __init__(
+        self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False
+    ):
+        # Flag to know if this word should act as an instruction
         self._instruction = is_instruction
         # Set an associated assembly code line number (for instructions)
         self.lineno = lineno
 
-        if value is not None:
-            self.value = value
+        # If marked as instruction, set args separately
+        if is_instruction:
+            ctypes.Structure.__init__(self, opcode, flags, operand)
+
+        # In a data word the 'value' must be set
         else:
-            # If marked as instruction, set args separately
-            if is_instruction:
-                ctypes.Structure.__init__(self, opcode, flags, operand)
-            # In a data word the 'opcode' arg act as whole value
-            else:
-                self.value = opcode
+            assert value is not None, "DWord requires 'value' but was not set"
+            self.value = value
 
     @property
     def value(self):
@@ -55,6 +58,7 @@ class Word(AbstractData, ctypes.Structure):
             return (self.opcode << 3 | self.flags) << 8 | self.operand
         else:
             return self._value
+
     @value.setter
     def value(self, value):
         if self.is_instruction:
@@ -66,59 +70,66 @@ class Word(AbstractData, ctypes.Structure):
 
     @property
     def opcode(self):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         return self._opcode
+
     @opcode.setter
     def opcode(self, value):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         self._opcode = value
 
     @property
     def flags(self):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         return self._flags
+
     @flags.setter
     def flags(self, value):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         self._flags = value
 
     @property
     def operand(self):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         return self._operand
+
     @operand.setter
     def operand(self, value):
-        assert self.is_instruction, "Word is not a instruction"
+        assert self.is_instruction, "Word is not an instruction"
         self._operand = value
 
     @property
     def is_instruction(self):
         return self._instruction
+
     @is_instruction.setter
     def is_instruction(self, switch):
         if switch:
+            # DWord stores value in field `_value`. Here we interpret the value as an instruction after became an IWord.
             if not self._instruction:
                 self._instruction = True
                 self.value = self._value
         else:
+            # IWord stores value in a struct. Here we take the interpreted value before became a DWord.
             if self._instruction:
-                value = self.value
+                self._value = self.value
                 self._instruction = False
-                self.value = value
-
-    @property
-    def is_data(self):
-        return not self._instruction
-    @is_data.setter
-    def is_data(self, switch):
-        self.is_instruction = not switch
 
     def __eq__(self, o):
         return self.value == o.value
 
     def __repr__(self):
         if self.is_instruction:
-            return 'Word(%d, %d, %d, lineno=%d)' % (self.opcode,
-                                        self.flags, self.operand, self.lineno)
+            return f"IWord({self.opcode}, {self.flags}, {self.operand}, lineno={self.lineno})"
         else:
-            return 'Word(%d)' % (self._value)
+            return f"DWord({self._value})"
+
+
+def IWord(opcode=0, flags=0, operand=0, lineno=0) -> Word:
+    """Helper to create an Instruction Word"""
+    return Word(opcode, flags, operand, lineno, is_instruction=True)
+
+
+def DWord(value=0):
+    """Helper to create a Data Word"""
+    return Word(value=value)
