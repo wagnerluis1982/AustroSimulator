@@ -17,45 +17,75 @@
 
 # Austro Simulator Assembler
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
+from __future__ import annotations
 
 from austro.asm.asm_lexer import get_lexer
 from austro.asm.memword import DWord, IWord
 from austro.shared import AustroException
 
 
+# fmt: off
 OPCODES = {
-        # Control Unit instructions
-        'NOP': 0b00000, 'HALT': 0b00001, 'MOV': 0b00010,  'JZ':  0b00011,
-        'JE':  0b00011, 'JNZ':  0b00100, 'JNE': 0b00100,  'JN':  0b00101,
-        'JLT': 0b00101, 'JP':   0b00110, 'JGT': 0b00110,  'JGE': 0b00111,
-        'JLE': 0b01000, 'JV':   0b01001, 'JT':  0b01010,  'JMP': 0b01011,
-        'SEG': 0b01110,
-        # Shift Unit instructions
-        'SHR': 0b01100, 'SHL':  0b01101,
-        # ALU instructions
-        'ADD': 0b10000,  'INC': 0b10001, 'DEC': 0b10010, 'SUB':  0b10011,
-        'MUL': 0b10100, 'IMUL': 0b10100, 'OR':  0b10101, 'AND':  0b10110,
-        'NOT': 0b10111, 'XOR':  0b11000, 'DIV': 0b11001, 'IDIV': 0b11001,
-        'MOD': 0b11010, 'IMOD': 0b11010, 'CMP': 0b11011, 'ICMP': 0b11011,
-    }
+    # Control Unit instructions
+    'NOP': 0b00000, 'HALT': 0b00001, 'MOV': 0b00010,  'JZ':  0b00011,
+    'JE':  0b00011, 'JNZ':  0b00100, 'JNE': 0b00100,  'JN':  0b00101,
+    'JLT': 0b00101, 'JP':   0b00110, 'JGT': 0b00110,  'JGE': 0b00111,
+    'JLE': 0b01000, 'JV':   0b01001, 'JT':  0b01010,  'JMP': 0b01011,
+    'SEG': 0b01110,
+    # Shift Unit instructions
+    'SHR': 0b01100, 'SHL':  0b01101,
+    # ALU instructions
+    'ADD': 0b10000,  'INC': 0b10001, 'DEC': 0b10010, 'SUB':  0b10011,
+    'MUL': 0b10100, 'IMUL': 0b10100, 'OR':  0b10101, 'AND':  0b10110,
+    'NOT': 0b10111, 'XOR':  0b11000, 'DIV': 0b11001, 'IDIV': 0b11001,
+    'MOD': 0b11010, 'IMOD': 0b11010, 'CMP': 0b11011, 'ICMP': 0b11011,
+}
 
 REGISTERS = {
-        'AL': 0b0000, 'AH': 0b0001, 'BL': 0b0010, 'BH': 0b0011,
-        'CL': 0b0100, 'CH': 0b0101, 'DL': 0b0110, 'DH': 0b0111,
-        'AX': 0b1000, 'BX': 0b1001, 'CX': 0b1010, 'DX': 0b1011,
-        'SP': 0b1100, 'BP': 0b1101, 'SI': 0b1110, 'DI': 0b1111,
-    }
+    'AL': 0b0000, 'AH': 0b0001, 'BL': 0b0010, 'BH': 0b0011,
+    'CL': 0b0100, 'CH': 0b0101, 'DL': 0b0110, 'DH': 0b0111,
+    'AX': 0b1000, 'BX': 0b1001, 'CX': 0b1010, 'DX': 0b1011,
+    'SP': 0b1100, 'BP': 0b1101, 'SI': 0b1110, 'DI': 0b1111,
+}
+# fmt: on
 
 OP_ZERO_ARGS = ("NOP", "HALT")
 OP_ONE_ARGS = (
-    "JE", "JGE", "JGT", "JLE", "JLT", "JMP",
-    "JN", "JNE", "JNZ", "JP", "JT", "JV", "JZ",
-    "DEC", "INC", "NOT", "SEG",
+    "JE",
+    "JGE",
+    "JGT",
+    "JLE",
+    "JLT",
+    "JMP",
+    "JN",
+    "JNE",
+    "JNZ",
+    "JP",
+    "JT",
+    "JV",
+    "JZ",
+    "DEC",
+    "INC",
+    "NOT",
+    "SEG",
 )
 OP_TWO_ARGS = (
-    "SHR", "SHL",
-    "MOV", "CMP", "ICMP", "DIV", "IDIV", "MOD", "IMOD",
-    "MUL", "IMUL", "AND", "OR", "XOR", "ADD", "SUB",
+    "SHR",
+    "SHL",
+    "MOV",
+    "CMP",
+    "ICMP",
+    "DIV",
+    "IDIV",
+    "MOD",
+    "IMOD",
+    "MUL",
+    "IMUL",
+    "AND",
+    "OR",
+    "XOR",
+    "ADD",
+    "SUB",
 )
 
 
@@ -80,7 +110,9 @@ def memory_words(opcode, op1=None, op2=None):
     # zero-operand instructions
     if opname in OP_ZERO_ARGS:
         if op1 is not None:
-            raise AssembleException(f"Error: operand '{op1.value}' found for no-arg '{opname}'", opcode.lineno)
+            raise AssembleException(
+                f"Error: operand '{op1.value}' found for no-arg '{opname}'", opcode.lineno
+            )
 
         return (instr_word,)
 
@@ -89,68 +121,78 @@ def memory_words(opcode, op1=None, op2=None):
         if op1 is None:
             raise AssembleException(f"Error: missing operand for '{opname}'", opcode.lineno)
         if op2 is not None:
-            raise AssembleException(f"Error: second operand '{op2.value}' found for 1-arg '{opname}'", opcode.lineno)
+            raise AssembleException(
+                f"Error: second operand '{op2.value}' found for 1-arg '{opname}'", opcode.lineno
+            )
 
         # Jump instructions
         if opname.startswith("J"):
-            if op1.type == 'NAME':
+            if op1.type == "NAME":
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError:
-                    raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
+                    raise AssembleException(
+                        f"Error: bad register name '{op1.value}'", op1.lineno
+                    )
 
                 return (instr_word,)
 
-            elif op1.type == 'REFERENCE':
+            elif op1.type == "REFERENCE":
                 instr_word.operand = op1.value
                 instr_word.flags = 1
                 return (instr_word,)
 
-            elif op1.type == 'NUMBER':
+            elif op1.type == "NUMBER":
                 instr_word.operand = op1.value
                 instr_word.flags = 2
                 return (instr_word,)
 
-            raise AssembleException(f"Error: invalid operand for '{opname}'", op1.lineno) 
+            raise AssembleException(f"Error: invalid operand for '{opname}'", op1.lineno)
 
         # INC, DEC, NOT and SEG instructions
         else:
-            if op1.type == 'NAME':
+            if op1.type == "NAME":
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags = 0
                 except KeyError:
-                    raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
+                    raise AssembleException(
+                        f"Error: bad register name '{op1.value}'", op1.lineno
+                    )
 
                 return (instr_word,)
-            elif op1.type == 'REFERENCE':
+            elif op1.type == "REFERENCE":
                 instr_word.operand = op1.value
                 instr_word.flags = 1
                 return (instr_word,)
 
-            raise AssembleException(f"Error: invalid operand for '{opname}'", op1.lineno) 
+            raise AssembleException(f"Error: invalid operand for '{opname}'", op1.lineno)
 
     # 2-operand instructions
     elif opname in OP_TWO_ARGS:
         if op1 is None:
             raise AssembleException(f"Error: missing operands for '{opname}'", opcode.lineno)
         if op2 is None:
-            raise AssembleException(f"Error: missing second operand for '{opname}'", opcode.lineno)
+            raise AssembleException(
+                f"Error: missing second operand for '{opname}'", opcode.lineno
+            )
 
         # Shift instructions
         if opname in ("SHR", "SHL"):
-            if op2.type == 'NUMBER':
-                if op1.type == 'NAME':
+            if op2.type == "NUMBER":
+                if op1.type == "NAME":
                     try:
                         instr_word.operand = REGISTERS[op1.value.upper()] << 4
                         instr_word.flags = 0
-                    except KeyError: 
-                        raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
+                    except KeyError:
+                        raise AssembleException(
+                            f"Error: bad register name '{op1.value}'", op1.lineno
+                        )
 
                     return (instr_word, DWord(op2.value))
 
-                elif op1.type == 'REFERENCE':
+                elif op1.type == "REFERENCE":
                     instr_word.operand = op1.value
                     instr_word.flags = 1
                     return (instr_word, DWord(op2.value))
@@ -159,45 +201,52 @@ def memory_words(opcode, op1=None, op2=None):
 
         # All other instructions
         else:
-            if opname in ('ICMP', 'IDIV', 'IMOD', 'IMUL',):
+            if opname in ("ICMP", "IDIV", "IMOD", "IMUL"):
                 instr_word.flags = 0b100  # signed instructions
 
-            if op1.type == 'NAME' and op2.type == 'NAME':
+            if op1.type == "NAME" and op2.type == "NAME":
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.operand |= REGISTERS[op2.value.upper()]
                     # flag x00 - no needs to set
                 except KeyError as e:
                     bad_reg = op1 if op1.value.upper() in e.args else op2
-                    raise AssembleException(f"Error: bad register name '{bad_reg.value}'", bad_reg.lineno)
+                    raise AssembleException(
+                        f"Error: bad register name '{bad_reg.value}'", bad_reg.lineno
+                    )
 
                 return (instr_word,)
 
-            elif op1.type == 'NAME' and op2.type == 'REFERENCE':
+            elif op1.type == "NAME" and op2.type == "REFERENCE":
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b001  # flag x01
                 except KeyError:
-                    raise AssembleException("Error: bad register name '%s'" %
-                            op1.value, op1.lineno)
+                    raise AssembleException(
+                        "Error: bad register name '%s'" % op1.value, op1.lineno
+                    )
 
                 return (instr_word, DWord(op2.value))
 
-            elif op1.type == 'NAME' and op2.type == 'NUMBER':
+            elif op1.type == "NAME" and op2.type == "NUMBER":
                 try:
                     instr_word.operand = REGISTERS[op1.value.upper()] << 4
                     instr_word.flags |= 0b010  # flag x10
                 except KeyError:
-                    raise AssembleException(f"Error: bad register name '{op1.value}'", op1.lineno)
+                    raise AssembleException(
+                        f"Error: bad register name '{op1.value}'", op1.lineno
+                    )
 
                 return (instr_word, DWord(op2.value))
 
-            elif op1.type == 'REFERENCE' and op2.type == 'NAME':
+            elif op1.type == "REFERENCE" and op2.type == "NAME":
                 try:
                     instr_word.operand = REGISTERS[op2.value.upper()] << 4
                     instr_word.flags |= 0b011  # flag x11
                 except KeyError:
-                    raise AssembleException(f"Error: bad register name '{op2.value}'", op2.lineno)
+                    raise AssembleException(
+                        f"Error: bad register name '{op2.value}'", op2.lineno
+                    )
 
                 return (instr_word, DWord(op1.value))
 
@@ -239,15 +288,14 @@ def assemble(code: str) -> dict:
     labels = {}
     words = []
 
-
     def verify_pending_labels():
         # Verify if has any label pending an address
         while pend_labels:
             lbl = pend_labels.pop()
             if lbl.value in labels:
                 raise AssembleException(
-                        f"Error: symbol '{lbl.value}' is already defined",
-                        lbl.lineno)
+                    f"Error: symbol '{lbl.value}' is already defined", lbl.lineno
+                )
             # Point the label to the next word pending attribution
             position = len(words)
             labels[lbl.value] = position
@@ -263,10 +311,10 @@ def assemble(code: str) -> dict:
     miss_labels = {}
     tok = lexer.token()
     while tok:
-        if tok.type == 'LABEL':
+        if tok.type == "LABEL":
             pend_labels.append(tok)
 
-        elif tok.type == 'OPCODE':
+        elif tok.type == "OPCODE":
             verify_pending_labels()
 
             # Store opcode
@@ -283,13 +331,26 @@ def assemble(code: str) -> dict:
             tok = lexer.token()
             if not tok or tok.lineno != opcode.lineno:
                 # If instruction is a jump, replace labels by it address
-                jumps = ('JE', 'JGE', 'JGT', 'JLE', 'JLT', 'JMP',
-                         'JN', 'JNE', 'JNZ', 'JP', 'JT', 'JV', 'JZ',)
+                jumps = (
+                    "JE",
+                    "JGE",
+                    "JGT",
+                    "JLE",
+                    "JLT",
+                    "JMP",
+                    "JN",
+                    "JNE",
+                    "JNZ",
+                    "JP",
+                    "JT",
+                    "JV",
+                    "JZ",
+                )
                 no_label = False
                 lbl_name = op1.value
-                if op1.type == 'NAME' and opcode.value.upper() in jumps:
+                if op1.type == "NAME" and opcode.value.upper() in jumps:
                     if op1.value.upper() not in REGISTERS:
-                        op1.type = 'NUMBER'
+                        op1.type = "NUMBER"
                         if op1.value not in labels:
                             no_label = True
                             op1.value = 0
@@ -302,9 +363,8 @@ def assemble(code: str) -> dict:
                         miss_labels[lbl_name] = []
                     miss_labels[lbl_name].append(words[-1])
                 continue
-            if tok.type != 'COMMA':
-                raise AssembleException("Invalid token '%s'" % tok.value,
-                        tok.lineno)
+            if tok.type != "COMMA":
+                raise AssembleException("Invalid token '%s'" % tok.value, tok.lineno)
 
             # Get second operator if available
             tok = lexer.token()
@@ -316,8 +376,7 @@ def assemble(code: str) -> dict:
 
         # At start of line, only labels and opcodes are allowed
         else:
-            raise AssembleException("Invalid token '%s'" % tok.value,
-                    tok.lineno)
+            raise AssembleException("Invalid token '%s'" % tok.value, tok.lineno)
 
         tok = lexer.token()
 
@@ -326,10 +385,9 @@ def assemble(code: str) -> dict:
 
     # Interrupt assembling if has any jump missing label
     for mlb in miss_labels.items():
-        raise AssembleException("Invalid label '%s'" % mlb[0],
-                mlb[1][0].lineno)
+        raise AssembleException("Invalid label '%s'" % mlb[0], mlb[1][0].lineno)
 
-    return {'labels': labels, 'words': words}
+    return {"labels": labels, "words": words}
 
 
 class AssembleException(AustroException):

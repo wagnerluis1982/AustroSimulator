@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import sys
 
 from PyQt5.QtWidgets import QApplication
+
 from austro.ui.mainwindow import MainWindow
 
 

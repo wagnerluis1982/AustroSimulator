@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 import ctypes
 
@@ -21,10 +22,10 @@ from austro.shared import AbstractData
 
 
 class Word(AbstractData, ctypes.Structure):
-    '''Represent the memory word
+    """Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits
-    '''
+    """
 
     _fields_ = (
         ("_opcode", ctypes.c_ubyte, 5),
@@ -34,7 +35,9 @@ class Word(AbstractData, ctypes.Structure):
     )
     _bits = 16
 
-    def __init__(self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False):
+    def __init__(
+        self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False
+    ):
         # Flag to know if this word should act as an instruction
         self._instruction = is_instruction
         # Set an associated assembly code line number (for instructions)

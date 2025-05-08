@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from austro.asm.memword import DWord, IWord, Word
 
 

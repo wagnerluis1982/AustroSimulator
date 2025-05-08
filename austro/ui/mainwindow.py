@@ -1,38 +1,55 @@
 from __future__ import annotations
 
-from datetime import datetime
 import os
 
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QTimer
+from datetime import datetime
+
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
 # from PyQt5.QtUiTools import QUiLoader
 from PyQt5 import uic
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (
+    QAction,
+    QApplication,
+    QFileDialog,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QPlainTextEdit,
+    QSplitter,
+    QTreeView,
+)
 
-from austro.asm import assembler, asm_lexer
+from austro.asm import asm_lexer, assembler
 from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
-from austro.ui.codeeditor import CodeEditor, AssemblyHighlighter
-from austro.ui.models import (DataModel, RegistersModel, MemoryModel,
-        GeneralMemoryModel)
+from austro.ui.codeeditor import AssemblyHighlighter, CodeEditor
+from austro.ui.models import DataModel, GeneralMemoryModel, MemoryModel, RegistersModel
 
 
 __version__ = "0.1.1-dev3"
-_about_ = """<h3>Austro Simulator %s</h3>
-             <p>Copyright (C) 2013  Wagner Macedo</p>
+_about_ = (
+    """
+    <h3>Austro Simulator %s</h3>
+    <p>Copyright (C) 2013  Wagner Macedo</p>
 
-             <p> Austro Simulator is free software: you can redistribute it
-             and/or modify it under the terms of the GNU General Public
-             License as published by the Free Software Foundation, either
-             version 3 of the License, or (at your option) any later version.
-             </p>
+    <p>
+    Austro Simulator is free software: you can redistribute it
+    and/or modify it under the terms of the GNU General Public
+    License as published by the Free Software Foundation, either
+    version 3 of the License, or (at your option) any later version.
+    </p>
 
-             <p>Austro Simulator is distributed in the hope that it will be
-             useful, but WITHOUT ANY WARRANTY; without even the implied
-             warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-             See the GNU General Public License for more details.</p>
-             """ % __version__
+    <p>
+    Austro Simulator is distributed in the hope that it will be
+    useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+    </p>
+    """
+    % __version__
+)
 
 
 def _resource(*rsc):
@@ -46,14 +63,14 @@ class ModelsUpdater(StepEvent):
 
     def on_fetch(self):
         # Highlight current execution line
-        lineno = self.cpu.registers.get_word('RI').lineno
+        lineno = self.cpu.registers.get_word("RI").lineno
         self.win.asmEdit.highlightLine(lineno)
 
         # Highlight current memory position
-        self.win.memoryModel.pc = self.cpu.registers['PC']
+        self.win.memoryModel.pc = self.cpu.registers["PC"]
         self.win.refreshModels()
         # Ensure memory position is visible
-        index = self.win.memoryModel.index(self.cpu.registers['PC'])
+        index = self.win.memoryModel.index(self.cpu.registers["PC"])
         self.win.treeMemory.scrollTo(index)
 
 
@@ -70,7 +87,7 @@ class MainWindow:
 
         # loader = QUiLoader()
         # loader.registerCustomWidget(CodeEditor)
-        self.gui = uic.loadUi(_resource('mainwindow.ui'))
+        self.gui = uic.loadUi(_resource("mainwindow.ui"))
 
         self.setupEditorAndDiagram()
         self.setupSplitters()
@@ -116,17 +133,41 @@ class MainWindow:
     ## Models
     #
     def setupModels(self):
-        self.genRegsModel = RegistersModel(self.cpu.registers, (
-                'AX', ('AH', 'AL'), 'BX', ('BH', 'BL'),
-                'CX', ('CH', 'CL'), 'DX', ('DH', 'DL'),
-                'SP', 'BP', 'SI', 'DI',
-            ))
-        self.specRegsModel = RegistersModel(self.cpu.registers, (
-                'PC', 'RI', 'MAR', 'MBR',
-            ))
-        self.stateRegsModel = RegistersModel(self.cpu.registers, (
-                'N', 'Z', 'V', 'T',
-            ))
+        self.genRegsModel = RegistersModel(
+            self.cpu.registers,
+            (
+                "AX",
+                ("AH", "AL"),
+                "BX",
+                ("BH", "BL"),
+                "CX",
+                ("CH", "CL"),
+                "DX",
+                ("DH", "DL"),
+                "SP",
+                "BP",
+                "SI",
+                "DI",
+            ),
+        )
+        self.specRegsModel = RegistersModel(
+            self.cpu.registers,
+            (
+                "PC",
+                "RI",
+                "MAR",
+                "MBR",
+            ),
+        )
+        self.stateRegsModel = RegistersModel(
+            self.cpu.registers,
+            (
+                "N",
+                "Z",
+                "V",
+                "T",
+            ),
+        )
         self.memoryModel = GeneralMemoryModel(self.cpu.memory)
         self.memoryModel2 = MemoryModel(self.cpu.memory)
 
@@ -159,7 +200,7 @@ class MainWindow:
         treeMemory.resizeColumnToContents(0)
         treeMemory.resizeColumnToContents(1)
 
-        # Data vision tree memoy
+        # Data vision tree memory
         treeMemory2 = self.gui.findChild(QTreeView, "treeMemory2")
         treeMemory2.setModel(self.memoryModel2)
         treeMemory2.resizeColumnToContents(0)
@@ -185,19 +226,23 @@ class MainWindow:
 
         treeGenericRegs.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeGenericRegs.header().customContextMenuRequested.connect(
-                lambda pos: self.headerMenu(pos, treeGenericRegs))
+            lambda pos: self.headerMenu(pos, treeGenericRegs)
+        )
 
         treeSpecificRegs.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeSpecificRegs.header().customContextMenuRequested.connect(
-                lambda pos: self.headerMenu(pos, treeSpecificRegs))
+            lambda pos: self.headerMenu(pos, treeSpecificRegs)
+        )
 
         treeStateRegs.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeStateRegs.header().customContextMenuRequested.connect(
-                lambda pos: self.headerMenu(pos, treeStateRegs))
+            lambda pos: self.headerMenu(pos, treeStateRegs)
+        )
 
         treeMemory2.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeMemory2.header().customContextMenuRequested.connect(
-                lambda pos: self.headerMenu(pos, treeMemory2))
+            lambda pos: self.headerMenu(pos, treeMemory2)
+        )
 
         # Context menu of general memory vision
         contextMenu = QMenu()
@@ -211,7 +256,8 @@ class MainWindow:
 
         treeMemory.header().setContextMenuPolicy(Qt.CustomContextMenu)
         treeMemory.header().customContextMenuRequested.connect(
-                lambda pos: self.headerMenu(pos, treeMemory, contextMenu))
+            lambda pos: self.headerMenu(pos, treeMemory, contextMenu)
+        )
 
     #
     ## Actions
@@ -233,7 +279,7 @@ class MainWindow:
         self.actionAbout.triggered.connect(self.about)
 
         self.actionAboutQt = self.gui.findChild(QAction, "actionAboutQt")
-        self.actionAboutQt.setIcon(QIcon(_resource('images', 'qt-logo.png')))
+        self.actionAboutQt.setIcon(QIcon(_resource("images", "qt-logo.png")))
         self.actionAboutQt.triggered.connect(self.aboutQt)
 
         self.actionOpen = self.gui.findChild(QAction, "actionOpen")
@@ -256,19 +302,17 @@ class MainWindow:
             asmd = assembler.assemble(assembly)
         except (asm_lexer.LexerException, assembler.AssembleException) as e:
             self.console.clear()
-            self.console.appendPlainText(
-                    "Attempt to load failed (%s)" % datetime.now())
+            self.console.appendPlainText("Attempt to load failed (%s)" % datetime.now())
             self.console.appendPlainText(e.message)
             self.restoreEditor()
         else:
             try:
                 # Reset and set the memory with the written program
                 self.cpu.reset()
-                self.cpu.set_memory_block(asmd['words'])
+                self.cpu.set_memory_block(asmd["words"])
                 self.refreshModels()
             except CPUException as e:
-                self.console.appendPlainText(
-                        "Attempt to load failed (%s)" % datetime.now())
+                self.console.appendPlainText("Attempt to load failed (%s)" % datetime.now())
                 self.console.appendPlainText(e.message)
                 self.restoreEditor()
 
@@ -289,8 +333,7 @@ class MainWindow:
         try:
             next(self.cpu)
         except CPUException as e:
-            self.console.appendPlainText(
-                    "Execution failed (%s)" % datetime.now())
+            self.console.appendPlainText("Execution failed (%s)" % datetime.now())
             self.console.appendPlainText(e.message)
 
         if self.cpu.stage in (Stage.HALTED, Stage.STOPPED):
@@ -309,12 +352,14 @@ class MainWindow:
 
         if os.path.exists(filename):
             if self.asmEdit.document().isModified():
-                answer = QMessageBox.question(self.gui, "Modified Code",
+                answer = QMessageBox.question(
+                    self.gui,
+                    "Modified Code",
                     """<b>The current code is modified</b>
-                    <p>What do you want to do?</p>
-                    """,
+                       <p>What do you want to do?</p>""",
                     QMessageBox.Discard | QMessageBox.Cancel,
-                    QMessageBox.Cancel)
+                    QMessageBox.Cancel,
+                )
                 if answer == QMessageBox.Cancel:
                     return
             self.asmEdit.setPlainText(open(filename).read())

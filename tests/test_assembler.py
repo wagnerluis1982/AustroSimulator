@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import pytest
+
 from ply.lex import LexToken
 
 from austro.asm.asm_lexer import LexerException

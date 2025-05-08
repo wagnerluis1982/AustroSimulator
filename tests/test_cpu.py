@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import pytest
+
 from austro.asm.assembler import assemble
 from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepEvent
 
