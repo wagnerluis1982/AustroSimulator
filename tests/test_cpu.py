@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import override
+
 import pytest
 
 from austro.asm.assembler import assemble
@@ -15,6 +17,7 @@ class ShowRegistersEvent(StepEvent):
         for nm in names:
             self.indexes.append(Registers.INDEX[nm])
 
+    @override
     def on_fetch(self):
         args = [self.cpu.registers[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
@@ -26,6 +29,7 @@ class ShowMemoriesEvent(StepEvent):
         self.fmt = ",".join(["[%d]=%%d" % n for n in numbers])
         self.indexes = numbers
 
+    @override
     def on_fetch(self):
         args = [self.cpu.memory[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
@@ -34,6 +38,7 @@ class ShowMemoriesEvent(StepEvent):
 @pytest.fixture
 def cpu():
     class DummyEvent(StepEvent):
+        @override
         def on_fetch(self):
             pass
 

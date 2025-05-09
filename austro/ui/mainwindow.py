@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 from datetime import datetime
+from typing import override
 
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
@@ -61,6 +62,7 @@ class ModelsUpdater(StepEvent):
     def __init__(self, win: MainWindow):
         self.win = win
 
+    @override
     def on_fetch(self):
         # Highlight current execution line
         lineno = self.cpu.registers.get_word("RI").lineno
