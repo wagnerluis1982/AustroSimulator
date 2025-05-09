@@ -37,8 +37,6 @@ from austro.asm.assembler import OPCODES, REGISTERS
 
 
 class CodeEditor(QPlainTextEdit):
-    lineNumberArea = None
-
     def __init__(self, parent=None):
         super(CodeEditor, self).__init__(parent)
         self.setTabStopWidth(40)
@@ -66,14 +64,14 @@ class CodeEditor(QPlainTextEdit):
         bottom = top + self.blockBoundingRect(block).height()
 
         areaWidth = self.lineNumberArea.width()
-        rightMargin = self.lineNumberArea.RIGHT_MARGIN
+        rightMargin = LineNumberArea.RIGHT_MARGIN
 
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(blockNumber)
                 painter.drawText(
                     0,
-                    top,
+                    int(top),
                     areaWidth - rightMargin,
                     self.fontMetrics().height(),
                     Qt.AlignRight,
