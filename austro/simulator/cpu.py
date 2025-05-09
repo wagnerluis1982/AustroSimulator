@@ -546,7 +546,7 @@ class Registers:
     }
 
     def __init__(self):
-        self._regs = {}
+        self._regs: dict[str, BaseReg] = {}
         self._words = {}
 
         # Internal function to set register objects
@@ -605,7 +605,7 @@ class Registers:
 
         self._regs[key].value = reg.value
 
-    def get_reg(self, key):
+    def get_reg(self, key: str) -> BaseReg:
         assert isinstance(key, (int, str))
 
         if isinstance(key, str):
@@ -658,9 +658,9 @@ class Registers:
 
 
 class Memory:
-    def __init__(self, size):
-        self._size = size
-        self._space = []
+    def __init__(self, size: int):
+        self._size: int = size
+        self._space: list[Word] = []
         for i in range(size):
             self._space.append(DWord())
 
