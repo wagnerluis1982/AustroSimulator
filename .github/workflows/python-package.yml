@@ -29,4 +29,4 @@ jobs:
         poetry install
     - name: Test with pytest
       run: |
-        poetry run pytest -o addopts='--cov'
+        poetry run pytest -o addopts='--cov --no-cov-on-fail'

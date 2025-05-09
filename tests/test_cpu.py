@@ -3,7 +3,9 @@ from __future__ import annotations
 import pytest
 
 from austro.asm.assembler import assemble
+from austro.asm.memword import DWord
 from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepEvent
+from austro.simulator.register import RegX
 
 
 class ShowRegistersEvent(StepEvent):
@@ -82,6 +84,31 @@ class TestCPU:
         cpu.stop()
 
         assert next(cpu) is False
+
+    def test_reset(self, cpu: CPU):
+        # instructions
+        assembly = """
+            mov ax, 0xffff
+            mov [128], ax
+            halt
+        """
+        asmd = assemble(assembly)
+
+        # load program in the memory
+        cpu.set_memory_block(asmd["words"])
+        cpu.start()
+
+        # verify before reset
+        ax: RegX = cpu.registers.get_reg("AX")
+        assert cpu.stage == Stage.HALTED
+        assert cpu.memory.get_word(128) == DWord(0xFFFF)
+        assert ax.value == 0xFFFF
+
+        # verify after reset
+        cpu.reset()
+        assert cpu.stage == Stage.INITIAL
+        assert cpu.memory.get_word(128) == DWord(0)
+        assert ax.value == 0
 
     def test_error_next_with_register_pc_greater_than_address_space(self, cpu: CPU):
         cpu.stage = Stage.FETCH
