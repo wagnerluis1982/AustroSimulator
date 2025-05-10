@@ -18,11 +18,23 @@ from __future__ import annotations
 
 import ctypes
 
+from typing import override
+
 from austro.shared import AbstractData
 
 
-class BaseReg(AbstractData):
-    pass
+class BaseReg[T](AbstractData):
+    _value: T
+
+    @property
+    @override
+    def value(self) -> int:
+        return self._value.value  # type:ignore
+
+    @value.setter
+    @override
+    def value(self, val: int):
+        self._value.value = val  # type:ignore
 
 
 class StructReg(BaseReg, ctypes.Structure):

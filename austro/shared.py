@@ -16,25 +16,24 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import ClassVar
 
 
+# TODO: Add metaclass
 class AbstractData:
     bits: ClassVar[int]
-    value: int
 
-    # @property
-    # @abstractmethod
-    # def value(self) -> int: ...
+    @property
+    @abstractmethod
+    def value(self) -> int: ...
 
-    # @value.setter
-    # @abstractmethod
-    # def value(self, value: int): ...
+    @value.setter
+    @abstractmethod
+    def value(self, value: int): ...
 
 
 class AustroException(Exception):
-    message: str
-
-    def __init__(self, message):
+    def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message

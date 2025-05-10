@@ -52,7 +52,7 @@ class Decode:
     operation: int
     op1: None | int = None
     op2: None | int = None
-    store: None | bool = None
+    store: None | bool | int = None
 
 
 class Stage(Enum):
