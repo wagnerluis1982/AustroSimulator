@@ -16,13 +16,17 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
-from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QColor
 
 from austro.simulator.cpu import Memory, Registers
 from austro.ui.datamodel import DataItem, DataModel
+
+
+if TYPE_CHECKING:
+    from PyQt5.QtCore import QObject
 
 
 class RegistersModel(DataModel):

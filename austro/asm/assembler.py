@@ -19,11 +19,15 @@
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 from __future__ import annotations
 
-from typing import Mapping, Sequence, TypedDict
+from typing import TYPE_CHECKING, Mapping, Sequence, TypedDict
 
 from austro.asm.asm_lexer import get_lexer
-from austro.asm.memword import DWord, IWord, Word
+from austro.asm.memword import DWord, IWord
 from austro.shared import AustroException
+
+
+if TYPE_CHECKING:
+    from austro.asm.memword import Word
 
 
 # fmt: off

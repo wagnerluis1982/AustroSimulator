@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from datetime import datetime
-from typing import override
+from typing import TYPE_CHECKING, override
 
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
@@ -13,9 +13,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
-    QApplication,
     QFileDialog,
-    QMainWindow,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
@@ -27,6 +25,10 @@ from austro.asm import asm_lexer, assembler
 from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
 from austro.ui.codeeditor import AssemblyHighlighter, CodeEditor
 from austro.ui.models import DataModel, GeneralMemoryModel, MemoryModel, RegistersModel
+
+
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
 __version__ = "0.1.1-dev3"

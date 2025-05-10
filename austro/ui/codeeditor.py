@@ -20,24 +20,26 @@
 #
 from __future__ import annotations
 
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from PyQt5.QtCore import QRect, QRegExp, QSize, Qt
 from PyQt5.QtGui import (
     QColor,
     QFont,
     QPainter,
-    QPaintEvent,
     QPalette,
     QSyntaxHighlighter,
     QTextCharFormat,
     QTextCursor,
-    QTextDocument,
     QTextFormat,
 )
 from PyQt5.QtWidgets import QPlainTextEdit, QTextEdit, QWidget
 
 from austro.asm.assembler import OPCODES, REGISTERS
+
+
+if TYPE_CHECKING:
+    from PyQt5.QtGui import QPaintEvent, QTextDocument
 
 
 class CodeEditor(QPlainTextEdit):

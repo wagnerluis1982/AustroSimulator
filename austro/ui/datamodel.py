@@ -18,9 +18,13 @@ from __future__ import annotations
 
 import ctypes
 
-from typing import Sequence, override
+from typing import TYPE_CHECKING, Sequence, override
 
-from PyQt5.QtCore import QAbstractItemModel, QModelIndex, QObject, Qt
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
+
+
+if TYPE_CHECKING:
+    from PyQt5.QtCore import QObject
 
 
 class DataItem:
