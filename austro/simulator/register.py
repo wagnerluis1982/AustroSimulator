@@ -85,7 +85,7 @@ class RegH(BaseReg):
     _bits = 8
     regx: RegX
 
-    def __init__(self, regx):
+    def __init__(self, regx: RegX):
         assert isinstance(regx, RegX)
         self.regx = regx
 
@@ -102,7 +102,7 @@ class RegL(BaseReg):
     _bits = 8
     regx: RegX
 
-    def __init__(self, regx):
+    def __init__(self, regx: RegX):
         assert isinstance(regx, RegX)
         self.regx = regx
 

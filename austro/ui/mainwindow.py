@@ -77,10 +77,6 @@ class ModelsUpdater(StepEvent):
 
 
 class MainWindow:
-    event: StepEvent
-    cpu: CPU
-    gui: QMainWindow
-
     def __init__(self, qApp: QApplication = None):
         self.event = ModelsUpdater(self)
         self.cpu = CPU(self.event)
@@ -89,7 +85,7 @@ class MainWindow:
 
         # loader = QUiLoader()
         # loader.registerCustomWidget(CodeEditor)
-        self.gui = uic.loadUi(_resource("mainwindow.ui"))
+        self.gui: QMainWindow = uic.loadUi(_resource("mainwindow.ui"))
 
         self.setupEditorAndDiagram()
         self.setupSplitters()

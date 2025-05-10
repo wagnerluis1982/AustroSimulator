@@ -20,6 +20,8 @@
 #
 from __future__ import annotations
 
+from typing import override
+
 from PyQt5.QtCore import QRect, QRegExp, QSize, Qt
 from PyQt5.QtGui import (
     QColor,
@@ -29,6 +31,7 @@ from PyQt5.QtGui import (
     QSyntaxHighlighter,
     QTextCharFormat,
     QTextCursor,
+    QTextDocument,
     QTextFormat,
 )
 from PyQt5.QtWidgets import QPlainTextEdit, QTextEdit, QWidget
@@ -37,8 +40,8 @@ from austro.asm.assembler import OPCODES, REGISTERS
 
 
 class CodeEditor(QPlainTextEdit):
-    def __init__(self, parent=None):
-        super(CodeEditor, self).__init__(parent)
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
         self.setTabStopWidth(40)
         self.lineNumberArea = LineNumberArea(self)
 
@@ -95,6 +98,7 @@ class CodeEditor(QPlainTextEdit):
 
         return space + rightMargin
 
+    @override
     def resizeEvent(self, e):
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
@@ -110,6 +114,7 @@ class CodeEditor(QPlainTextEdit):
             extraSelections = []
 
             selection = QTextEdit.ExtraSelection()
+            assert isinstance(selection.format, QTextCharFormat)
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
@@ -127,8 +132,9 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
+    @override
     def setReadOnly(self, enable=True):
-        super(CodeEditor, self).setReadOnly(enable)
+        super().setReadOnly(enable)
 
         if enable:
             self.highlightCurrentLine(Qt.transparent, force=True)
@@ -166,7 +172,7 @@ class LineNumberArea(QWidget):
     codeEditor = None
 
     def __init__(self, editor):
-        super(LineNumberArea, self).__init__(editor)
+        super().__init__(editor)
         self.codeEditor = editor
 
     def sizeHint(self):
@@ -182,8 +188,8 @@ class HighlightingRule:
 
 
 class AssemblyHighlighter(QSyntaxHighlighter):
-    def __init__(self, parent=None):
-        super(AssemblyHighlighter, self).__init__(parent)
+    def __init__(self, parent: QTextDocument = None):
+        super().__init__(parent)
 
         self.highlightingRules = []
         self.opcodeFormat = QTextCharFormat()

@@ -18,16 +18,16 @@ from __future__ import annotations
 
 import ctypes
 
-from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, QObject, Qt
 
 
 class DataItem:
-    def __init__(self, data, parent=None):
+    def __init__(self, data: list, parent: DataItem = None):
         self._parentItem = parent
         self._itemData = data
         self._childItems = []
 
-    def appendChild(self, item):
+    def appendChild(self, item: DataItem):
         item._parentItem = self
         self._childItems.append(item)
 
@@ -76,8 +76,8 @@ class DataModel(QAbstractItemModel):
         F_DEC_NEG: "NEG",
     }
 
-    def __init__(self, header, parent=None):
-        super(DataModel, self).__init__(parent)
+    def __init__(self, header: tuple[str], parent: QObject = None):
+        super().__init__(parent)
 
         self._rootItem = DataItem(header)
         self.setDataFormat(self.F_DEC)

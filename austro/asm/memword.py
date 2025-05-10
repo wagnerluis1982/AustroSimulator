@@ -69,12 +69,12 @@ class Word(AbstractData, ctypes.Structure):
             self._value = value
 
     @property
-    def opcode(self):
+    def opcode(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
         return self._opcode
 
     @opcode.setter
-    def opcode(self, value):
+    def opcode(self, value: int):
         assert self.is_instruction, "Word is not an instruction"
         self._opcode = value
 
