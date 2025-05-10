@@ -65,17 +65,15 @@ t_ignore_COMMENT = r"\#.*"
 t_COMMA = ","
 
 
-def get_base(t_name):
-    base = None
+def get_base(t_name: str) -> int:
     if t_name.startswith("0b"):
-        base = 2
+        return 2
     elif t_name.startswith("0x"):
-        base = 16
+        return 16
     elif t_name.startswith("0"):
-        base = 8
+        return 8
     else:
-        base = 10
-    return base
+        return 10
 
 
 number = r"(0b[01]+|0[0-7]+|0o[0-7]+|0x[0-9a-fA-F]+|-?\d+)"

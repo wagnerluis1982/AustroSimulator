@@ -20,6 +20,8 @@
 #
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, override
+
 from PyQt5.QtCore import QRect, QRegExp, QSize, Qt
 from PyQt5.QtGui import (
     QColor,
@@ -36,11 +38,13 @@ from PyQt5.QtWidgets import QPlainTextEdit, QTextEdit, QWidget
 from austro.asm.assembler import OPCODES, REGISTERS
 
 
-class CodeEditor(QPlainTextEdit):
-    lineNumberArea = None
+if TYPE_CHECKING:
+    from PyQt5.QtGui import QPaintEvent, QTextDocument
 
-    def __init__(self, parent=None):
-        super(CodeEditor, self).__init__(parent)
+
+class CodeEditor(QPlainTextEdit):
+    def __init__(self, parent: None | QWidget = None):
+        super().__init__(parent)
         self.setTabStopWidth(40)
         self.lineNumberArea = LineNumberArea(self)
 
@@ -66,14 +70,14 @@ class CodeEditor(QPlainTextEdit):
         bottom = top + self.blockBoundingRect(block).height()
 
         areaWidth = self.lineNumberArea.width()
-        rightMargin = self.lineNumberArea.RIGHT_MARGIN
+        rightMargin = LineNumberArea.RIGHT_MARGIN
 
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(blockNumber)
                 painter.drawText(
                     0,
-                    top,
+                    int(top),
                     areaWidth - rightMargin,
                     self.fontMetrics().height(),
                     Qt.AlignRight,
@@ -97,6 +101,7 @@ class CodeEditor(QPlainTextEdit):
 
         return space + rightMargin
 
+    @override
     def resizeEvent(self, e):
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
@@ -112,6 +117,7 @@ class CodeEditor(QPlainTextEdit):
             extraSelections = []
 
             selection = QTextEdit.ExtraSelection()
+            assert isinstance(selection.format, QTextCharFormat)
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
@@ -129,8 +135,9 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)
 
+    @override
     def setReadOnly(self, enable=True):
-        super(CodeEditor, self).setReadOnly(enable)
+        super().setReadOnly(enable)
 
         if enable:
             self.highlightCurrentLine(Qt.transparent, force=True)
@@ -165,27 +172,26 @@ class CodeEditor(QPlainTextEdit):
 
 class LineNumberArea(QWidget):
     RIGHT_MARGIN = 3
-    codeEditor = None
 
-    def __init__(self, editor):
-        super(LineNumberArea, self).__init__(editor)
+    def __init__(self, editor: CodeEditor) -> None:
+        super().__init__(editor)
         self.codeEditor = editor
 
     def sizeHint(self):
         return QSize(self.codeEditor.lineNumberAreaWidth(), 0)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event: None | QPaintEvent):
         self.codeEditor.lineNumberAreaPaintEvent(event)
 
 
 class HighlightingRule:
-    pattern = None
-    format = None
+    pattern: None | QRegExp = None
+    format: None | QTextCharFormat = None
 
 
 class AssemblyHighlighter(QSyntaxHighlighter):
-    def __init__(self, parent=None):
-        super(AssemblyHighlighter, self).__init__(parent)
+    def __init__(self, parent: None | QTextDocument = None):
+        super().__init__(parent)
 
         self.highlightingRules = []
         self.opcodeFormat = QTextCharFormat()

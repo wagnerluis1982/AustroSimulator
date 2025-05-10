@@ -19,9 +19,15 @@
 # NOTE: This was intended to be a parser, but isn't due to lack of knowledge.
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Mapping, Sequence, TypedDict
+
 from austro.asm.asm_lexer import get_lexer
 from austro.asm.memword import DWord, IWord
 from austro.shared import AustroException
+
+
+if TYPE_CHECKING:
+    from austro.asm.memword import Word
 
 
 # fmt: off
@@ -255,7 +261,7 @@ def memory_words(opcode, op1=None, op2=None):
     raise AssembleException(f"Unknown error while encoding '{opname}'", opcode.lineno)
 
 
-def assemble(code: str) -> dict:
+def assemble(code: str) -> AssembleResult:
     """Analyzes assembly code and returns a dict of labels and memory words
 
     The returned dict is in the following format:
@@ -285,8 +291,9 @@ def assemble(code: str) -> dict:
     lexer.input(code)
 
     # Structures to store labels and memory words
-    labels = {}
-    words = []
+    labels: dict[str, int] = {}
+    pend_labels: list[Word] = []
+    words: list[Word] = []
 
     def verify_pending_labels():
         # Verify if has any label pending an address
@@ -299,7 +306,7 @@ def assemble(code: str) -> dict:
             # Point the label to the next word pending attribution
             position = len(words)
             labels[lbl.value] = position
-            # Verify if has any jump instruction missing this label
+            # Verify if there was any jump instruction missing this label
             mlbls = miss_labels.get(lbl.value)
             if mlbls:
                 for mlb in mlbls:
@@ -307,8 +314,7 @@ def assemble(code: str) -> dict:
                 del miss_labels[lbl.value]
 
     opcode = None
-    pend_labels = []
-    miss_labels = {}
+    miss_labels: dict[str, list[Word]] = {}
     tok = lexer.token()
     while tok:
         if tok.type == "LABEL":
@@ -388,6 +394,11 @@ def assemble(code: str) -> dict:
         raise AssembleException("Invalid label '%s'" % mlb[0], mlb[1][0].lineno)
 
     return {"labels": labels, "words": words}
+
+
+class AssembleResult(TypedDict):
+    labels: Mapping[str, int]
+    words: Sequence[Word]
 
 
 class AssembleException(AustroException):

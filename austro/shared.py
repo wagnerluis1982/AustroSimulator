@@ -16,17 +16,20 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
+from typing import ClassVar
+
 
 class AbstractData:
-    _bits: int
+    bits: ClassVar[int]
+    value: int
 
-    @property
-    def bits(self):
-        return self._bits
+    # @property
+    # @abstractmethod
+    # def value(self) -> int: ...
 
-    @bits.setter
-    def bits(self, value):
-        self._bits = value
+    # @value.setter
+    # @abstractmethod
+    # def value(self, value: int): ...
 
 
 class AustroException(Exception):

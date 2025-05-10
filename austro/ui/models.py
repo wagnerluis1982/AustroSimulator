@@ -16,6 +16,8 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Iterable
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QColor
 
@@ -23,10 +25,16 @@ from austro.simulator.cpu import Memory, Registers
 from austro.ui.datamodel import DataItem, DataModel
 
 
+if TYPE_CHECKING:
+    from PyQt5.QtCore import QObject
+
+
 class RegistersModel(DataModel):
-    def __init__(self, registers, items, parent=None):
+    def __init__(
+        self, registers: Registers, items: Iterable[tuple | list], parent: None | QObject = None
+    ):
         assert isinstance(registers, Registers), "It's not a Registers object"
-        super(RegistersModel, self).__init__(("Name", "Data (%s)"), parent)
+        super().__init__(("Name", "Data (%s)"), parent)
         self.registers = registers
 
         dataItem = DataItem([])
@@ -46,14 +54,14 @@ class RegistersModel(DataModel):
         if role == Qt.TextAlignmentRole and index.column() == 1:
             return Qt.AlignRight
 
-        return super(RegistersModel, self).data(index, role)
+        return super().data(index, role)
 
 
 # Model for memory data vision
 class MemoryModel(DataModel):
-    def __init__(self, memory, parent=None):
+    def __init__(self, memory, parent: None | QObject = None):
         assert isinstance(memory, Memory), "It's not a memory object"
-        super(MemoryModel, self).__init__(("Addr.", "Data (%s)"), parent)
+        super().__init__(("Addr.", "Data (%s)"), parent)
 
         for addr in range(memory.size):
             item = (addr, memory.get_word(addr))
@@ -63,7 +71,7 @@ class MemoryModel(DataModel):
         if role == Qt.TextAlignmentRole:
             return Qt.AlignRight
 
-        return super(MemoryModel, self).data(index, role)
+        return super().data(index, role)
 
 
 # Model for memory general vision
@@ -71,8 +79,8 @@ class GeneralMemoryModel(MemoryModel):
     # New format option
     F_INSTR = 5
 
-    def __init__(self, memory, parent=None):
-        super(GeneralMemoryModel, self).__init__(memory, parent)
+    def __init__(self, memory, parent: None | QObject = None):
+        super().__init__(memory, parent)
 
         # Invalid program counter
         self.pc = -1
@@ -100,7 +108,7 @@ class GeneralMemoryModel(MemoryModel):
             if word.is_instruction:
                 return self.OPCODES[word.opcode]
 
-        return super(GeneralMemoryModel, self).data(index, role)
+        return super().data(index, role)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if (
@@ -112,4 +120,4 @@ class GeneralMemoryModel(MemoryModel):
             header = self._rootItem.data(section)
             return header % "INSTR."
 
-        return super(GeneralMemoryModel, self).headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)

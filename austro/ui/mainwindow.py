@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 from datetime import datetime
+from typing import TYPE_CHECKING, override
 
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
@@ -12,9 +13,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
-    QApplication,
     QFileDialog,
-    QMainWindow,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
@@ -26,6 +25,10 @@ from austro.asm import asm_lexer, assembler
 from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
 from austro.ui.codeeditor import AssemblyHighlighter, CodeEditor
 from austro.ui.models import DataModel, GeneralMemoryModel, MemoryModel, RegistersModel
+
+
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
 __version__ = "0.1.1-dev3"
@@ -61,6 +64,7 @@ class ModelsUpdater(StepEvent):
     def __init__(self, win: MainWindow):
         self.win = win
 
+    @override
     def on_fetch(self):
         # Highlight current execution line
         lineno = self.cpu.registers.get_word("RI").lineno
@@ -75,11 +79,7 @@ class ModelsUpdater(StepEvent):
 
 
 class MainWindow:
-    event: StepEvent
-    cpu: CPU
-    gui: QMainWindow
-
-    def __init__(self, qApp: QApplication = None):
+    def __init__(self, qApp: QApplication):
         self.event = ModelsUpdater(self)
         self.cpu = CPU(self.event)
 
@@ -87,7 +87,7 @@ class MainWindow:
 
         # loader = QUiLoader()
         # loader.registerCustomWidget(CodeEditor)
-        self.gui = uic.loadUi(_resource("mainwindow.ui"))
+        self.gui: QMainWindow = uic.loadUi(_resource("mainwindow.ui"))
 
         self.setupEditorAndDiagram()
         self.setupSplitters()

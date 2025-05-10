@@ -27,13 +27,19 @@ class Word(AbstractData, ctypes.Structure):
     Word objects can act as instruction or data words of 16 bits
     """
 
+    bits = 16
+
+    _opcode: int
+    _flags: int
+    _operand: int
+    _value: int
+
     _fields_ = (
         ("_opcode", ctypes.c_ubyte, 5),
         ("_flags", ctypes.c_ubyte, 3),
         ("_operand", ctypes.c_ubyte, 8),
         ("_value", ctypes.c_uint16),
     )
-    _bits = 16
 
     def __init__(
         self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False
@@ -69,12 +75,12 @@ class Word(AbstractData, ctypes.Structure):
             self._value = value
 
     @property
-    def opcode(self):
+    def opcode(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
         return self._opcode
 
     @opcode.setter
-    def opcode(self, value):
+    def opcode(self, value: int):
         assert self.is_instruction, "Word is not an instruction"
         self._opcode = value
 

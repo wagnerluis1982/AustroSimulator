@@ -21,6 +21,8 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from ctypes import c_int8, c_int16
+from dataclasses import dataclass
+from enum import Enum
 
 from austro.asm.assembler import OPCODES, REGISTERS
 from austro.asm.memword import DWord, Word
@@ -29,7 +31,7 @@ from austro.simulator.register import BaseReg, Reg16, RegH, RegL, RegX
 
 
 class StepEvent(metaclass=ABCMeta):
-    _cpu: CPU = None
+    _cpu: None | CPU = None
 
     @abstractmethod
     def on_fetch(self):
@@ -44,15 +46,16 @@ class StepEvent(metaclass=ABCMeta):
         self._cpu = value
 
 
+@dataclass(init=False)
 class Decode:
-    unit = None
-    operation = None
-    op1 = None
-    op2 = None
-    store = None
+    unit: int
+    operation: int
+    op1: None | int = None
+    op2: None | int = None
+    store: None | bool = None
 
 
-class Stage:
+class Stage(Enum):
     INITIAL = 0
     STOPPED = 1
     FETCH = 2
@@ -137,20 +140,20 @@ class CPU:
         # Execute stage
         if self.stage == Stage.EXECUTE:
             # Call ALU (Arithmetic and Logic Unit)
-            if decode.unit == self.ALU:
+            if decode.unit == CPU.ALU:
                 result = self.alu(decode.operation, op1_val, op2_val)
                 # Invalid instructions behave as NOP
                 if result is None:
                     decode.store = None
             # Call UC (Control Unit)
-            elif decode.unit == self.UC:
+            elif decode.unit == CPU.UC:
                 self.uc(decode.operation, decode.op1, decode.op2)
                 if self.stage == Stage.HALTED:  # halt found
                     return True
                 if self.stage == Stage.FETCH:  # a jump found
                     return self.fetch()
             # Call SU (Shift Unit)
-            elif decode.unit == self.SHIFT:
+            elif decode.unit == CPU.SHIFT:
                 result = self.shift(decode.operation, op1_val, op2_val)
 
             # Next state: store or fetch
@@ -164,7 +167,7 @@ class CPU:
 
         # Store stage
         if self.stage == Stage.STORE:
-            if decode.unit != self.UC:
+            if decode.unit != CPU.UC:
                 self.uc(CPU.UC_LOAD, decode.op1, result)
             if decode.store is not True:
                 memory[decode.store] = registers[decode.op1]
@@ -204,7 +207,7 @@ class CPU:
     #
 
     # Control Unit
-    def uc(self, operation, op1, op2):
+    def uc(self, operation: int, op1, op2):
         registers = self.registers
 
         # Special actions
@@ -305,7 +308,7 @@ class CPU:
             result = in1 - in2
             # Overflow
             registers["V"] = int(result >> bits != 0)
-        # Multiplicatiom
+        # Multiplication
         elif opcode in _("MUL"):
             result = in1 * in2
             # Transport handling (excess)
@@ -363,7 +366,7 @@ class CPU:
     ## Decoder
     #
 
-    def decode(self, instr_word):
+    def decode(self, instr_word: Word):
         dcd = Decode()
         instr_word.is_instruction = True
 
@@ -473,12 +476,14 @@ class CPU:
         _ = self._opcodes
         if instr_word.opcode in _("SHR", "SHL"):
             dcd.unit = CPU.SHIFT
+            assert dcd.op1 is not None
             is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
             dcd.operation = (instr_word.opcode << 1) | is_8bits
         elif instr_word.opcode >= 16:
             dcd.unit = CPU.ALU
             # ALU see if last bit is 1, mean a signed operation
             signed = (flags & 0b100) >> 2
+            assert dcd.op1 is not None
             is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
             alu_flags = is_8bits << 1 | signed
             dcd.operation = (instr_word.opcode << 2) | alu_flags
@@ -527,7 +532,7 @@ class Registers:
     """Container to store the CPU registers"""
 
     # Map of register names as keys and it number identifiers as values
-    INDEX = {
+    INDEX: dict[str, int] = {
         **REGISTERS,
         **{
             # Specific registers
@@ -545,12 +550,12 @@ class Registers:
         },
     }
 
-    def __init__(self):
-        self._regs = {}
-        self._words = {}
+    def __init__(self) -> None:
+        self._regs: dict[int, BaseReg] = {}
+        self._words: dict[int, Word] = {}
 
         # Internal function to set register objects
-        def init_register(name, value):
+        def init_register(name: str, value: BaseReg):
             self._regs[Registers.INDEX[name]] = value
 
         #
@@ -558,14 +563,14 @@ class Registers:
         #
         for name in "AX", "BX", "CX", "DX":
             init_register(name, RegX())
-        # 8-bit most significant registers
-        for name in "AH", "BH", "CH", "DH":
-            regx = self._regs[Registers.INDEX[name[0] + "X"]]
-            init_register(name, RegH(regx))
-        # 8-bit less significant registers
-        for name in "AL", "BL", "CL", "DL":
-            regx = self._regs[Registers.INDEX[name[0] + "X"]]
-            init_register(name, RegL(regx))
+        # Index for generic registers
+        index_regx = {k: self._regs[Registers.INDEX[f"{k}X"]] for k in "ABCD"}
+        for k, regx in index_regx.items():
+            assert isinstance(regx, RegX)
+            # 8-bit most significant registers: AH, BH, CH, DH
+            init_register(f"{k}H", RegH(regx))
+            # 8-bit less significant registers: AL, BL, CL, DL
+            init_register(f"{k}L", RegL(regx))
         # 16-bit only registers
         for name in "SP", "BP", "SI", "DI":
             init_register(name, Reg16())
@@ -596,7 +601,7 @@ class Registers:
 
         self._words.clear()
 
-    def set_reg(self, key, reg):
+    def set_reg(self, key: int | str, reg: BaseReg):
         assert isinstance(key, (int, str))
         assert isinstance(reg, BaseReg)
 
@@ -613,7 +618,7 @@ class Registers:
 
         return self._regs[key]
 
-    def set_word(self, key, word):
+    def set_word(self, key: int | str, word: Word):
         """Convenient way to store a word in a register
 
         WARNING: although this method set the current register value, if a
@@ -631,7 +636,7 @@ class Registers:
         if self[key] != word.value:
             raise CPUException("Word data too large for the register")
 
-    def get_word(self, key):
+    def get_word(self, key: int | str) -> Word:
         assert isinstance(key, (int, str))
 
         if isinstance(key, str):
@@ -639,7 +644,7 @@ class Registers:
 
         return self._words[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: int | str, value: int):
         assert isinstance(key, (int, str))
         assert isinstance(value, int)
 
@@ -648,7 +653,7 @@ class Registers:
 
         self._regs[key].value = value
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int | str) -> int:
         assert isinstance(key, (int, str))
 
         if isinstance(key, str):
