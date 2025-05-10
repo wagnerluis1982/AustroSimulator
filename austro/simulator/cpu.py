@@ -550,9 +550,9 @@ class Registers:
         },
     }
 
-    def __init__(self):
-        self._regs: dict[str, BaseReg] = {}
-        self._words = {}
+    def __init__(self) -> None:
+        self._regs: dict[int, BaseReg] = {}
+        self._words: dict[int, Word] = {}
 
         # Internal function to set register objects
         def init_register(name: str, value: BaseReg):
@@ -565,11 +565,11 @@ class Registers:
             init_register(name, RegX())
         # Index for generic registers
         index_regx = {k: self._regs[Registers.INDEX[f"{k}X"]] for k in "ABCD"}
-        # 8-bit most significant registers: AH, BH, CH, DH
         for k, regx in index_regx.items():
+            assert isinstance(regx, RegX)
+            # 8-bit most significant registers: AH, BH, CH, DH
             init_register(f"{k}H", RegH(regx))
-        # 8-bit less significant registers: AL, BL, CL, DL
-        for k, regx in index_regx.items():
+            # 8-bit less significant registers: AL, BL, CL, DL
             init_register(f"{k}L", RegL(regx))
         # 16-bit only registers
         for name in "SP", "BP", "SI", "DI":

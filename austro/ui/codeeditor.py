@@ -27,6 +27,7 @@ from PyQt5.QtGui import (
     QColor,
     QFont,
     QPainter,
+    QPaintEvent,
     QPalette,
     QSyntaxHighlighter,
     QTextCharFormat,
@@ -40,7 +41,7 @@ from austro.asm.assembler import OPCODES, REGISTERS
 
 
 class CodeEditor(QPlainTextEdit):
-    def __init__(self, parent: QWidget = None):
+    def __init__(self, parent: None | QWidget = None):
         super().__init__(parent)
         self.setTabStopWidth(40)
         self.lineNumberArea = LineNumberArea(self)
@@ -169,26 +170,25 @@ class CodeEditor(QPlainTextEdit):
 
 class LineNumberArea(QWidget):
     RIGHT_MARGIN = 3
-    codeEditor = None
 
-    def __init__(self, editor):
+    def __init__(self, editor: CodeEditor) -> None:
         super().__init__(editor)
         self.codeEditor = editor
 
     def sizeHint(self):
         return QSize(self.codeEditor.lineNumberAreaWidth(), 0)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event: None | QPaintEvent):
         self.codeEditor.lineNumberAreaPaintEvent(event)
 
 
 class HighlightingRule:
-    pattern = None
-    format = None
+    pattern: None | QRegExp = None
+    format: None | QTextCharFormat = None
 
 
 class AssemblyHighlighter(QSyntaxHighlighter):
-    def __init__(self, parent: QTextDocument = None):
+    def __init__(self, parent: None | QTextDocument = None):
         super().__init__(parent)
 
         self.highlightingRules = []

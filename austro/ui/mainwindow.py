@@ -77,7 +77,7 @@ class ModelsUpdater(StepEvent):
 
 
 class MainWindow:
-    def __init__(self, qApp: QApplication = None):
+    def __init__(self, qApp: QApplication):
         self.event = ModelsUpdater(self)
         self.cpu = CPU(self.event)
 

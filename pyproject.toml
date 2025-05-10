@@ -55,6 +55,17 @@ lines-after-imports = 2
 known-first-party = ["austro"]
 required-imports = ["from __future__ import annotations"]
 
+[tool.mypy]
+packages = "austro,tests"
+
+[[tool.mypy.overrides]]
+module = "ply.*"
+follow_untyped_imports = true
+
+[[tool.mypy.overrides]]
+module = "austro.ui.codeeditor"
+disable_error_code = "attr-defined"
+
 [tool.pytest.ini_options]
 addopts = "--cov-report=term --cov-report html"
 testpaths = ["tests"]

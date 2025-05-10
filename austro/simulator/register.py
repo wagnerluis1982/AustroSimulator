@@ -30,26 +30,26 @@ class StructReg(BaseReg, ctypes.Structure):
 
 
 class Reg16(StructReg):
+    bits = 16
     _fields_ = (("value", ctypes.c_uint16),)
-    _bits = 16
 
 
 class Reg8(StructReg):
+    bits = 8
     _fields_ = (("value", ctypes.c_uint8),)
-    _bits = 8
 
 
 class Reg1(StructReg):
+    bits = 1
     _fields_ = (("value", ctypes.c_uint8, 1),)
-    _bits = 1
 
 
 class RegX(StructReg):
+    bits = 16
     _fields_ = (
         ("_h", ctypes.c_uint8),
         ("_l", ctypes.c_uint8),
     )
-    _bits = 16
 
     def __init__(self, val=0):
         self._h = val >> 8
@@ -82,7 +82,7 @@ class RegX(StructReg):
 
 
 class RegH(BaseReg):
-    _bits = 8
+    bits = 8
     regx: RegX
 
     def __init__(self, regx: RegX):
@@ -99,7 +99,7 @@ class RegH(BaseReg):
 
 
 class RegL(BaseReg):
-    _bits = 8
+    bits = 8
     regx: RegX
 
     def __init__(self, regx: RegX):

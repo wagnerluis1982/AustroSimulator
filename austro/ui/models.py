@@ -27,7 +27,7 @@ from austro.ui.datamodel import DataItem, DataModel
 
 class RegistersModel(DataModel):
     def __init__(
-        self, registers: Registers, items: Iterable[tuple | list], parent: QObject = None
+        self, registers: Registers, items: Iterable[tuple | list], parent: None | QObject = None
     ):
         assert isinstance(registers, Registers), "It's not a Registers object"
         super().__init__(("Name", "Data (%s)"), parent)
@@ -55,7 +55,7 @@ class RegistersModel(DataModel):
 
 # Model for memory data vision
 class MemoryModel(DataModel):
-    def __init__(self, memory, parent: QObject = None):
+    def __init__(self, memory, parent: None | QObject = None):
         assert isinstance(memory, Memory), "It's not a memory object"
         super().__init__(("Addr.", "Data (%s)"), parent)
 
@@ -75,7 +75,7 @@ class GeneralMemoryModel(MemoryModel):
     # New format option
     F_INSTR = 5
 
-    def __init__(self, memory, parent: QObject = None):
+    def __init__(self, memory, parent: None | QObject = None):
         super().__init__(memory, parent)
 
         # Invalid program counter
