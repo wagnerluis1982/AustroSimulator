@@ -31,7 +31,7 @@ from austro.simulator.register import BaseReg, Reg16, RegH, RegL, RegX
 
 
 class StepEvent(metaclass=ABCMeta):
-    _cpu: CPU = None
+    _cpu: None | CPU = None
 
     @abstractmethod
     def on_fetch(self):
@@ -50,9 +50,9 @@ class StepEvent(metaclass=ABCMeta):
 class Decode:
     unit: int
     operation: int
-    op1: int = None
-    op2: int = None
-    store: bool = False
+    op1: None | int = None
+    op2: None | int = None
+    store: None | bool = None
 
 
 class Stage(Enum):
@@ -476,12 +476,14 @@ class CPU:
         _ = self._opcodes
         if instr_word.opcode in _("SHR", "SHL"):
             dcd.unit = CPU.SHIFT
+            assert dcd.op1 is not None
             is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
             dcd.operation = (instr_word.opcode << 1) | is_8bits
         elif instr_word.opcode >= 16:
             dcd.unit = CPU.ALU
             # ALU see if last bit is 1, mean a signed operation
             signed = (flags & 0b100) >> 2
+            assert dcd.op1 is not None
             is_8bits = dcd.op1 < 8  # destination is an 8-bit register?
             alu_flags = is_8bits << 1 | signed
             dcd.operation = (instr_word.opcode << 2) | alu_flags
