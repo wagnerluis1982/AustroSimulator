@@ -46,8 +46,14 @@ class Word(BaseData, metaclass=_MetaWord):
     bits = 16
 
     def __init__(
-        self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False
-    ):
+        self,
+        opcode=0,
+        flags=0,
+        operand=0,
+        lineno=0,
+        value: None | int = None,
+        is_instruction=False,
+    ) -> None:
         super().__init__(ctypes.c_uint16())
 
         # Flag to know if this word should act as an instruction
