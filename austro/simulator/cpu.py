@@ -23,7 +23,7 @@ from abc import ABCMeta, abstractmethod
 from ctypes import c_int8, c_int16
 from dataclasses import dataclass
 from enum import Enum
-from typing import cast
+from typing import Iterator, Sequence, cast
 
 from austro.asm.assembler import OPCODES, REGISTERS
 from austro.asm.memword import DWord, Word
@@ -75,7 +75,7 @@ class CPU:
         self.registers = Registers()
         self.stage = Stage.INITIAL
 
-    def set_memory_block(self, words: list | tuple, start=0) -> bool:
+    def set_memory_block(self, words: Sequence[Word], start=0) -> bool:
         assert isinstance(words, (list, tuple))
         if start + len(words) > self.memory.size:
             raise CPUException(
@@ -653,15 +653,19 @@ class Registers:
 
         return self._regs[key].value
 
+    def __iter__(self) -> Iterator[tuple[int, BaseReg]]:
+        for r in self._regs.items():
+            yield r
+
 
 class Memory:
-    def __init__(self, size):
+    def __init__(self, size: int) -> None:
         self._size = size
-        self._space = []
+        self._space: list[Word] = []
         for i in range(size):
             self._space.append(DWord())
 
-    def set_word(self, address, word):
+    def set_word(self, address: int, word: Word) -> None:
         assert isinstance(address, int)
         assert isinstance(word, Word)
 
@@ -674,7 +678,7 @@ class Memory:
         if word.is_instruction:
             space_word.lineno = word.lineno
 
-    def get_word(self, address):
+    def get_word(self, address: int) -> Word:
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
@@ -682,7 +686,7 @@ class Memory:
 
         return self._space[address]
 
-    def __setitem__(self, address, data):
+    def __setitem__(self, address: int, data: int) -> None:
         assert isinstance(address, int)
         assert isinstance(data, int)
 
@@ -691,7 +695,7 @@ class Memory:
 
         self._space[address].value = data
 
-    def __getitem__(self, address):
+    def __getitem__(self, address: int) -> int:
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
@@ -699,12 +703,16 @@ class Memory:
 
         return self._space[address].value
 
+    def __iter__(self) -> Iterator[tuple[int, Word]]:
+        for w in enumerate(self._space):
+            yield w
+
     def clear(self):
         for word in self._space:
             word.value = 0
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
 
 

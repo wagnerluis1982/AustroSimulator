@@ -5,6 +5,7 @@ from typing import override
 import pytest
 
 from austro.asm.assembler import assemble
+from austro.asm.memword import DWord
 from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepListener
 
 
@@ -82,6 +83,23 @@ class TestCPU:
         cpu.stop()
 
         assert next(cpu) is False
+
+    def test_reset(self, cpu: CPU):
+        cpu.stage = Stage.FETCH
+        cpu.registers["AX"] = 99
+        cpu.set_memory_block(
+            [
+                DWord(1),
+                DWord(2),
+                DWord(3),
+            ]
+        )
+
+        cpu.reset()
+
+        assert cpu.stage == Stage.INITIAL
+        assert all(w.value == 0 for _, w in cpu.memory)
+        assert all(r.value == 0 for _, r in cpu.registers)
 
     def test_error_next_with_register_pc_greater_than_address_space(self, cpu: CPU):
         cpu.stage = Stage.FETCH
