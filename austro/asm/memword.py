@@ -32,66 +32,53 @@ class Word(BaseData):
     def __init__(
         self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False
     ):
-        self._opcode = ctypes.c_ubyte(opcode)
-        self._flags = ctypes.c_ubyte(flags)
-        self._operand = ctypes.c_ubyte(operand)
-        self._value = ctypes.c_uint16()
+        super().__init__(ctypes.c_uint16())
 
         # Flag to know if this word should act as an instruction
         self._instruction = is_instruction
         # Set an associated assembly code line number (for instructions)
         self.lineno = lineno
 
+        # In an instruction word, the 16 bits = 5 (opcode) + 3 (flags) + 8 (operand)
+        if is_instruction:
+            _opcode = (opcode & 0x1F) << 11
+            _flags = (flags & 0x07) << 8
+            _operand = operand & 0xFF
+            self.value = _opcode | _flags | _operand
         # In a data word the 'value' must be set
-        if not is_instruction:
+        else:
             assert value is not None, "DWord requires 'value' but was not set"
-            self._value.value = value
-
-    @property
-    def value(self) -> int:
-        if self.is_instruction:
-            return (self.opcode << 3 | self.flags) << 8 | self.operand
-        else:
-            return self._value.value
-
-    @value.setter
-    def value(self, value: int) -> None:
-        if self.is_instruction:
-            self.opcode = value >> 11
-            self.flags = (value >> 8) & 0b111
-            self.operand = value & 0xFFFF
-        else:
-            self._value.value = value
+            self.value = value
 
     @property
     def opcode(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
-        return self._opcode.value
+        return self.value >> 11
 
     @opcode.setter
-    def opcode(self, value: int) -> None:
+    def opcode(self, val: int) -> None:
         assert self.is_instruction, "Word is not an instruction"
-        self._opcode.value = value
+        self.value = (self.value & 0x07FF) | ((val & 0x001F) << 11)
 
     @property
     def flags(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
-        return self._flags.value
+        return (self.value >> 8) & 0x0007
 
     @flags.setter
-    def flags(self, value: int) -> None:
+    def flags(self, val: int) -> None:
         assert self.is_instruction, "Word is not an instruction"
-        self._flags.value = value
+        self.value = (self.value & 0xF8FF) | ((val & 0x0007) << 8)
 
     @property
     def operand(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
-        return self._operand.value
+        return self.value & 0x00FF
 
     @operand.setter
-    def operand(self, value: int) -> None:
+    def operand(self, val: int) -> None:
         assert self.is_instruction, "Word is not an instruction"
-        self._operand.value = value
+        self.value = (self.value & 0xFF00) | (val & 0x00FF)
 
     @property
     def is_instruction(self) -> bool:
@@ -99,21 +86,12 @@ class Word(BaseData):
 
     @is_instruction.setter
     def is_instruction(self, switch: bool) -> None:
-        if switch:
-            # DWord stores value in field `_value`. Here we interpret the value as an instruction after became an IWord.
-            if not self._instruction:
-                self._instruction = True
-                self.value = self._value.value
-        else:
-            # IWord stores value in a struct. Here we take the interpreted value before became a DWord.
-            if self._instruction:
-                self._value.value = self.value
-                self._instruction = False
+        self._instruction = switch
 
-    def __eq__(self, o):
-        return self.value == o.value
+    def __eq__(self, o: object) -> bool:
+        return isinstance(o, Word) and self.value == o.value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.is_instruction:
             return f"IWord({self.opcode}, {self.flags}, {self.operand}, lineno={self.lineno})"
         else:
