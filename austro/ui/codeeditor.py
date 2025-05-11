@@ -55,14 +55,19 @@ class CodeEditor(QPlainTextEdit):
         self.updateLineNumberAreaWidth(0)
         self.highlightCurrentLine()
 
-        self.defaultPalette = self.palette()
         self.readOnlyPalette = self.palette()
-        self.readOnlyPalette.setColor(QPalette.Active, QPalette.Base, QColor("#F4F4F4"))
+        self.readOnlyPalette.setColor(QPalette.Base, QColor("#F4F4F4"))
+
+        self.defaultPalette = self.palette()
+        self.defaultPalette.setColor(QPalette.Base, Qt.white)
+        self.defaultPalette.setColor(QPalette.Text, Qt.black)
+
+        self.setPalette(self.defaultPalette)
 
     def lineNumberAreaPaintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self.lineNumberArea)
         painter.fillRect(event.rect(), self.palette().color(QPalette.Window))
-        painter.setPen(Qt.black)
+        painter.setPen(self.palette().color(QPalette.WindowText))
 
         block = self.firstVisibleBlock()
         blockNumber = block.blockNumber() + 1
@@ -89,7 +94,7 @@ class CodeEditor(QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             blockNumber += 1
 
-    def lineNumberAreaWidth(self):
+    def lineNumberAreaWidth(self) -> int:
         digits = 1
         maxdigs = max(1, self.blockCount())
         while maxdigs >= 10:
@@ -102,17 +107,17 @@ class CodeEditor(QPlainTextEdit):
         return space + rightMargin
 
     @override
-    def resizeEvent(self, e):
+    def resizeEvent(self, e) -> None:
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         self.lineNumberArea.setGeometry(
             QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height())
         )
 
-    def updateLineNumberAreaWidth(self, newBlockCount):
+    def updateLineNumberAreaWidth(self, newBlockCount) -> None:
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
 
-    def highlightCurrentLine(self, lineColor=QColor("#F8F7F6"), force=False):
+    def highlightCurrentLine(self, lineColor=QColor("#F8F7F6"), force=False) -> None:
         if not self.isReadOnly() or force:
             extraSelections = []
 
@@ -126,7 +131,7 @@ class CodeEditor(QPlainTextEdit):
 
             self.setExtraSelections(extraSelections)
 
-    def updateLineNumberArea(self, rect, dy):
+    def updateLineNumberArea(self, rect, dy) -> None:
         if dy:
             self.lineNumberArea.scroll(0, dy)
         else:
@@ -136,7 +141,7 @@ class CodeEditor(QPlainTextEdit):
             self.updateLineNumberAreaWidth(0)
 
     @override
-    def setReadOnly(self, enable=True):
+    def setReadOnly(self, enable=True) -> None:
         super().setReadOnly(enable)
 
         if enable:
@@ -147,7 +152,7 @@ class CodeEditor(QPlainTextEdit):
             self.highlightCurrentLine()
             self.setPalette(self.defaultPalette)
 
-    def highlightLine(self, lineNo, lineColor=QColor("#C6DBAE")):
+    def highlightLine(self, lineNo, lineColor=QColor("#C6DBAE")) -> None:
         if lineNo > 0:
             block = self.document().findBlockByLineNumber(lineNo - 1)
             cursor = self.textCursor()
@@ -165,7 +170,7 @@ class CodeEditor(QPlainTextEdit):
         else:
             self.highlightCurrentLine(Qt.transparent, force=True)
 
-    def deselect(self):
+    def deselect(self) -> None:
         self.moveCursor(QTextCursor.End)
         self.moveCursor(QTextCursor.Left)
 
