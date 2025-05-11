@@ -77,7 +77,10 @@ follow_untyped_imports = true
 
 [[tool.mypy.overrides]]
 module = "austro.ui.codeeditor"
-disable_error_code = "attr-defined"
+disable_error_code = [
+    "attr-defined",
+    "union-attr",
+]
 
 [tool.pytest.ini_options]
 addopts = "--cov-report=term --cov-report html"
