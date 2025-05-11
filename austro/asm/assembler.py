@@ -292,8 +292,11 @@ def assemble(code: str) -> AssembleResult:
 
     # Structures to store labels and memory words
     labels: dict[str, int] = {}
-    pend_labels: list[Word] = []
     words: list[Word] = []
+
+    # Keep track of declared or used labels
+    pend_labels: list[Word] = []
+    miss_labels: dict[str, list[Word]] = {}
 
     def verify_pending_labels():
         # Verify if has any label pending an address
@@ -314,7 +317,6 @@ def assemble(code: str) -> AssembleResult:
                 del miss_labels[lbl.value]
 
     opcode = None
-    miss_labels: dict[str, list[Word]] = {}
     tok = lexer.token()
     while tok:
         if tok.type == "LABEL":
