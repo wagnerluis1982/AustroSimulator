@@ -18,34 +18,46 @@ from __future__ import annotations
 
 import ctypes
 
+from typing import Protocol
+
 from austro.shared import AbstractData
 
 
+class c_number_type(Protocol):
+    @property
+    def value(self): ...
+
+    @value.setter
+    def value(self, val): ...
+
+
 class BaseReg(AbstractData):
-    pass
+    def __init__(self, value: c_number_type):
+        self._value = value
+
+    @property
+    def value(self) -> int:
+        return self._value.value
+
+    @value.setter
+    def value(self, val: int) -> None:
+        self._value.value = val
 
 
 class StructReg(BaseReg, ctypes.Structure):
     pass
 
 
-class Reg16(StructReg):
+class Reg16(BaseReg):
     bits = 16
-    _fields_ = (("value", ctypes.c_uint16),)
 
-
-class Reg8(StructReg):
-    bits = 8
-    _fields_ = (("value", ctypes.c_uint8),)
-
-
-class Reg1(StructReg):
-    bits = 1
-    _fields_ = (("value", ctypes.c_uint8, 1),)
+    def __init__(self):
+        super().__init__(ctypes.c_uint16())
 
 
 class RegX(StructReg):
     bits = 16
+
     _fields_ = (
         ("_h", ctypes.c_uint8),
         ("_l", ctypes.c_uint8),
@@ -83,7 +95,6 @@ class RegX(StructReg):
 
 class RegH(BaseReg):
     bits = 8
-    regx: RegX
 
     def __init__(self, regx: RegX):
         assert isinstance(regx, RegX)
@@ -100,7 +111,6 @@ class RegH(BaseReg):
 
 class RegL(BaseReg):
     bits = 8
-    regx: RegX
 
     def __init__(self, regx: RegX):
         assert isinstance(regx, RegX)

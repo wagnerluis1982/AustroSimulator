@@ -59,7 +59,7 @@ class CodeEditor(QPlainTextEdit):
         self.readOnlyPalette = self.palette()
         self.readOnlyPalette.setColor(QPalette.Active, QPalette.Base, QColor("#F4F4F4"))
 
-    def lineNumberAreaPaintEvent(self, event):
+    def lineNumberAreaPaintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self.lineNumberArea)
         painter.fillRect(event.rect(), self.palette().color(QPalette.Window))
         painter.setPen(Qt.black)
@@ -177,10 +177,15 @@ class LineNumberArea(QWidget):
         super().__init__(editor)
         self.codeEditor = editor
 
-    def sizeHint(self):
+    @override
+    def sizeHint(self) -> QSize:
         return QSize(self.codeEditor.lineNumberAreaWidth(), 0)
 
-    def paintEvent(self, event: None | QPaintEvent):
+    @override
+    def paintEvent(self, event: None | QPaintEvent) -> None:
+        if event is None:
+            raise ValueError("missing paint event object")
+
         self.codeEditor.lineNumberAreaPaintEvent(event)
 
 

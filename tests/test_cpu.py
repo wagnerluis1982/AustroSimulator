@@ -44,30 +44,30 @@ def assert_registers(assembly, registers, messages):
     # instructions
     asmd = assemble(assembly)
 
-    event = ShowRegisters(*registers)
-    cpu = CPU(event)
+    listener = ShowRegisters(*registers)
+    cpu = CPU(listener)
     cpu.set_memory_block(asmd["words"])
 
     # Test run
     assert cpu.start() is True
 
-    # Test step event
-    assert event.messages == messages
+    # Test captured history
+    assert listener.messages == messages
 
 
 def assert_memory(assembly, addresses, messages):
     # instructions
     asmd = assemble(assembly)
 
-    event = ShowMemories(*addresses)
-    cpu = CPU(event)
+    listener = ShowMemories(*addresses)
+    cpu = CPU(listener)
     cpu.set_memory_block(asmd["words"])
 
     # Test run
     assert cpu.start() is True
 
-    # Test step event
-    assert event.messages == messages
+    # Test captured history
+    assert listener.messages == messages
 
 
 class TestCPU:
