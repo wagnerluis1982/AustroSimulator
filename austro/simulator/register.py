@@ -44,10 +44,6 @@ class BaseReg(AbstractData):
         self._value.value = val
 
 
-class StructReg(BaseReg, ctypes.Structure):
-    pass
-
-
 class Reg16(BaseReg):
     bits = 16
 
@@ -55,42 +51,22 @@ class Reg16(BaseReg):
         super().__init__(ctypes.c_uint16())
 
 
-class RegX(StructReg):
-    bits = 16
-
-    _fields_ = (
-        ("_h", ctypes.c_uint8),
-        ("_l", ctypes.c_uint8),
-    )
-
-    def __init__(self, val=0):
-        self._h = val >> 8
-        self._l = val
-
+class RegX(Reg16):
     @property
-    def high(self):
-        return self._h
+    def high(self) -> int:
+        return self.value >> 8
 
     @high.setter
-    def high(self, val):
-        self._h = val
+    def high(self, val: int) -> None:
+        self.value = self.low | (val << 8)
 
     @property
-    def low(self):
-        return self._l
+    def low(self) -> int:
+        return self.value & 0x00FF
 
     @low.setter
-    def low(self, val):
-        self._l = val
-
-    @property
-    def value(self):
-        return self._h << 8 | self._l
-
-    @value.setter
-    def value(self, val):
-        self._h = val >> 8
-        self._l = val
+    def low(self, val: int) -> None:
+        self.value = self.high | (val & 0x00FF)
 
 
 class RegH(BaseReg):
