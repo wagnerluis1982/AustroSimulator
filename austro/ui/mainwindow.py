@@ -22,13 +22,15 @@ from PyQt5.QtWidgets import (
 )
 
 from austro.asm import asm_lexer, assembler
-from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
+from austro.simulator.cpu import CPU, CPUException, Stage, StepListener
 from austro.ui.codeeditor import AssemblyHighlighter, CodeEditor
 from austro.ui.models import DataModel, GeneralMemoryModel, MemoryModel, RegistersModel
 
 
 if TYPE_CHECKING:
     from PyQt5.QtWidgets import QApplication, QMainWindow
+
+    from austro.simulator.cpu import Memory, Registers
 
 
 __version__ = "0.1.1-dev3"
@@ -60,28 +62,28 @@ def _resource(*rsc):
     return os.path.join(directory, *rsc)
 
 
-class ModelsUpdater(StepEvent):
+class ModelsUpdater(StepListener):
     def __init__(self, win: MainWindow):
         self.win = win
 
     @override
-    def on_fetch(self):
+    def on_fetch(self, registers: Registers, memory: Memory) -> None:
         # Highlight current execution line
-        lineno = self.cpu.registers.get_word("RI").lineno
+        lineno = registers.get_word("RI").lineno
         self.win.asmEdit.highlightLine(lineno)
 
         # Highlight current memory position
-        self.win.memoryModel.pc = self.cpu.registers["PC"]
+        self.win.memoryModel.pc = registers["PC"]
         self.win.refreshModels()
         # Ensure memory position is visible
-        index = self.win.memoryModel.index(self.cpu.registers["PC"])
+        index = self.win.memoryModel.index(registers["PC"])
         self.win.treeMemory.scrollTo(index)
 
 
 class MainWindow:
     def __init__(self, qApp: QApplication):
-        self.event = ModelsUpdater(self)
-        self.cpu = CPU(self.event)
+        self.listener = ModelsUpdater(self)
+        self.cpu = CPU(self.listener)
 
         qApp.lastWindowClosed.connect(self.stop)
 

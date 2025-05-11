@@ -23,6 +23,7 @@ from abc import ABCMeta, abstractmethod
 from ctypes import c_int8, c_int16
 from dataclasses import dataclass
 from enum import Enum
+from typing import cast
 
 from austro.asm.assembler import OPCODES, REGISTERS
 from austro.asm.memword import DWord, Word
@@ -30,20 +31,9 @@ from austro.shared import AustroException
 from austro.simulator.register import BaseReg, Reg16, RegH, RegL, RegX
 
 
-class StepEvent(metaclass=ABCMeta):
-    _cpu: None | CPU = None
-
+class StepListener(metaclass=ABCMeta):
     @abstractmethod
-    def on_fetch(self):
-        pass
-
-    @property
-    def cpu(self):
-        return self._cpu
-
-    @cpu.setter
-    def cpu(self, value):
-        self._cpu = value
+    def on_fetch(self, registers: Registers, memory: Memory) -> None: ...
 
 
 @dataclass(init=False)
@@ -76,16 +66,16 @@ class CPU:
     # Special UC actions
     UC_LOAD = 128
 
-    def __init__(self, event):
-        assert isinstance(event, StepEvent)
-        event.cpu = self
-        self.event = event
+    def __init__(self, *listeners: StepListener) -> None:
+        self.listeners: list[StepListener] = []
+        if listeners is not None:
+            self.listeners.extend(listeners)
 
         self.memory = Memory(CPU.ADDRESS_SPACE)
         self.registers = Registers()
         self.stage = Stage.INITIAL
 
-    def set_memory_block(self, words: list | tuple, start=0):
+    def set_memory_block(self, words: list | tuple, start=0) -> bool:
         assert isinstance(words, (list, tuple))
         if start + len(words) > self.memory.size:
             raise CPUException(
@@ -100,7 +90,7 @@ class CPU:
 
         return True
 
-    def start(self):
+    def start(self) -> bool:
         while self.stage not in (Stage.HALTED, Stage.STOPPED):
             next(self)
 
@@ -109,14 +99,14 @@ class CPU:
 
         return True
 
-    def __next__(self):
+    def __next__(self) -> bool:
         try:
             return self._do_next()
         except CPUException:
             self.stop()
             raise
 
-    def _do_next(self):
+    def _do_next(self) -> bool:
         registers = self.registers
         memory = self.memory
 
@@ -141,7 +131,7 @@ class CPU:
         if self.stage == Stage.EXECUTE:
             # Call ALU (Arithmetic and Logic Unit)
             if decode.unit == CPU.ALU:
-                result = self.alu(decode.operation, op1_val, op2_val)
+                result = self.alu(decode.operation, cast(int, op1_val), cast(int, op2_val))
                 # Invalid instructions behave as NOP
                 if result is None:
                     decode.store = None
@@ -177,7 +167,7 @@ class CPU:
         registers["PC"] += 1
         return self.fetch()
 
-    def fetch(self):
+    def fetch(self) -> bool:
         registers = self.registers
 
         # PC can't be greater than address space
@@ -189,15 +179,16 @@ class CPU:
         registers.set_word("RI", registers.get_word("MBR"))
 
         # Emit event
-        self.event.on_fetch()
+        for listener in self.listeners:
+            listener.on_fetch(self.registers, self.memory)
 
         self.stage = Stage.DECODE
         return True
 
-    def stop(self):
+    def stop(self) -> None:
         self.stage = Stage.STOPPED
 
-    def reset(self):
+    def reset(self) -> None:
         self.memory.clear()
         self.registers.clear()
         self.stage = Stage.INITIAL
@@ -207,7 +198,7 @@ class CPU:
     #
 
     # Control Unit
-    def uc(self, operation: int, op1, op2):
+    def uc(self, operation: int, op1, op2) -> None:
         registers = self.registers
 
         # Special actions
@@ -256,7 +247,7 @@ class CPU:
             self.stage = Stage.FETCH
 
     # Arithmetic and Logic Unit
-    def alu(self, operation, in1, in2):
+    def alu(self, operation: int, in1: int, in2: int) -> int | None:
         _ = self._opcodes
         registers = self.registers
 
