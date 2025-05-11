@@ -66,8 +66,8 @@ class CodeEditor(QPlainTextEdit):
 
     def lineNumberAreaPaintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self.lineNumberArea)
-        painter.fillRect(event.rect(), self.defaultPalette.color(QPalette.Window))
-        # painter.setPen(Qt.black)
+        painter.fillRect(event.rect(), self.palette().color(QPalette.Window))
+        painter.setPen(self.palette().color(QPalette.WindowText))
 
         block = self.firstVisibleBlock()
         blockNumber = block.blockNumber() + 1
