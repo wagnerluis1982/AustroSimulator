@@ -18,10 +18,10 @@ from __future__ import annotations
 
 import ctypes
 
-from austro.shared import AbstractData
+from austro.shared import BaseData
 
 
-class Word(AbstractData):
+class Word(BaseData):
     """Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits

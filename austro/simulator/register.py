@@ -18,30 +18,11 @@ from __future__ import annotations
 
 import ctypes
 
-from typing import Protocol
-
-from austro.shared import AbstractData
+from austro.shared import BaseData
 
 
-class c_number_type(Protocol):
-    @property
-    def value(self): ...
-
-    @value.setter
-    def value(self, val): ...
-
-
-class BaseReg(AbstractData):
-    def __init__(self, value: c_number_type):
-        self._value = value
-
-    @property
-    def value(self) -> int:
-        return self._value.value
-
-    @value.setter
-    def value(self, val: int) -> None:
-        self._value.value = val
+class BaseReg(BaseData):
+    pass
 
 
 class Reg16(BaseReg):

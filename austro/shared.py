@@ -16,20 +16,30 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
-from typing import ClassVar
+from typing import ClassVar, Protocol
 
 
-class AbstractData(metaclass=ABCMeta):
-    bits: ClassVar[int]
-
+class c_number_type(Protocol):
     @property
-    @abstractmethod
-    def value(self) -> int: ...
+    def value(self): ...
 
     @value.setter
-    @abstractmethod
-    def value(self, value: int): ...
+    def value(self, val): ...
+
+
+class BaseData:
+    bits: ClassVar[int]
+
+    def __init__(self, value: c_number_type):
+        self._value = value
+
+    @property
+    def value(self) -> int:
+        return self._value.value
+
+    @value.setter
+    def value(self, val: int) -> None:
+        self._value.value = val
 
 
 class AustroException(Exception):
