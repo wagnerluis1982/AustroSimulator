@@ -18,10 +18,26 @@ from __future__ import annotations
 
 import ctypes
 
+from abc import ABCMeta
+
 from austro.shared import BaseData
 
 
-class Word(BaseData):
+class _MetaWord(ABCMeta):
+    def __instancecheck__(cls, instance: object) -> bool:
+        check = ABCMeta.__instancecheck__(cls, instance)
+        if check:
+            return True
+
+        if instance.__class__ == Word:
+            if cls == IWord and instance.is_instruction:  # type: ignore[attr-defined]
+                return True
+            return cls == DWord
+
+        return False
+
+
+class Word(BaseData, metaclass=_MetaWord):
     """Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits
@@ -98,11 +114,15 @@ class Word(BaseData):
             return f"DWord({self._value.value})"
 
 
-def IWord(opcode=0, flags=0, operand=0, lineno=0) -> Word:
-    """Helper to create an Instruction Word"""
-    return Word(opcode, flags, operand, lineno, is_instruction=True)
+class IWord(Word):
+    """Instruction Word"""
+
+    def __init__(self, opcode=0, flags=0, operand=0, lineno=0):
+        super().__init__(opcode, flags, operand, lineno, is_instruction=True)
 
 
-def DWord(value=0):
-    """Helper to create a Data Word"""
-    return Word(value=value)
+class DWord(Word):
+    """Data Word"""
+
+    def __init__(self, value=0):
+        super().__init__(value=value, is_instruction=False)
