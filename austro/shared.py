@@ -16,12 +16,11 @@
 # along with Austro Simulator.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import ClassVar
 
 
-# TODO: Add metaclass
-class AbstractData:
+class AbstractData(metaclass=ABCMeta):
     bits: ClassVar[int]
 
     @property
