@@ -21,6 +21,18 @@ class TestWord:
         w.is_instruction = False
         assert w.value == 0xffff  # fmt: skip
 
+    def test_set_opcode(self):
+        w = Word(flags=5, operand=20, is_instruction=True)
+
+        assert w.opcode == 0
+        assert w.flags == 5
+        assert w.operand == 20
+
+        w.opcode = 15
+        assert w.opcode == 15
+        assert w.flags == 5
+        assert w.operand == 20
+
     def test_is_instance_Word(self):
         w = Word(value=0)
 
