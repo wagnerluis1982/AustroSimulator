@@ -109,8 +109,9 @@ class TestCPU:
             next(cpu)
 
     def test_error_set_memory_block_greater_than_address_space(self, cpu: CPU):
+        block = [DWord()] * (CPU.ADDRESS_SPACE + 1)
         with pytest.raises(CPUException, match="tried to set memory to outside address space"):
-            cpu.set_memory_block([0] * (CPU.ADDRESS_SPACE + 1))
+            cpu.set_memory_block(block)
 
 
 class TestCPU__ALU:
