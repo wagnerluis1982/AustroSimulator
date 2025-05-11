@@ -18,118 +18,117 @@ from __future__ import annotations
 
 import ctypes
 
-from austro.shared import AbstractData
+from abc import ABCMeta
+
+from austro.shared import BaseData
 
 
-class Word(AbstractData, ctypes.Structure):
+class _MetaWord(ABCMeta):
+    def __instancecheck__(cls, instance: object) -> bool:
+        check = ABCMeta.__instancecheck__(cls, instance)
+        if check:
+            return True
+
+        if instance.__class__ == Word:
+            if cls == IWord and instance.is_instruction:  # type: ignore[attr-defined]
+                return True
+            return cls == DWord
+
+        return False
+
+
+class Word(BaseData, metaclass=_MetaWord):
     """Represent the memory word
 
     Word objects can act as instruction or data words of 16 bits
     """
 
-    _fields_ = (
-        ("_opcode", ctypes.c_ubyte, 5),
-        ("_flags", ctypes.c_ubyte, 3),
-        ("_operand", ctypes.c_ubyte, 8),
-        ("_value", ctypes.c_uint16),
-    )
-    _bits = 16
+    bits = 16
 
     def __init__(
-        self, opcode=0, flags=0, operand=0, lineno=0, value=None, is_instruction=False
-    ):
+        self,
+        opcode=0,
+        flags=0,
+        operand=0,
+        lineno=0,
+        value: None | int = None,
+        is_instruction=False,
+    ) -> None:
+        super().__init__(ctypes.c_uint16())
+
         # Flag to know if this word should act as an instruction
         self._instruction = is_instruction
         # Set an associated assembly code line number (for instructions)
         self.lineno = lineno
 
-        # If marked as instruction, set args separately
+        # In an instruction word, the 16 bits = 5 (opcode) + 3 (flags) + 8 (operand)
         if is_instruction:
-            ctypes.Structure.__init__(self, opcode, flags, operand)
-
+            _opcode = (opcode & 0x1F) << 11
+            _flags = (flags & 0x07) << 8
+            _operand = operand & 0xFF
+            self.value = _opcode | _flags | _operand
         # In a data word the 'value' must be set
         else:
             assert value is not None, "DWord requires 'value' but was not set"
             self.value = value
 
     @property
-    def value(self):
-        if self.is_instruction:
-            return (self.opcode << 3 | self.flags) << 8 | self.operand
-        else:
-            return self._value
-
-    @value.setter
-    def value(self, value):
-        if self.is_instruction:
-            self.opcode = value >> 11
-            self.flags = value >> 8
-            self.operand = value
-        else:
-            self._value = value
-
-    @property
-    def opcode(self):
+    def opcode(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
-        return self._opcode
+        return self.value >> 11
 
     @opcode.setter
-    def opcode(self, value):
+    def opcode(self, val: int) -> None:
         assert self.is_instruction, "Word is not an instruction"
-        self._opcode = value
+        self.value = (self.value & 0x07FF) | ((val & 0x001F) << 11)
 
     @property
-    def flags(self):
+    def flags(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
-        return self._flags
+        return (self.value >> 8) & 0x0007
 
     @flags.setter
-    def flags(self, value):
+    def flags(self, val: int) -> None:
         assert self.is_instruction, "Word is not an instruction"
-        self._flags = value
+        self.value = (self.value & 0xF8FF) | ((val & 0x0007) << 8)
 
     @property
-    def operand(self):
+    def operand(self) -> int:
         assert self.is_instruction, "Word is not an instruction"
-        return self._operand
+        return self.value & 0x00FF
 
     @operand.setter
-    def operand(self, value):
+    def operand(self, val: int) -> None:
         assert self.is_instruction, "Word is not an instruction"
-        self._operand = value
+        self.value = (self.value & 0xFF00) | (val & 0x00FF)
 
     @property
-    def is_instruction(self):
+    def is_instruction(self) -> bool:
         return self._instruction
 
     @is_instruction.setter
-    def is_instruction(self, switch):
-        if switch:
-            # DWord stores value in field `_value`. Here we interpret the value as an instruction after became an IWord.
-            if not self._instruction:
-                self._instruction = True
-                self.value = self._value
-        else:
-            # IWord stores value in a struct. Here we take the interpreted value before became a DWord.
-            if self._instruction:
-                self._value = self.value
-                self._instruction = False
+    def is_instruction(self, switch: bool) -> None:
+        self._instruction = switch
 
-    def __eq__(self, o):
-        return self.value == o.value
+    def __eq__(self, o: object) -> bool:
+        return isinstance(o, Word) and self.value == o.value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.is_instruction:
             return f"IWord({self.opcode}, {self.flags}, {self.operand}, lineno={self.lineno})"
         else:
-            return f"DWord({self._value})"
+            return f"DWord({self._value.value})"
 
 
-def IWord(opcode=0, flags=0, operand=0, lineno=0) -> Word:
-    """Helper to create an Instruction Word"""
-    return Word(opcode, flags, operand, lineno, is_instruction=True)
+class IWord(Word):
+    """Instruction Word"""
+
+    def __init__(self, opcode=0, flags=0, operand=0, lineno=0):
+        super().__init__(opcode, flags, operand, lineno, is_instruction=True)
 
 
-def DWord(value=0):
-    """Helper to create a Data Word"""
-    return Word(value=value)
+class DWord(Word):
+    """Data Word"""
+
+    def __init__(self, value=0):
+        super().__init__(value=value, is_instruction=False)

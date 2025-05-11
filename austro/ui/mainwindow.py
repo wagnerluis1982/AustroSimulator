@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 from datetime import datetime
+from typing import TYPE_CHECKING, override
 
 # from PyQt5.QtWebKit import QWebView
 # from PyQt5.QtDeclarative import QDeclarativeView
@@ -12,9 +13,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QAction,
-    QApplication,
     QFileDialog,
-    QMainWindow,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
@@ -23,12 +22,18 @@ from PyQt5.QtWidgets import (
 )
 
 from austro.asm import asm_lexer, assembler
-from austro.simulator.cpu import CPU, CPUException, Stage, StepEvent
+from austro.simulator.cpu import CPU, CPUException, Stage, StepListener
 from austro.ui.codeeditor import AssemblyHighlighter, CodeEditor
 from austro.ui.models import DataModel, GeneralMemoryModel, MemoryModel, RegistersModel
 
 
-__version__ = "0.1.1-dev3"
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QApplication, QMainWindow
+
+    from austro.simulator.cpu import Memory, Registers
+
+
+__version__ = "0.2.0-alpha1"
 _about_ = (
     """
     <h3>Austro Simulator %s</h3>
@@ -57,37 +62,34 @@ def _resource(*rsc):
     return os.path.join(directory, *rsc)
 
 
-class ModelsUpdater(StepEvent):
+class ModelsUpdater(StepListener):
     def __init__(self, win: MainWindow):
         self.win = win
 
-    def on_fetch(self):
+    @override
+    def on_fetch(self, registers: Registers, memory: Memory) -> None:
         # Highlight current execution line
-        lineno = self.cpu.registers.get_word("RI").lineno
+        lineno = registers.get_word("RI").lineno
         self.win.asmEdit.highlightLine(lineno)
 
         # Highlight current memory position
-        self.win.memoryModel.pc = self.cpu.registers["PC"]
+        self.win.memoryModel.pc = registers["PC"]
         self.win.refreshModels()
         # Ensure memory position is visible
-        index = self.win.memoryModel.index(self.cpu.registers["PC"])
+        index = self.win.memoryModel.index(registers["PC"])
         self.win.treeMemory.scrollTo(index)
 
 
 class MainWindow:
-    event: StepEvent
-    cpu: CPU
-    gui: QMainWindow
-
-    def __init__(self, qApp: QApplication = None):
-        self.event = ModelsUpdater(self)
-        self.cpu = CPU(self.event)
+    def __init__(self, qApp: QApplication):
+        self.listener = ModelsUpdater(self)
+        self.cpu = CPU(self.listener)
 
         qApp.lastWindowClosed.connect(self.stop)
 
         # loader = QUiLoader()
         # loader.registerCustomWidget(CodeEditor)
-        self.gui = uic.loadUi(_resource("mainwindow.ui"))
+        self.gui: QMainWindow = uic.loadUi(_resource("mainwindow.ui"))
 
         self.setupEditorAndDiagram()
         self.setupSplitters()

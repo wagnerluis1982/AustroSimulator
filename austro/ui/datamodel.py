@@ -18,26 +18,32 @@ from __future__ import annotations
 
 import ctypes
 
+from typing import TYPE_CHECKING, Sequence, override
+
 from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 
+if TYPE_CHECKING:
+    from PyQt5.QtCore import QObject
+
+
 class DataItem:
-    def __init__(self, data, parent=None):
+    def __init__(self, data: Sequence, parent: None | DataItem = None):
         self._parentItem = parent
         self._itemData = data
-        self._childItems = []
+        self._childItems: list[DataItem] = []
 
-    def appendChild(self, item):
+    def appendChild(self, item: DataItem):
         item._parentItem = self
         self._childItems.append(item)
 
-    def child(self, row):
+    def child(self, row) -> DataItem:
         return self._childItems[row]
 
-    def childCount(self):
+    def childCount(self) -> int:
         return len(self._childItems)
 
-    def columnCount(self):
+    def columnCount(self) -> int:
         return len(self._itemData)
 
     def bits(self):
@@ -50,13 +56,13 @@ class DataItem:
 
         return self._itemData[column]
 
-    def row(self):
+    def row(self) -> int:
         if self._parentItem:
             return self._parentItem._childItems.index(self)
 
         return 0
 
-    def parent(self):
+    def parent(self) -> None | DataItem:
         return self._parentItem
 
 
@@ -76,8 +82,8 @@ class DataModel(QAbstractItemModel):
         F_DEC_NEG: "NEG",
     }
 
-    def __init__(self, header, parent=None):
-        super(DataModel, self).__init__(parent)
+    def __init__(self, header: Sequence[str], parent: None | QObject = None):
+        super().__init__(parent)
 
         self._rootItem = DataItem(header)
         self.setDataFormat(self.F_DEC)
@@ -146,6 +152,7 @@ class DataModel(QAbstractItemModel):
         else:
             return self._rootItem.columnCount()
 
+    @override
     def data(self, index, role):
         if not index.isValid():
             return None

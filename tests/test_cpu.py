@@ -1,73 +1,73 @@
 from __future__ import annotations
 
+from typing import override
+
 import pytest
 
 from austro.asm.assembler import assemble
-from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepEvent
+from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepListener
 
 
-class ShowRegistersEvent(StepEvent):
-    def __init__(self, *names):
-        self.messages = []
+class ShowRegisters(StepListener):
+    def __init__(self, *names: str) -> None:
+        self.messages: list[str] = []
         self.fmt = ",".join(["%s=%%d" % nm for nm in names])
 
         self.indexes = []
         for nm in names:
             self.indexes.append(Registers.INDEX[nm])
 
-    def on_fetch(self):
-        args = [self.cpu.registers[i] for i in self.indexes]
+    @override
+    def on_fetch(self, registers, memory) -> None:
+        args = [registers[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
 
-class ShowMemoriesEvent(StepEvent):
-    def __init__(self, *numbers):
-        self.messages = []
+class ShowMemories(StepListener):
+    def __init__(self, *numbers: int) -> None:
+        self.messages: list[str] = []
         self.fmt = ",".join(["[%d]=%%d" % n for n in numbers])
         self.indexes = numbers
 
-    def on_fetch(self):
-        args = [self.cpu.memory[i] for i in self.indexes]
+    @override
+    def on_fetch(self, registers, memory) -> None:
+        args = [memory[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
 
 @pytest.fixture
 def cpu():
-    class DummyEvent(StepEvent):
-        def on_fetch(self):
-            pass
-
-    return CPU(DummyEvent())
+    return CPU()
 
 
 def assert_registers(assembly, registers, messages):
     # instructions
     asmd = assemble(assembly)
 
-    event = ShowRegistersEvent(*registers)
-    cpu = CPU(event)
+    listener = ShowRegisters(*registers)
+    cpu = CPU(listener)
     cpu.set_memory_block(asmd["words"])
 
     # Test run
     assert cpu.start() is True
 
-    # Test step event
-    assert event.messages == messages
+    # Test captured history
+    assert listener.messages == messages
 
 
 def assert_memory(assembly, addresses, messages):
     # instructions
     asmd = assemble(assembly)
 
-    event = ShowMemoriesEvent(*addresses)
-    cpu = CPU(event)
+    listener = ShowMemories(*addresses)
+    cpu = CPU(listener)
     cpu.set_memory_block(asmd["words"])
 
     # Test run
     assert cpu.start() is True
 
-    # Test step event
-    assert event.messages == messages
+    # Test captured history
+    assert listener.messages == messages
 
 
 class TestCPU:

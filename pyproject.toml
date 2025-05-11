@@ -1,6 +1,6 @@
 [project]
 name = "austrosim"
-version = "0.1.1-dev3"
+version = "0.2.0-alpha1"
 description = "A CPU simulator resembling Intel 8086."
 authors = [
     { name = "Wagner Macedo", email = "wagnerluis1982@gmail.com" },
@@ -8,7 +8,7 @@ authors = [
 license = { text = "GPL-3.0-or-later" }
 readme = "README.md"
 
-requires-python = ">=3.9"
+requires-python = ">=3.13"
 dependencies = [
     "ply (>=3.11,<4.0)",
     "pyqt5 (>=5.15.11,<6.0.0)"
@@ -29,6 +29,7 @@ packages = [
 pre-commit = "^4.2.0"
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
+mypy = "^1.15.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -37,22 +38,46 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 fix = true
 line-length = 96
-target-version = "py39"
+target-version = "py313"
 
 [tool.ruff.lint]
-extend-select = ["I"]
+extend-select = [
+    "I",   # flake8-isort
+    "TID", # flake8-tidy-imports
+    "TC",  # flake8-type-checking
+]
+extend-safe-fixes = [
+    "TC",  # move import from and to TYPE_CHECKING blocks
+]
+ignore = [
+    "TC006",
+]
 unfixable = [
     "ERA", # do not autoremove commented out code
 ]
-
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "all"
 
 [tool.ruff.lint.isort]
 lines-between-types = 1
 lines-after-imports = 2
 known-first-party = ["austro"]
 required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
+
+[tool.mypy]
+packages = "austro,tests"
+
+[[tool.mypy.overrides]]
+module = "ply.*"
+follow_untyped_imports = true
+
+[[tool.mypy.overrides]]
+module = "austro.ui.codeeditor"
+disable_error_code = "attr-defined"
 
 [tool.pytest.ini_options]
 addopts = "--cov-report=term --cov-report html"
