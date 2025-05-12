@@ -148,7 +148,7 @@ class CPU:
 
             # Next state: store or fetch
             if self.stage != Stage.FETCH:
-                if decode.store is True or decode.store is not None:
+                if type(decode.store) is bool and decode.store or decode.store is not None:
                     self.stage = Stage.STORE
                 else:
                     self.stage = Stage.FETCH
@@ -159,7 +159,8 @@ class CPU:
         if self.stage == Stage.STORE:
             if decode.unit != CPU.UC:
                 self.uc(CPU.UC_LOAD, decode.op1, result)
-            if decode.store is not True:
+            if type(decode.store) is int:
+                assert isinstance(decode.op1, int)
                 memory[decode.store] = registers[decode.op1]
 
         # Fetch stage
