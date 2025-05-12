@@ -827,6 +827,76 @@ class TestCPU__UC:
 
         assert_registers(assembly, registers, messages)
 
+    def test_jnz(self):
+        """JNZ should set PC register when Z=0"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            jnz detour
+            nop
+            detour:
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected messages
+        messages = [
+            "PC=0",  # before "mov ax, 1"
+            "PC=2",  # before "jnz detour"
+            "PC=4",  # before "halt"
+        ]
+
+        assert_registers(assembly, registers, messages)
+
+    def test_je(self):
+        """JE should set PC register when Z=1"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            cmp ax, 1
+            je detour
+            nop
+            detour:
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected messages
+        messages = [
+            "PC=0",  # before "mov ax, 1"
+            "PC=2",  # before "cmp ax, 1"
+            "PC=4",  # before "je detour"
+            "PC=6",  # before "halt"
+        ]
+
+        assert_registers(assembly, registers, messages)
+
+    def test_jne(self):
+        """JNE should set PC register when Z=0"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            cmp ax, 0
+            jne detour
+            nop
+            detour:
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected messages
+        messages = [
+            "PC=0",  # before "mov ax, 1"
+            "PC=2",  # before "cmp ax, 0"
+            "PC=4",  # before "jne detour"
+            "PC=6",  # before "halt"
+        ]
+
+        assert_registers(assembly, registers, messages)
+
 
 class TestCPU__SHIFT:
     """CPU (Shift Unit)"""
