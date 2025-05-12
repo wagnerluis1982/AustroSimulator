@@ -57,6 +57,7 @@ class CodeEditor(QPlainTextEdit):
 
         self.readOnlyPalette = self.palette()
         self.readOnlyPalette.setColor(QPalette.Base, QColor("#F4F4F4"))
+        self.readOnlyPalette.setColor(QPalette.Text, Qt.black)
 
         self.defaultPalette = self.palette()
         self.defaultPalette.setColor(QPalette.Base, Qt.white)
