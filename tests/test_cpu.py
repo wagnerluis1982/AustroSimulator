@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import override
+from typing import Sequence, override
 
 import pytest
 
@@ -41,7 +41,7 @@ def cpu():
     return CPU()
 
 
-def assert_registers(assembly, registers, messages):
+def assert_registers(assembly: str, registers: Sequence[str], messages: Sequence[str]) -> None:
     # instructions
     asmd = assemble(assembly)
 
@@ -53,10 +53,10 @@ def assert_registers(assembly, registers, messages):
     assert cpu.start() is True
 
     # Test captured history
-    assert listener.messages == messages
+    assert listener.messages == [m.replace(" ", "") for m in messages]
 
 
-def assert_memory(assembly, addresses, messages):
+def assert_memory(assembly: str, addresses: Sequence[int], messages: Sequence[str]) -> None:
     # instructions
     asmd = assemble(assembly)
 
@@ -68,7 +68,7 @@ def assert_memory(assembly, addresses, messages):
     assert cpu.start() is True
 
     # Test captured history
-    assert listener.messages == messages
+    assert listener.messages == [m.replace(" ", "") for m in messages]
 
 
 class TestCPU:
@@ -131,14 +131,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 0b1001"
-            "AX=0,BX=0",
-            # before "mov bx, 0b1100"
-            "AX=9,BX=0",
-            # before "or ax, bx"
-            "AX=9,BX=12",
-            # AX = 0b1001 & 0b1100 => 0b1101 => 13
-            "AX=13,BX=12",
+            "AX=0, BX=0 ",  # before "mov ax, 0b1001"
+            "AX=9, BX=0 ",  # before "mov bx, 0b1100"
+            "AX=9, BX=12",  # before "or ax, bx"
+            "AX=13,BX=12",  # AX = 0b1001 & 0b1100 => 0b1101 => 13
         ]
 
         assert_registers(assembly, registers, messages)
@@ -158,16 +154,11 @@ class TestCPU__ALU:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 0"
-            "Z=0",
-            # before "or ax, 1"
-            "Z=0",
-            # before "mov ax, 0"
-            "Z=0",
-            # before "or ax, 0"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 0"
+            "Z=0",  # before "or ax, 1"
+            "Z=0",  # before "mov ax, 0"
+            "Z=0",  # before "or ax, 0"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -186,14 +177,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 0b1100"
-            "AX=0,BX=0",
-            # before "mov bx, 0b0110"
-            "AX=12,BX=0",
-            # before "and ax, bx"
-            "AX=12,BX=6",
-            # before "halt"
-            "AX=4,BX=6",
+            "AX=0, BX=0",  # before "mov ax, 0b1100"
+            "AX=12,BX=0",  # before "mov bx, 0b0110"
+            "AX=12,BX=6",  # before "and ax, bx"
+            "AX=4, BX=6",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -211,12 +198,9 @@ class TestCPU__ALU:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 1"
-            "Z=0",
-            # before "and ax, 0"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 1"
+            "Z=0",  # before "and ax, 0"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -234,12 +218,9 @@ class TestCPU__ALU:
         registers = ("AX",)
         # expected messages
         messages = [
-            # before "mov ax, 0xabcd"
-            "AX=0",
-            # before "not ax"
-            "AX=%d" % 0xABCD,
-            # before "halt"
-            "AX=%d" % 0x5432,
+            "AX=%d" % 0x0000,  # before "mov ax, 0xabcd"
+            "AX=%d" % 0xABCD,  # before "not ax"
+            "AX=%d" % 0x5432,  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -257,12 +238,9 @@ class TestCPU__ALU:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 0xffff"
-            "Z=0",
-            # before "not ax"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 0xffff"
+            "Z=0",  # before "not ax"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -281,14 +259,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 0b1100"
-            "AX=0,BX=0",
-            # before "mov bx, 0b1010"
-            "AX=12,BX=0",
-            # before "xor ax, bx"
-            "AX=12,BX=10",
-            # before "halt"
-            "AX=6,BX=10",
+            "AX=0, BX=0 ",  # before "mov ax, 0b1100"
+            "AX=12,BX=0 ",  # before "mov bx, 0b1010"
+            "AX=12,BX=10",  # before "xor ax, bx"
+            "AX=6, BX=10",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -306,12 +280,9 @@ class TestCPU__ALU:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 1"
-            "Z=0",
-            # before "xor ax, 1"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 1"
+            "Z=0",  # before "xor ax, 1"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -330,14 +301,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 193"
-            "AX=0,BX=0",
-            # before "mov bx, 297"
-            "AX=193,BX=0",
-            # before "add ax, bx"
-            "AX=193,BX=297",
-            # before "halt"
-            "AX=490,BX=297",
+            "AX=0,  BX=0  ",  # before "mov ax, 193"
+            "AX=193,BX=0  ",  # before "mov bx, 297"
+            "AX=193,BX=297",  # before "add ax, bx"
+            "AX=490,BX=297",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -360,22 +327,14 @@ class TestCPU__ALU:
         registers = ("Z", "V")
         # expected messages
         messages = [
-            # before "mov ax, 65534"
-            "Z=0,V=0",
-            # before "mov bx, 65535"
-            "Z=0,V=0",
-            # before "add ax, 1"
-            "Z=0,V=0",
-            # before "add ax, 1"
-            "Z=0,V=0",
-            # before "add bx, 2"
-            "Z=1,V=1",
-            # before "mov cl, 255"
-            "Z=0,V=1",
-            # before "add cl, 1"
-            "Z=0,V=1",
-            # before "halt"
-            "Z=1,V=1",
+            "Z=0,V=0",  # before "mov ax, 65534"
+            "Z=0,V=0",  # before "mov bx, 65535"
+            "Z=0,V=0",  # before "add ax, 1"
+            "Z=0,V=0",  # before "add ax, 1"
+            "Z=1,V=1",  # before "add bx, 2"
+            "Z=0,V=1",  # before "mov cl, 255"
+            "Z=0,V=1",  # before "add cl, 1"
+            "Z=1,V=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -394,14 +353,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 19"
-            "AX=0,BX=0",
-            # before "mov bx, 10"
-            "AX=19,BX=0",
-            # before "sub ax, bx"
-            "AX=19,BX=10",
-            # before "halt"
-            "AX=9,BX=10",
+            "AX=0, BX=0 ",  # before "mov ax, 19"
+            "AX=19,BX=0 ",  # before "mov bx, 10"
+            "AX=19,BX=10",  # before "sub ax, bx"
+            "AX=9, BX=10",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -422,18 +377,12 @@ class TestCPU__ALU:
         registers = ("Z", "V")
         # expected messages
         messages = [
-            # before "mov ax, 1"
-            "Z=0,V=0",
-            # before "mov bx, 1"
-            "Z=0,V=0",
-            # before "sub ax, 2"
-            "Z=0,V=0",
-            # before "sub bx, 1"
-            "Z=0,V=1",
-            # before "sub bx, 1"
-            "Z=1,V=0",
-            # before "halt"
-            "Z=0,V=1",
+            "Z=0,V=0",  # before "mov ax, 1"
+            "Z=0,V=0",  # before "mov bx, 1"
+            "Z=0,V=0",  # before "sub ax, 2"
+            "Z=0,V=1",  # before "sub bx, 1"
+            "Z=1,V=0",  # before "sub bx, 1"
+            "Z=0,V=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -451,12 +400,9 @@ class TestCPU__ALU:
         registers = ("AX",)
         # expected messages
         messages = [
-            # before "mov ax, 9"
-            "AX=0",
-            # before "inc ax"
-            "AX=9",
-            # before "halt"
-            "AX=10",
+            "AX=0 ",  # before "mov ax, 9"
+            "AX=9 ",  # before "inc ax"
+            "AX=10",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -475,14 +421,10 @@ class TestCPU__ALU:
         registers = ("Z", "V")
         # expected messages
         messages = [
-            # before "mov ax, 0xfffe"
-            "Z=0,V=0",
-            # before "inc ax"
-            "Z=0,V=0",
-            # before "inc ax"
-            "Z=0,V=0",
-            # before "halt"
-            "Z=1,V=1",
+            "Z=0,V=0",  # before "mov ax, 0xfffe"
+            "Z=0,V=0",  # before "inc ax"
+            "Z=0,V=0",  # before "inc ax"
+            "Z=1,V=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -500,12 +442,9 @@ class TestCPU__ALU:
         registers = ("AX",)
         # expected messages
         messages = [
-            # before "mov ax, 100"
-            "AX=0",
-            # before "dec ax"
-            "AX=100",
-            # before "halt"
-            "AX=99",
+            "AX=0  ",  # before "mov ax, 100"
+            "AX=100",  # before "dec ax"
+            "AX=99 ",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -524,14 +463,10 @@ class TestCPU__ALU:
         registers = ("Z", "V")
         # expected messages
         messages = [
-            # before "mov ax, 1"
-            "Z=0,V=0",
-            # before "dec ax"
-            "Z=0,V=0",
-            # before "dec ax"
-            "Z=1,V=0",
-            # before "halt"
-            "Z=0,V=1",
+            "Z=0,V=0",  # before "mov ax, 1"
+            "Z=0,V=0",  # before "dec ax"
+            "Z=1,V=0",  # before "dec ax"
+            "Z=0,V=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -550,14 +485,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 12"
-            "AX=0,BX=0",
-            # before "mov bx, 5"
-            "AX=12,BX=0",
-            # before "mul ax, bx"
-            "AX=12,BX=5",
-            # before "halt"
-            "AX=60,BX=5",
+            "AX=0, BX=0",  # before "mov ax, 12"
+            "AX=12,BX=0",  # before "mov bx, 5"
+            "AX=12,BX=5",  # before "mul ax, bx"
+            "AX=60,BX=5",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -577,16 +508,11 @@ class TestCPU__ALU:
         registers = ("AX", "SP")
         # expected messages
         messages = [
-            # before "mov ax, 500"
-            "AX=0,SP=0",
-            # before "mov sp, 8"
-            "AX=500,SP=0",
-            # before "mul ax, 1"
-            "AX=500,SP=8",
-            # before "mul ax, 850"
-            "AX=500,SP=8",
-            # before "halt"
-            "AX=31784,SP=6",
+            "AX=0,    SP=0",  # before "mov ax, 500"
+            "AX=500,  SP=0",  # before "mov sp, 8"
+            "AX=500,  SP=8",  # before "mul ax, 1"
+            "AX=500,  SP=8",  # before "mul ax, 850"
+            "AX=31784,SP=6",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -605,14 +531,10 @@ class TestCPU__ALU:
         registers = ("Z", "T")
         # expected messages
         messages = [
-            # before "mov ax, 77"
-            "Z=0,T=0",
-            # before "mul ax, 900"
-            "Z=0,T=0",
-            # before "mul ax, 0"
-            "Z=0,T=1",
-            # before "halt"
-            "Z=1,T=0",
+            "Z=0,T=0",  # before "mov ax, 77"
+            "Z=0,T=0",  # before "mul ax, 900"
+            "Z=0,T=1",  # before "mul ax, 0"
+            "Z=1,T=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -631,14 +553,10 @@ class TestCPU__ALU:
         registers = ("N", "Z", "V")
         # expected messages
         messages = [
-            # before "mov ax, 80"
-            "N=0,Z=0,V=0",
-            # before "imul ax, -900"
-            "N=0,Z=0,V=0",
-            # before "imul ax, 0"
-            "N=1,Z=0,V=1",
-            # before "halt"
-            "N=0,Z=1,V=0",
+            "N=0,Z=0,V=0",  # before "mov ax, 80"
+            "N=0,Z=0,V=0",  # before "imul ax, -900"
+            "N=1,Z=0,V=1",  # before "imul ax, 0"
+            "N=0,Z=1,V=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -657,14 +575,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 7"
-            "AX=0,BX=0",
-            # before "mov bx, 2"
-            "AX=7,BX=0",
-            # before "div ax, bx"
-            "AX=7,BX=2",
-            # before "halt"
-            "AX=3,BX=2",
+            "AX=0,BX=0",  # before "mov ax, 7"
+            "AX=7,BX=0",  # before "mov bx, 2"
+            "AX=7,BX=2",  # before "div ax, bx"
+            "AX=3,BX=2",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -683,14 +597,10 @@ class TestCPU__ALU:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 3"
-            "Z=0",
-            # before "div ax, 3"
-            "Z=0",
-            # before "div ax, 4"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 3"
+            "Z=0",  # before "div ax, 3"
+            "Z=0",  # before "div ax, 4"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -709,14 +619,10 @@ class TestCPU__ALU:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 7"
-            "AX=0,BX=0",
-            # before "mov bx, 2"
-            "AX=7,BX=0",
-            # before "mod ax, bx"
-            "AX=7,BX=2",
-            # before "halt"
-            "AX=1,BX=2",
+            "AX=0,BX=0",  # before "mov ax, 7"
+            "AX=7,BX=0",  # before "mov bx, 2"
+            "AX=7,BX=2",  # before "mod ax, bx"
+            "AX=1,BX=2",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -734,12 +640,9 @@ class TestCPU__ALU:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 9"
-            "Z=0",
-            # before "mod ax, 3"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 9"
+            "Z=0",  # before "mod ax, 3"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -759,16 +662,11 @@ class TestCPU__ALU:
         registers = ("N", "Z")
         # expected messages
         messages = [
-            # before "mov ax, 5"
-            "N=0,Z=0",
-            # before "cmp ax, 5"
-            "N=0,Z=0",
-            # before "cmp ax, 6"
-            "N=0,Z=1",
-            # before "cmp ax, 4"
-            "N=1,Z=0",
-            # before "halt"
-            "N=0,Z=0",
+            "N=0,Z=0",  # before "mov ax, 5"
+            "N=0,Z=0",  # before "cmp ax, 5"
+            "N=0,Z=1",  # before "cmp ax, 6"
+            "N=1,Z=0",  # before "cmp ax, 4"
+            "N=0,Z=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -788,16 +686,11 @@ class TestCPU__ALU:
         registers = ("N", "Z")
         # expected messages
         messages = [
-            # before "mov ax, -7"
-            "N=0,Z=0",
-            # before "cmp ax, -7"
-            "N=0,Z=0",
-            # before "cmp ax, 2"
-            "N=0,Z=1",
-            # before "cmp ax, -15"
-            "N=1,Z=0",
-            # before "halt"
-            "N=0,Z=0",
+            "N=0,Z=0",  # before "mov ax, -7"
+            "N=0,Z=0",  # before "cmp ax, -7"
+            "N=0,Z=1",  # before "cmp ax, 2"
+            "N=1,Z=0",  # before "cmp ax, -15"
+            "N=0,Z=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -819,12 +712,9 @@ class TestCPU__UC:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 3"
-            "AX=0,BX=0",
-            # before "mov bx, ax"
-            "AX=3,BX=0",
-            # before "halt"
-            "AX=3,BX=3",
+            "AX=0,BX=0",  # before "mov ax, 3"
+            "AX=3,BX=0",  # before "mov bx, ax"
+            "AX=3,BX=3",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -843,11 +733,11 @@ class TestCPU__UC:
         registers = ("AX", "AH", "AL")
         # expected messages
         messages = [
-            "AX=%d,AH=%d,AL=%d" % (0x0, 0x0, 0x0),  # "mov al, 0x9A"
+            "AX=%d,AH=%d,AL=%d" % (0x0000, 0x00, 0x00),  # "mov al, 0x9A"
             "AX=%d,AH=%d,AL=%d" % (0x009A, 0x00, 0x9A),  # "mov ah, 0x10"
             "AX=%d,AH=%d,AL=%d" % (0x109A, 0x10, 0x9A),  # "mov ax, 0x9F8D"
-            "AX=%d,AH=%d,AL=%d" % (0x9F8D, 0x9F, 0x8D),
-        ]  # "halt"
+            "AX=%d,AH=%d,AL=%d" % (0x9F8D, 0x9F, 0x8D),  # "halt"
+        ]
 
         assert_registers(assembly, registers, messages)
 
@@ -864,12 +754,9 @@ class TestCPU__UC:
         registers = ("AX", "BX")
         # expected messages
         messages = [
-            # before "mov ax, 9"
-            "AX=0,BX=0",
-            # before "mov bx, 4"
-            "AX=9,BX=0",
-            # before "halt"
-            "AX=9,BX=4",
+            "AX=0,BX=0",  # before "mov ax, 9"
+            "AX=9,BX=0",  # before "mov bx, 4"
+            "AX=9,BX=4",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -888,14 +775,10 @@ class TestCPU__UC:
         registers = ("BX",)
         # expected messages
         messages = [
-            # before "mov ax, 7"
-            "BX=0",
-            # before "mov [128], ax"
-            "BX=0",
-            # before "mov bx, [128]"
-            "BX=0",
-            # before "halt"
-            "BX=7",
+            "BX=0",  # before "mov ax, 7"
+            "BX=0",  # before "mov [128], ax"
+            "BX=0",  # before "mov bx, [128]"
+            "BX=7",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -913,12 +796,9 @@ class TestCPU__UC:
         addresses = (128,)
         # expected messages
         messages = [
-            # before "mov ax, 5"
-            "[128]=0",
-            # before "mov [128], ax"
-            "[128]=0",
-            # before "halt"
-            "[128]=5",
+            "[128]=0",  # before "mov ax, 5"
+            "[128]=0",  # before "mov [128], ax"
+            "[128]=5",  # before "halt"
         ]
 
         assert_memory(assembly, addresses, messages)
@@ -940,30 +820,18 @@ class TestCPU__UC:
         registers = ("PC",)
         # expected messages
         messages = [
-            # before "mov ax, 1"
-            "PC=0",
-            # before "dec ax"
-            "PC=2",
-            # before "jz detour"
-            "PC=3",
-            # before "dec ax"
-            "PC=2",
-            # before "jz detour"
-            "PC=3",
-            # before "cmp ax, 65535"
-            "PC=4",
-            # before "je detour"
-            "PC=6",
-            # before "dec ax"
-            "PC=2",
-            # before "jz detour"
-            "PC=3",
-            # before "cmp ax, 65535"
-            "PC=4",
-            # before "je detour"
-            "PC=6",
-            # before "halt"
-            "PC=7",
+            "PC=0",  # before "mov ax, 1"
+            "PC=2",  # before "dec ax"
+            "PC=3",  # before "jz detour"
+            "PC=2",  # before "dec ax"
+            "PC=3",  # before "jz detour"
+            "PC=4",  # before "cmp ax, 65535"
+            "PC=6",  # before "je detour"
+            "PC=2",  # before "dec ax"
+            "PC=3",  # before "jz detour"
+            "PC=4",  # before "cmp ax, 65535"
+            "PC=6",  # before "je detour"
+            "PC=7",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -985,12 +853,9 @@ class TestCPU__SHIFT:
         registers = ("AX",)
         # expected messages
         messages = [
-            # before "mov ax, 0b100"
-            "AX=0",
-            # before "shr ax, bx"
-            "AX=4",
-            # before "halt"
-            "AX=16",
+            "AX=0 ",  # before "mov ax, 0b100"
+            "AX=4 ",  # before "shr ax, bx"
+            "AX=16",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -1009,14 +874,10 @@ class TestCPU__SHIFT:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 0x4000"
-            "Z=0",
-            # before "shl ax, 1"
-            "Z=0",
-            # before "shl ax, 1"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 0x4000"
+            "Z=0",  # before "shl ax, 1"
+            "Z=0",  # before "shl ax, 1"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -1034,12 +895,9 @@ class TestCPU__SHIFT:
         registers = ("AX",)
         # expected messages
         messages = [
-            # before "mov ax, 0b100"
-            "AX=0",
-            # before "shr ax, bx"
-            "AX=8",
-            # before "halt"
-            "AX=2",
+            "AX=0",  # before "mov ax, 0b100"
+            "AX=8",  # before "shr ax, bx"
+            "AX=2",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -1057,12 +915,9 @@ class TestCPU__SHIFT:
         registers = "Z"
         # expected messages
         messages = [
-            # before "mov ax, 0x0001"
-            "Z=0",
-            # before "shr ax, 1"
-            "Z=0",
-            # before "halt"
-            "Z=1",
+            "Z=0",  # before "mov ax, 0x0001"
+            "Z=0",  # before "shr ax, 1"
+            "Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)

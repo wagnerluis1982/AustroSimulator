@@ -203,7 +203,7 @@ class CPU:
     #
 
     # Control Unit
-    def uc(self, operation: int, op1, op2) -> None:
+    def uc(self, operation: int, op1: None | int, op2: None | int) -> None:
         registers = self.registers
 
         # Special actions
