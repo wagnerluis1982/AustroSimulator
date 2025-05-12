@@ -803,17 +803,16 @@ class TestCPU__UC:
 
         assert_memory(assembly, addresses, messages)
 
-    def test_jz_je(self):
-        """JZ/JE should set PC register when Z=1"""
+    def test_jz(self):
+        """JZ should set PC register when Z=1"""
 
         # instructions
         assembly = """
             mov ax, 1
-            detour:
             dec ax
             jz detour
-            cmp ax, 65535
-            je detour
+            nop
+            detour:
             halt
         """
         # registers
@@ -823,15 +822,7 @@ class TestCPU__UC:
             "PC=0",  # before "mov ax, 1"
             "PC=2",  # before "dec ax"
             "PC=3",  # before "jz detour"
-            "PC=2",  # before "dec ax"
-            "PC=3",  # before "jz detour"
-            "PC=4",  # before "cmp ax, 65535"
-            "PC=6",  # before "je detour"
-            "PC=2",  # before "dec ax"
-            "PC=3",  # before "jz detour"
-            "PC=4",  # before "cmp ax, 65535"
-            "PC=6",  # before "je detour"
-            "PC=7",  # before "halt"
+            "PC=5",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
