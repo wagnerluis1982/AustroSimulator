@@ -23,12 +23,16 @@ from abc import ABCMeta, abstractmethod
 from ctypes import c_int8, c_int16
 from dataclasses import dataclass
 from enum import Enum
-from typing import Iterator, Sequence, cast
+from typing import TYPE_CHECKING, Iterator, Sequence, cast
 
 from austro.asm.assembler import OPCODES, REGISTERS
 from austro.asm.memword import DWord, Word
 from austro.shared import AustroException
-from austro.simulator.register import BaseReg, Reg16, RegH, RegL, RegX
+from austro.simulator.register import Reg16, RegH, RegL, RegX
+
+
+if TYPE_CHECKING:
+    from austro.simulator.register import BaseReg
 
 
 class StepListener(metaclass=ABCMeta):
@@ -358,7 +362,7 @@ class CPU:
     ## Decoder
     #
 
-    def decode(self, instr_word: Word):
+    def decode(self, instr_word: Word) -> Decode:
         dcd = Decode()
         instr_word.is_instruction = True
 
@@ -593,16 +597,7 @@ class Registers:
 
         self._words.clear()
 
-    def set_reg(self, key: int | str, reg: BaseReg):
-        assert isinstance(key, (int, str))
-        assert isinstance(reg, BaseReg)
-
-        if isinstance(key, str):
-            key = Registers.INDEX[key]
-
-        self._regs[key].value = reg.value
-
-    def get_reg(self, key):
+    def get_reg(self, key: int | str) -> BaseReg:
         assert isinstance(key, (int, str))
 
         if isinstance(key, str):
@@ -610,7 +605,7 @@ class Registers:
 
         return self._regs[key]
 
-    def set_word(self, key: int | str, word: Word):
+    def set_word(self, key: int | str, word: Word) -> None:
         """Convenient way to store a word in a register
 
         WARNING: although this method set the current register value, if a
