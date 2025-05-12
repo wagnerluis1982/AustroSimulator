@@ -209,6 +209,8 @@ class CPU:
         # Special actions
         if operation >= 128:
             if operation == CPU.UC_LOAD:
+                assert isinstance(op1, int)
+                assert isinstance(op2, int)
                 registers[op1] = op2
             return
 
@@ -218,33 +220,44 @@ class CPU:
         if opcode in _("HALT"):
             self.stage = Stage.HALTED
         elif opcode in _("MOV"):
+            assert isinstance(op1, int)
+            assert isinstance(op2, int)
             registers[op1] = registers[op2]
         # Jump instructions
         elif opcode in _("JZ", "JE"):
+            assert isinstance(op1, int)
             if registers["Z"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JNZ", "JNE"):
+            assert isinstance(op1, int)
             if registers["Z"] == 0:
                 self._jump_to(registers[op1])
         elif opcode in _("JN", "JLT"):
+            assert isinstance(op1, int)
             if registers["N"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JP", "JGT"):
+            assert isinstance(op1, int)
             if registers["Z"] == 0 and registers["N"] == 0:
                 self._jump_to(registers[op1])
         elif opcode in _("JGE"):
+            assert isinstance(op1, int)
             if registers["N"] == 0:
                 self._jump_to(registers[op1])
         elif opcode in _("JLE"):
+            assert isinstance(op1, int)
             if registers["Z"] == 1 or registers["N"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JV"):
+            assert isinstance(op1, int)
             if registers["V"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JT"):
+            assert isinstance(op1, int)
             if registers["T"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JMP"):
+            assert isinstance(op1, int)
             self._jump_to(registers[op1])
         # opcode == 'NOP' or invalid
         else:
@@ -486,7 +499,7 @@ class CPU:
         else:
             dcd.unit = CPU.UC
             dcd.operation = instr_word.opcode
-            # Only memory words is passed to store on UC instructions
+            # Only memory words are passed to store on UC instructions
             if dcd.store is True:
                 dcd.store = None
 
