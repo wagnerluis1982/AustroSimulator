@@ -828,13 +828,13 @@ class TestCPU__UC:
             halt
         """
         # registers
-        registers = ("PC",)
+        registers = ("PC", "Z")
         # expected messages
         messages = [
-            "PC=0",  # before "mov ax, 1"
-            "PC=2",  # before "dec ax"
-            "PC=3",  # before "jz detour"
-            "PC=5",  # before "halt"
+            "PC=0, Z=0",  # before "mov ax, 1"
+            "PC=2, Z=0",  # before "dec ax"
+            "PC=3, Z=1",  # before "jz detour"
+            "PC=5, Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -851,12 +851,12 @@ class TestCPU__UC:
             halt
         """
         # registers
-        registers = ("PC",)
+        registers = ("PC", "Z")
         # expected messages
         messages = [
-            "PC=0",  # before "mov ax, 1"
-            "PC=2",  # before "jnz detour"
-            "PC=4",  # before "halt"
+            "PC=0, Z=0",  # before "mov ax, 1"
+            "PC=2, Z=0",  # before "jnz detour"
+            "PC=4, Z=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -874,13 +874,13 @@ class TestCPU__UC:
             halt
         """
         # registers
-        registers = ("PC",)
+        registers = ("PC", "Z")
         # expected messages
         messages = [
-            "PC=0",  # before "mov ax, 1"
-            "PC=2",  # before "cmp ax, 1"
-            "PC=4",  # before "je detour"
-            "PC=6",  # before "halt"
+            "PC=0, Z=0",  # before "mov ax, 1"
+            "PC=2, Z=0",  # before "cmp ax, 1"
+            "PC=4, Z=1",  # before "je detour"
+            "PC=6, Z=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -898,13 +898,13 @@ class TestCPU__UC:
             halt
         """
         # registers
-        registers = ("PC",)
+        registers = ("PC", "Z")
         # expected messages
         messages = [
-            "PC=0",  # before "mov ax, 1"
-            "PC=2",  # before "cmp ax, 0"
-            "PC=4",  # before "jne detour"
-            "PC=6",  # before "halt"
+            "PC=0, Z=0",  # before "mov ax, 1"
+            "PC=2, Z=0",  # before "cmp ax, 0"
+            "PC=4, Z=0",  # before "jne detour"
+            "PC=6, Z=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -922,13 +922,13 @@ class TestCPU__UC:
             halt
         """
         # registers
-        registers = ("PC",)
+        registers = ("PC", "N")
         # expected messages
         messages = [
-            "PC=0",  # before "mov ax, 1"
-            "PC=2",  # before "cmp ax, 2"
-            "PC=4",  # before "jn detour"
-            "PC=6",  # before "halt"
+            "PC=0, N=0",  # before "mov ax, 1"
+            "PC=2, N=0",  # before "cmp ax, 2"
+            "PC=4, N=1",  # before "jn detour"
+            "PC=6, N=1",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
@@ -939,20 +939,20 @@ class TestCPU__UC:
         # instructions
         assembly = """
             mov ax, 1
-            cmp ax, 2
-            jn detour
+            cmp ax, 0
+            jp detour
             nop
             detour:
             halt
         """
         # registers
-        registers = ("PC",)
+        registers = ("PC", "Z", "N")
         # expected messages
         messages = [
-            "PC=0",  # before "mov ax, 1"
-            "PC=2",  # before "cmp ax, 2"
-            "PC=4",  # before "jn detour"
-            "PC=6",  # before "halt"
+            "PC=0, Z=0, N=0",  # before "mov ax, 1"
+            "PC=2, Z=0, N=0",  # before "cmp ax, 0"
+            "PC=4, Z=0, N=0",  # before "jp detour"
+            "PC=6, Z=0, N=0",  # before "halt"
         ]
 
         assert_registers(assembly, registers, messages)
