@@ -804,7 +804,7 @@ class TestCPU__UC:
         assert_memory(assembly, addresses, messages)
 
     def test_jz(self):
-        """JZ should set PC register when Z=1"""
+        """JZ should set PC register when Z=1 (jump if operation resulted in zero)"""
 
         # instructions
         assembly = """
@@ -828,7 +828,7 @@ class TestCPU__UC:
         assert_registers(assembly, registers, messages)
 
     def test_jnz(self):
-        """JNZ should set PC register when Z=0"""
+        """JNZ should set PC register when Z=0 (jump if operation resulted in non zero)"""
 
         # instructions
         assembly = """
@@ -850,7 +850,7 @@ class TestCPU__UC:
         assert_registers(assembly, registers, messages)
 
     def test_je(self):
-        """JE should set PC register when Z=1"""
+        """JE should set PC register when Z=1 (jump if Op1 == Op2 after CMP)"""
 
         # instructions
         assembly = """
@@ -874,7 +874,7 @@ class TestCPU__UC:
         assert_registers(assembly, registers, messages)
 
     def test_jne(self):
-        """JNE should set PC register when Z=0"""
+        """JNE should set PC register when Z=0 (jump if Op1 != Op2 after CMP)"""
 
         # instructions
         assembly = """
@@ -892,6 +892,54 @@ class TestCPU__UC:
             "PC=0",  # before "mov ax, 1"
             "PC=2",  # before "cmp ax, 0"
             "PC=4",  # before "jne detour"
+            "PC=6",  # before "halt"
+        ]
+
+        assert_registers(assembly, registers, messages)
+
+    def test_jn(self):
+        """JN should set PC register when N=1 (jump if operation resulted in negative)"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            cmp ax, 2
+            jn detour
+            nop
+            detour:
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected messages
+        messages = [
+            "PC=0",  # before "mov ax, 1"
+            "PC=2",  # before "cmp ax, 2"
+            "PC=4",  # before "jn detour"
+            "PC=6",  # before "halt"
+        ]
+
+        assert_registers(assembly, registers, messages)
+
+    def test_jp(self):
+        """JP should set PC register when Z=0 and N=0 (jump if operation resulted in positive)"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            cmp ax, 2
+            jn detour
+            nop
+            detour:
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected messages
+        messages = [
+            "PC=0",  # before "mov ax, 1"
+            "PC=2",  # before "cmp ax, 2"
+            "PC=4",  # before "jn detour"
             "PC=6",  # before "halt"
         ]
 
