@@ -575,6 +575,28 @@ class TestCPU__ALU:
 
         assert_registers(assembly, registers, messages)
 
+    def test_imul_8bits(self):
+        """IMUL should set flags N, Z and V (8 bits registers)"""
+
+        # instructions
+        assembly = """
+            mov ah, 80
+            imul ah, -90
+            imul ah, 0
+            halt
+        """
+        # registers
+        registers = ("N", "Z", "V")
+        # expected messages
+        messages = [
+            "N=0,Z=0,V=0",  # mov ah, 80
+            "N=0,Z=0,V=0",  # imul ah, -90
+            "N=1,Z=0,V=1",  # imul ah, 0
+            "N=0,Z=1,V=0",  # halt
+        ]
+
+        assert_registers(assembly, registers, messages)
+
     def test_div__reg_reg(self):
         """DIV should calculate quotient of two registers"""
 
@@ -619,6 +641,30 @@ class TestCPU__ALU:
 
         assert_registers(assembly, registers, messages)
 
+    def test_idiv__flags(self):
+        """IDIV should set flags N and Z"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            idiv ax, -25
+            mov bx, 0
+            idiv bx, ax
+            halt
+        """
+        # registers
+        registers = ("N", "Z")
+        # expected messages
+        messages = [
+            "N=0,Z=0",  # mov ax, 25
+            "N=0,Z=0",  # idiv ax, -25
+            "N=1,Z=0",  # mov bx, 0
+            "N=1,Z=0",  # idiv bx, ax
+            "N=0,Z=1",  # halt
+        ]
+
+        assert_registers(assembly, registers, messages)
+
     def test_mod__reg_reg(self):
         """MOD should calculate remainder of two registers"""
 
@@ -657,6 +703,30 @@ class TestCPU__ALU:
             "Z=0",  # before "mov ax, 9"
             "Z=0",  # before "mod ax, 3"
             "Z=1",  # before "halt"
+        ]
+
+        assert_registers(assembly, registers, messages)
+
+    def test_imod__flags(self):
+        """IMOD should set flags N and Z"""
+
+        # instructions
+        assembly = """
+            mov ax, 1
+            imod ax, -25
+            mov bx, 0
+            imod bx, ax
+            halt
+        """
+        # registers
+        registers = ("N", "Z")
+        # expected messages
+        messages = [
+            "N=0,Z=0",  # mov ax, 25
+            "N=0,Z=0",  # imod ax, -25
+            "N=1,Z=0",  # mov bx, 0
+            "N=1,Z=0",  # imod bx, ax
+            "N=0,Z=1",  # halt
         ]
 
         assert_registers(assembly, registers, messages)
