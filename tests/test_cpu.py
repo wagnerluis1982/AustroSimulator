@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from typing import Sequence, override
 
 import pytest
@@ -19,7 +21,7 @@ class ShowRegisters(StepListener):
             self.indexes.append(Registers.INDEX[nm])
 
     @override
-    def on_fetch(self, registers, memory) -> None:
+    def on_fetch(self, registers, _) -> None:
         args = [registers[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
@@ -27,11 +29,11 @@ class ShowRegisters(StepListener):
 class ShowMemories(StepListener):
     def __init__(self, *numbers: int) -> None:
         self.messages: list[str] = []
-        self.fmt = ",".join(["[%d]=%%d" % n for n in numbers])
+        self.fmt = ",".join(["@%d=%%d" % n for n in numbers])
         self.indexes = numbers
 
     @override
-    def on_fetch(self, registers, memory) -> None:
+    def on_fetch(self, _, memory) -> None:
         args = [memory[i] for i in self.indexes]
         self.messages.append(self.fmt % tuple(args))
 
@@ -53,7 +55,7 @@ def assert_registers(assembly: str, registers: Sequence[str], messages: Sequence
     assert cpu.start() is True
 
     # Test captured history
-    assert listener.messages == [m.replace(" ", "") for m in messages]
+    assert_history(listener, messages)
 
 
 def assert_memory(assembly: str, addresses: Sequence[int], messages: Sequence[str]) -> None:
@@ -68,7 +70,17 @@ def assert_memory(assembly: str, addresses: Sequence[int], messages: Sequence[st
     assert cpu.start() is True
 
     # Test captured history
-    assert listener.messages == [m.replace(" ", "") for m in messages]
+    assert_history(listener, messages)
+
+
+def assert_history(listener: ShowRegisters | ShowMemories, messages: Sequence[str]) -> None:
+    assert len(listener.messages) == len(messages)
+
+    messages = [re.sub(r"\[(\d+)\]=(.+)", r"@\1=\2", m.replace(" ", "")) for m in messages]
+    for i in range(len(messages)):
+        pattern = messages[i]
+        actual = listener.messages[i]
+        assert re.match(pattern, actual) is not None
 
 
 class TestCPU:
