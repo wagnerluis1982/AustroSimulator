@@ -945,13 +945,12 @@ class TestCPU__UC:
 
         assert_cpu_history(assembly, registers, history)
 
-    @pytest.mark.skip(reason="Bug: PC is not moving on `jmp [128]`")
     def test_jmp__memory(self):
         """JMP should jump using the address from a memory value"""
 
         # instructions
         assembly = """
-            mov ax, 4
+            mov ax, 6
             mov [128], ax
             jmp [128]
             nop
