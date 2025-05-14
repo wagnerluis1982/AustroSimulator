@@ -23,12 +23,16 @@ from abc import ABCMeta, abstractmethod
 from ctypes import c_int8, c_int16
 from dataclasses import dataclass
 from enum import Enum
-from typing import cast
+from typing import TYPE_CHECKING, Iterator, Sequence, cast, override
 
 from austro.asm.assembler import OPCODES, REGISTERS
 from austro.asm.memword import DWord, Word
 from austro.shared import AustroException
-from austro.simulator.register import BaseReg, Reg16, RegH, RegL, RegX
+from austro.simulator.register import Reg16, RegH, RegL, RegX
+
+
+if TYPE_CHECKING:
+    from austro.simulator.register import BaseReg
 
 
 class StepListener(metaclass=ABCMeta):
@@ -75,7 +79,7 @@ class CPU:
         self.registers = Registers()
         self.stage = Stage.INITIAL
 
-    def set_memory_block(self, words: list | tuple, start=0) -> bool:
+    def set_memory_block(self, words: Sequence[Word], start=0) -> bool:
         assert isinstance(words, (list, tuple))
         if start + len(words) > self.memory.size:
             raise CPUException(
@@ -199,12 +203,14 @@ class CPU:
     #
 
     # Control Unit
-    def uc(self, operation: int, op1, op2) -> None:
+    def uc(self, operation: int, op1: None | int, op2: None | int) -> None:
         registers = self.registers
 
         # Special actions
         if operation >= 128:
             if operation == CPU.UC_LOAD:
+                assert isinstance(op1, int)
+                assert isinstance(op2, int)
                 registers[op1] = op2
             return
 
@@ -214,33 +220,44 @@ class CPU:
         if opcode in _("HALT"):
             self.stage = Stage.HALTED
         elif opcode in _("MOV"):
+            assert isinstance(op1, int)
+            assert isinstance(op2, int)
             registers[op1] = registers[op2]
         # Jump instructions
         elif opcode in _("JZ", "JE"):
+            assert isinstance(op1, int)
             if registers["Z"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JNZ", "JNE"):
+            assert isinstance(op1, int)
             if registers["Z"] == 0:
                 self._jump_to(registers[op1])
         elif opcode in _("JN", "JLT"):
+            assert isinstance(op1, int)
             if registers["N"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JP", "JGT"):
+            assert isinstance(op1, int)
             if registers["Z"] == 0 and registers["N"] == 0:
                 self._jump_to(registers[op1])
         elif opcode in _("JGE"):
+            assert isinstance(op1, int)
             if registers["N"] == 0:
                 self._jump_to(registers[op1])
         elif opcode in _("JLE"):
+            assert isinstance(op1, int)
             if registers["Z"] == 1 or registers["N"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JV"):
+            assert isinstance(op1, int)
             if registers["V"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JT"):
+            assert isinstance(op1, int)
             if registers["T"] == 1:
                 self._jump_to(registers[op1])
         elif opcode in _("JMP"):
+            assert isinstance(op1, int)
             self._jump_to(registers[op1])
         # opcode == 'NOP' or invalid
         else:
@@ -358,7 +375,7 @@ class CPU:
     ## Decoder
     #
 
-    def decode(self, instr_word: Word):
+    def decode(self, instr_word: Word) -> Decode:
         dcd = Decode()
         instr_word.is_instruction = True
 
@@ -482,7 +499,7 @@ class CPU:
         else:
             dcd.unit = CPU.UC
             dcd.operation = instr_word.opcode
-            # Only memory words is passed to store on UC instructions
+            # Only memory words are passed to store on UC instructions
             if dcd.store is True:
                 dcd.store = None
 
@@ -543,12 +560,11 @@ class Registers:
     }
 
     def __init__(self) -> None:
-        self._regs: dict[int, BaseReg] = {}
-        self._words: dict[int, Word] = {}
+        self._regwords: dict[int, RegisterWord] = {}
 
         # Internal function to set register objects
-        def init_register(name: str, value: BaseReg):
-            self._regs[Registers.INDEX[name]] = value
+        def init_register(name: str, register: BaseReg):
+            self._regwords[Registers.INDEX[name]] = RegisterWord(register)
 
         #
         ## Generic registers
@@ -556,7 +572,7 @@ class Registers:
         for name in "AX", "BX", "CX", "DX":
             init_register(name, RegX())
         # Index for generic registers
-        index_regx = {k: self._regs[Registers.INDEX[f"{k}X"]] for k in "ABCD"}
+        index_regx = {k: self._regwords[Registers.INDEX[f"{k}X"]]._reg for k in "ABCD"}
         for k, regx in index_regx.items():
             assert isinstance(regx, RegX)
             # 8-bit most significant registers: AH, BH, CH, DH
@@ -588,45 +604,34 @@ class Registers:
         init_register("TMP", Reg16())
 
     def clear(self):
-        for reg in self._regs.values():
-            reg.value = 0
+        for w in self._regwords.values():
+            w._reg.value = 0
 
-        self._words.clear()
-
-    def set_reg(self, key: int | str, reg: BaseReg):
-        assert isinstance(key, (int, str))
-        assert isinstance(reg, BaseReg)
-
-        if isinstance(key, str):
-            key = Registers.INDEX[key]
-
-        self._regs[key].value = reg.value
-
-    def get_reg(self, key):
+    def get_reg(self, key: int | str) -> BaseReg:
         assert isinstance(key, (int, str))
 
         if isinstance(key, str):
             key = Registers.INDEX[key]
 
-        return self._regs[key]
+        return self._regwords[key]._reg
 
-    def set_word(self, key: int | str, word: Word):
-        """Convenient way to store a word in a register
-
-        WARNING: although this method set the current register value, if a
-        register value is changed, the changes will not back to the original
-        word.
-        """
+    def set_word(self, key: int | str, word: Word) -> None:
+        """Convenient way to store a word value in a register."""
         assert isinstance(key, (int, str))
         assert isinstance(word, Word)
 
         if isinstance(key, str):
             key = Registers.INDEX[key]
 
-        self._words[key] = word
-        self[key] = word.value
-        if self[key] != word.value:
-            raise CPUException("Word data too large for the register")
+        regword = self._regwords[key]
+        assert regword.bits >= word.bits, (
+            f"Cannot store a {word.bits}-bit word into a {regword.bits}"
+        )
+
+        # copy value and metadata
+        regword._reg.value = word.value
+        regword.is_instruction = word.is_instruction
+        regword.lineno = word.lineno
 
     def get_word(self, key: int | str) -> Word:
         assert isinstance(key, (int, str))
@@ -634,7 +639,7 @@ class Registers:
         if isinstance(key, str):
             key = Registers.INDEX[key]
 
-        return self._words[key]
+        return self._regwords[key]
 
     def __setitem__(self, key: int | str, value: int):
         assert isinstance(key, (int, str))
@@ -643,7 +648,7 @@ class Registers:
         if isinstance(key, str):
             key = Registers.INDEX[key]
 
-        self._regs[key].value = value
+        self._regwords[key]._reg.value = value
 
     def __getitem__(self, key: int | str) -> int:
         assert isinstance(key, (int, str))
@@ -651,17 +656,21 @@ class Registers:
         if isinstance(key, str):
             key = Registers.INDEX[key]
 
-        return self._regs[key].value
+        return self._regwords[key]._reg.value
+
+    def __iter__(self) -> Iterator[tuple[int, BaseReg]]:
+        for id, word in self._regwords.items():
+            yield id, word._reg
 
 
 class Memory:
-    def __init__(self, size):
+    def __init__(self, size: int) -> None:
         self._size = size
-        self._space = []
+        self._space: list[Word] = []
         for i in range(size):
             self._space.append(DWord())
 
-    def set_word(self, address, word):
+    def set_word(self, address: int, word: Word) -> None:
         assert isinstance(address, int)
         assert isinstance(word, Word)
 
@@ -674,7 +683,7 @@ class Memory:
         if word.is_instruction:
             space_word.lineno = word.lineno
 
-    def get_word(self, address):
+    def get_word(self, address: int) -> Word:
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
@@ -682,7 +691,7 @@ class Memory:
 
         return self._space[address]
 
-    def __setitem__(self, address, data):
+    def __setitem__(self, address: int, data: int) -> None:
         assert isinstance(address, int)
         assert isinstance(data, int)
 
@@ -691,7 +700,7 @@ class Memory:
 
         self._space[address].value = data
 
-    def __getitem__(self, address):
+    def __getitem__(self, address: int) -> int:
         assert isinstance(address, int)
 
         if not (0 <= address < self._size):
@@ -699,13 +708,34 @@ class Memory:
 
         return self._space[address].value
 
+    def __iter__(self) -> Iterator[tuple[int, Word]]:
+        for w in enumerate(self._space):
+            yield w
+
     def clear(self):
         for word in self._space:
             word.value = 0
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
+
+
+class RegisterWord(Word):
+    bits = 16
+
+    def __init__(self, register: BaseReg):
+        self._reg = register
+
+    @Word.value.getter
+    @override
+    def value(self) -> int:
+        return self._reg.value
+
+    @value.setter  # type: ignore[no-redef]
+    @override
+    def value(self, val: int) -> None:
+        raise CPUException("RegisterWord is read-only view of the register value")
 
 
 class CPUException(AustroException):
