@@ -925,6 +925,27 @@ class TestCPU__UC:
 
         assert_registers(assembly, registers, messages)
 
+    def test_jmp__register(self):
+        """JMP should jump using the address from a register value"""
+
+        # instructions
+        assembly = """
+            mov ax, 4
+            jmp ax
+            nop
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected messages
+        messages = [
+            "PC=0",  # mov ax, 4
+            "PC=2",  # jmp ax
+            "PC=4",  # halt      | skip nop
+        ]
+
+        assert_registers(assembly, registers, messages)
+
     def test_jz(self):
         """JZ should set PC register when Z=1 (jump if operation resulted in zero)"""
 
@@ -1246,12 +1267,34 @@ class TestCPU__SHIFT:
         registers = ("AX",)
         # expected messages
         messages = [
-            "AX=0 ",  # before "mov ax, 0b100"
-            "AX=4 ",  # before "shr ax, bx"
-            "AX=16",  # before "halt"
+            "AX=0 ",  # mov ax, 0b100
+            "AX=4 ",  # shl ax, 2
+            "AX=16",  # halt
         ]
 
         assert_registers(assembly, registers, messages)
+
+    def test_shl__memory(self):
+        """SHL should shift left a memory value"""
+
+        # instructions
+        assembly = """
+            mov ax, 0b100
+            mov [128], ax
+            shl [128], 2
+            halt
+        """
+        # memory addresses
+        addresses = (128,)
+        # expected messages
+        messages = [
+            "[128]=0 ",  # mov ax, 0b100
+            "[128]=0 ",  # mov [128], ax
+            "[128]=4 ",  # shr [128], 2
+            "[128]=16",  # halt
+        ]
+
+        assert_memory(assembly, addresses, messages)
 
     def test_shl__flags(self):
         """SHL should set flag Z"""
@@ -1289,7 +1332,7 @@ class TestCPU__SHIFT:
         # expected messages
         messages = [
             "AX=0",  # before "mov ax, 0b100"
-            "AX=8",  # before "shr ax, bx"
+            "AX=8",  # before "shr ax, 2"
             "AX=2",  # before "halt"
         ]
 
