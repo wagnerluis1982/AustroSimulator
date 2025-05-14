@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING, Sequence, override
 
 import pytest
 
-from austro.asm.assembler import assemble
+from austro.asm.assembler import REGISTERS, assemble
 from austro.asm.memword import DWord
-from austro.simulator.cpu import CPU, CPUException, Stage, StepListener
+from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepListener
 
 
 if TYPE_CHECKING:
-    from austro.simulator.cpu import Memory, Registers
+    from austro.simulator.cpu import Memory
 
 
 class ShowCpuState(StepListener):
@@ -1379,3 +1379,18 @@ class TestCPU__SHIFT:
         ]
 
         assert_cpu_history(assembly, registers, history)
+
+
+class TestRegisters:
+    @pytest.fixture
+    def registers(self):
+        return Registers()
+
+    def test_get_reg(self, registers: Registers):
+        """Register can be retrieved by name or number"""
+        reg_by_name = registers.get_reg("AX")
+        reg_by_number = registers.get_reg(REGISTERS["AX"])
+        assert reg_by_name is reg_by_number
+
+        reg_by_name.value = 42
+        assert reg_by_number.value == 42
