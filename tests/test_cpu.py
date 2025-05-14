@@ -2,18 +2,22 @@ from __future__ import annotations
 
 import re
 
-from typing import TYPE_CHECKING, Sequence, override
+from typing import Sequence, override
 
 import pytest
 
 from austro.asm.assembler import REGISTERS, assemble
 from austro.asm.memword import DWord
-from austro.simulator.cpu import CPU, CPUException, Registers, RegisterWord, Stage, StepListener
+from austro.simulator.cpu import (
+    CPU,
+    CPUException,
+    Memory,
+    Registers,
+    RegisterWord,
+    Stage,
+    StepListener,
+)
 from austro.simulator.register import Reg16
-
-
-if TYPE_CHECKING:
-    from austro.simulator.cpu import Memory
 
 
 class ShowCpuState(StepListener):
@@ -1388,13 +1392,43 @@ class TestRegisters:
         return Registers()
 
     def test_get_reg(self, registers: Registers):
-        """Register can be retrieved by name or number"""
+        """Register object can be retrieved by name or number"""
         reg_by_name = registers.get_reg("AX")
         reg_by_number = registers.get_reg(REGISTERS["AX"])
         assert reg_by_name is reg_by_number
 
         reg_by_name.value = 42
         assert reg_by_number.value == 42
+
+
+class TestMemory:
+    def test_error_get_word_out_of_memory_range(self):
+        """Cannot get word out of memory range"""
+        memory = Memory(size=8)
+
+        with pytest.raises(CPUException, match="Address out of memory range"):
+            memory.get_word(9)
+
+    def test_error_set_word_out_of_memory_range(self):
+        """Cannot set word out of memory range"""
+        memory = Memory(size=8)
+
+        with pytest.raises(CPUException, match="Address out of memory range"):
+            memory.set_word(9, DWord())
+
+    def test_error_get_item_out_of_memory_range(self):
+        """Cannot __get_item__ out of memory range"""
+        memory = Memory(size=8)
+
+        with pytest.raises(CPUException, match="Address out of memory range"):
+            memory[9]
+
+    def test_error_set_item_out_of_memory_range(self):
+        """Cannot __set_item__ out of memory range"""
+        memory = Memory(size=8)
+
+        with pytest.raises(CPUException, match="Address out of memory range"):
+            memory[9] = 42
 
 
 class TestRegisterWord:
