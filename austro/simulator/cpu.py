@@ -623,14 +623,15 @@ class Registers:
         if isinstance(key, str):
             key = Registers.INDEX[key]
 
-        self[key] = word.value
-        if self[key] != word.value:
-            raise CPUException("Word data too large for the register")
+        regword = self._regwords[key]
+        assert regword.bits >= word.bits, (
+            f"Cannot store a {word.bits}-bit word into a {regword.bits}"
+        )
 
-        # also copy metadata
-        w = self.get_word(key)
-        w.is_instruction = word.is_instruction
-        w.lineno = word.lineno
+        # copy value and metadata
+        regword._reg.value = word.value
+        regword.is_instruction = word.is_instruction
+        regword.lineno = word.lineno
 
     def get_word(self, key: int | str) -> Word:
         assert isinstance(key, (int, str))
