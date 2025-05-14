@@ -83,7 +83,7 @@ disable_error_code = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--sw --cov-report=term --cov-report html --no-cov-on-fail"
+addopts = "--cov-report=term --cov-report html --no-cov-on-fail"
 testpaths = ["tests"]
 
 [tool.coverage.run]

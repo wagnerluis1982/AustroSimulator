@@ -216,6 +216,28 @@ class TestCPU__ALU:
 
         assert_cpu_history(assembly, registers, history)
 
+    def test_not__memory(self):
+        """NOT should invert all bits of a value"""
+
+        # instructions
+        assembly = """
+            mov ax, 0xabcd
+            mov [128], ax
+            not [128]
+            halt
+        """
+        # memory addresses
+        addresses = (128,)
+        # expected history
+        history = [
+            "[128]=%d" % 0x0000,  # mov ax, 0xabcd
+            "[128]=%d" % 0x0000,  # mov [128], ax
+            "[128]=%d" % 0xABCD,  # not [128]
+            "[128]=%d" % 0x5432,  # halt
+        ]
+
+        assert_cpu_history(assembly, addresses, history)
+
     def test_not__flags(self):
         """NOT should set flag Z"""
 
@@ -882,7 +904,7 @@ class TestCPU__UC:
 
         assert_cpu_history(assembly, addresses, history)
 
-    def test_jmp(self):
+    def test_jmp__label(self):
         """JMP should jump unconditionally"""
 
         # instructions
@@ -919,6 +941,30 @@ class TestCPU__UC:
             "PC=0",  # mov ax, 4
             "PC=2",  # jmp ax
             "PC=4",  # halt      | skip nop
+        ]
+
+        assert_cpu_history(assembly, registers, history)
+
+    @pytest.mark.skip(reason="Bug: PC is not moving on `jmp [128]`")
+    def test_jmp__memory(self):
+        """JMP should jump using the address from a memory value"""
+
+        # instructions
+        assembly = """
+            mov ax, 4
+            mov [128], ax
+            jmp [128]
+            nop
+            halt
+        """
+        # registers
+        registers = ("PC",)
+        # expected history
+        history = [
+            "PC=0",  # mov ax, 4
+            "PC=2",  # mov [128], ax
+            "PC=4",  # jmp [128]
+            "PC=6",  # halt         | skip nop
         ]
 
         assert_cpu_history(assembly, registers, history)
