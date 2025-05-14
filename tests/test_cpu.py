@@ -8,7 +8,8 @@ import pytest
 
 from austro.asm.assembler import REGISTERS, assemble
 from austro.asm.memword import DWord
-from austro.simulator.cpu import CPU, CPUException, Registers, Stage, StepListener
+from austro.simulator.cpu import CPU, CPUException, Registers, RegisterWord, Stage, StepListener
+from austro.simulator.register import Reg16
 
 
 if TYPE_CHECKING:
@@ -1394,3 +1395,38 @@ class TestRegisters:
 
         reg_by_name.value = 42
         assert reg_by_number.value == 42
+
+
+class TestRegisterWord:
+    def test_reg_word_wraps_register(self):
+        reg = Reg16()
+        reg.value = 7
+
+        reg_word = RegisterWord(reg)
+        assert reg_word.value == 7
+
+        reg.value = 42
+        assert reg_word.value == 42
+
+    def test_reg_word_is_read_only(self):
+        reg = Reg16()
+        reg.value = 7
+
+        reg_word = RegisterWord(reg)
+        with pytest.raises(CPUException, match="RegisterWord is read-only"):
+            reg_word.value = 42
+
+        # value was not changed
+        assert reg.value == 7
+        assert reg_word.value == 7
+
+    def test_reg_word_instruction_properties_can_be_read_normally(self):
+        reg = Reg16()
+        reg_word = RegisterWord(reg)
+        reg_word.is_instruction = True
+
+        # set to the maximum value
+        reg.value = 0xFFFF
+        assert reg_word.opcode == 31
+        assert reg_word.flags == 7
+        assert reg_word.operand == 0xFF
