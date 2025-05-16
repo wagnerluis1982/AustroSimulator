@@ -1,29 +1,26 @@
 Austro Simulator
 ================
 
-Warning
--------
+Austro Simulator is a CPU simulator with some similarities to Intel 8086.
 
-This software version currently *alpha*. Expect occuring some issues, crashes,
-etc.
+Originally it was created for a course assignment back in 2013, but since then, I believed it
+can be used as a educational tool for Computer Architecture students. So this software is fully
+open source under GPL v3 license.
 
-What is?
---------
+This software is developed with Python 3 and Qt UI toolkit.
 
-Austro Simulator is a CPU simulator resembling Intel 8086, except for some
-differences.
+## How to install
 
-The software is developed with the Python programmming language and Qt UI
-toolkit.
+Preferentially use `pipx`.
 
-TODO
+```console
+$ pipx install austrosim
+```
 
-How to install
---------------
+## How to start
 
-TODO
+Simply call the command below.
 
-How to use
-----------
-
-TODO
+```console
+$ austrosim
+```
