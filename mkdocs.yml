@@ -1,0 +1,11 @@
+site_name: Austro Simulator
+
+theme:
+  name: mkdocs
+  highlightjs: true
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.snippets

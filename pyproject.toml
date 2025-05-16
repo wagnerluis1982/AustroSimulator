@@ -1,6 +1,6 @@
 [project]
 name = "austrosim"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 description = "A CPU simulator resembling Intel 8086."
 authors = [
     { name = "Wagner Macedo", email = "wagnerluis1982@gmail.com" },
@@ -30,6 +30,12 @@ pre-commit = "^4.2.0"
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
 mypy = "^1.15.0"
+
+[tool.poetry.group.docs]
+optional = true
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.1"
+pymdown-extensions = "^10.15"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

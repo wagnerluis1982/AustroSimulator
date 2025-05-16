@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from austro.simulator.cpu import Memory, Registers
 
 
-__version__ = "0.2.0-alpha1"
+__version__ = "0.2.0-alpha2"
 _about_ = (
     """
     <h3>Austro Simulator %s</h3>
