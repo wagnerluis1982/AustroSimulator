@@ -1,5 +1,4 @@
-Austro Simulator
-================
+# Austro Simulator
 
 Austro Simulator is a CPU simulator with some similarities to Intel 8086.
 

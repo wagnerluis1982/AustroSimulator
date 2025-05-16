@@ -1,1 +1,3 @@
---8<-- "README.md"
+# Introduction
+
+--8<-- "README.md:2"
