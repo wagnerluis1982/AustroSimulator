@@ -17,3 +17,6 @@ markdown_extensions:
   - pymdownx.snippets:
       base_path: [".", "docs"]
       check_paths: true
+  - pymdownx.caret
+  - pymdownx.extra
+  - pymdownx.blocks.admonition
