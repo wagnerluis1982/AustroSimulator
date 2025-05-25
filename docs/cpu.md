@@ -2,7 +2,7 @@
 
 ## Austro Architecture
 
-The simulated Austro CPU is on purpose, for educational reasons, based on Intel 8086.
+The simulated Austro CPU is, for educational reasons, based on Intel 8086.
 
 In the following you can see the CPU Block Diagram and a brief depiction of key points of the architecture.
 
@@ -10,7 +10,7 @@ In the following you can see the CPU Block Diagram and a brief depiction of key 
 
 ### 16 bits
 
-Austro CPU work with a [memory word]{target=_blank} of 16 bits (2 bytes). This means for the CPU some things:
+The Austro CPU works with a [memory word]{target=_blank} of 16 bits (2 bytes). This means for the CPU some things:
 
 - The registers, the internal memory of the CPU, must have (each) 16 bits as well.
 - The largest block that can be transferred to and from the memory is of 16 bits.
