@@ -21,7 +21,7 @@ theme:
         name: Switch to system preference
 
 extra_css:
-  - style/assembly-ref.css
+  - css/assembly-ref.css
 
 plugins:
   - search
