@@ -23,7 +23,7 @@ The Austro CPU works with a [memory word]{target=_blank} of 16 bits (2 bytes). T
 [memory word]: https://en.wikipedia.org/wiki/Word_(computer_architecture)
 
 /// note | You must be kidding!!!
-Nowadays when we can found 64-bit processors even on a cell phone, defining a 16-bit one sounds like a waste of time.
+You may scream that. Nowadays when we can found 64-bit processors even on a cell phone, defining a 16-bit one sounds like a waste of time.
 
 You would probably be right, if this was a real CPU 😏
 ///
