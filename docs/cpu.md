@@ -6,11 +6,7 @@ The simulated Austro CPU is, for educational reasons, based on Intel 8086.
 
 In the following you can see the CPU Block Diagram and a brief depiction of key points of the architecture.
 
-![](img/cpu-diagram.svg)
-
-/// caption
-Austro CPU Block Diagram
-///
+![Austro CPU Block Diagram](img/cpu-diagram.svg){ style="width:40em" }
 
 ### 16 bits
 

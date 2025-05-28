@@ -25,9 +25,11 @@ extra_css:
 
 plugins:
   - search
+  - glightbox
 
 markdown_extensions:
   - abbr
+  - attr_list
   - toc:
       permalink: true
   - pymdownx.blocks.admonition
