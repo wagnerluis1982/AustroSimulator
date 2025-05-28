@@ -36,7 +36,6 @@ optional = true
 mkdocs = "*"
 mkdocs-material = "*"
 pymdown-extensions = "*"
-mkdocs-glightbox = "^0.4.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
