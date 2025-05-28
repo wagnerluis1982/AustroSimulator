@@ -190,6 +190,9 @@ mergedeep==1.3.4 ; python_version >= "3.13" \
 mkdocs-get-deps==0.2.0 ; python_version >= "3.13" \
     --hash=sha256:162b3d129c7fad9b19abfdcb9c1458a651628e4b1dea628ac68790fb3061c60c \
     --hash=sha256:2bf11d0b133e77a0dd036abeeb06dec8775e46efa526dc70667d8863eefc6134
+mkdocs-glightbox==0.4.0 ; python_version >= "3.13" \
+    --hash=sha256:392b34207bf95991071a16d5f8916d1d2f2cd5d5bb59ae2997485ccd778c70d9 \
+    --hash=sha256:e0107beee75d3eb7380ac06ea2d6eac94c999eaa49f8c3cbab0e7be2ac006ccf
 mkdocs-material-extensions==1.3.1 ; python_version >= "3.13" \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
