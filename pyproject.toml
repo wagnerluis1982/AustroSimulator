@@ -25,6 +25,8 @@ packages = [
     { include = "austro", from = "." },
 ]
 
+[tool.poetry.group.dev]
+optional = true
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.2.0"
 
