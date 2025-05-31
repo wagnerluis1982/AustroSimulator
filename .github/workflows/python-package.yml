@@ -26,7 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         pipx install poetry
-        poetry install
+        poetry install --no-plugins --only=root,test
     - name: Test with pytest
       run: |
         poetry run pytest -o addopts='--cov --no-cov-on-fail'
