@@ -1,9 +1,15 @@
 site_name: Austro Simulator
+site_url: https://austrosim.readthedocs.io/
+
+repo_url: https://github.com/wagnerluis1982/AustroSimulator
+edit_uri: edit/main/docs/
 
 theme:
   name: material
   features:
     - toc.integrate
+    - content.action.edit
+    - content.action.view
   palette:
     - media: "(prefers-color-scheme)"
       toggle:
@@ -25,6 +31,9 @@ extra_css:
 
 plugins:
   - search
+  - git-revision-date-localized:
+      type: timeago
+      enable_creation_date: true
 
 markdown_extensions:
   - abbr

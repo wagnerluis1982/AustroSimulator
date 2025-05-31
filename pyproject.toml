@@ -35,6 +35,7 @@ optional = true
 [tool.poetry.group.docs.dependencies]
 mkdocs = "*"
 mkdocs-material = "*"
+mkdocs-git-revision-date-localized-plugin = "*"
 pymdown-extensions = "*"
 
 [build-system]
