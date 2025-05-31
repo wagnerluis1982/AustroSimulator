@@ -1,0 +1,359 @@
+<table class="assembly-ref">
+  <thead>
+    <tr>
+      <th rowspan="2">Opcode</th>
+      <th rowspan="2">Instruction</th>
+      <th rowspan="2">Operation</th>
+      <th rowspan="2">Description</th>
+      <th colspan="4">State</th>
+    </tr>
+    <tr>
+      <th>N</th>
+      <th>Z</th>
+      <th>V</th>
+      <th>T</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="opcode">00000</td>
+      <td><code>NOP</code></td>
+      <td>No operation</td>
+      <td>Skip a CPU cycle (do nothing)</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00001</td>
+      <td><code>HALT</code></td>
+      <td>Exit</td>
+      <td>Stop definitely the CPU</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00010</td>
+      <td><code>MOV Dest, Src</code></td>
+      <td><code>Dest := Src</code></td>
+      <td>Assignment</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00011</td>
+      <td><code>JZ Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=1</code></td>
+      <td>Jump if last operation resulted in zero</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00011</td>
+      <td><code>JE Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=1</code></td>
+      <td>Jump if Op1 == Op2 after CMP</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00100</td>
+      <td><code>JNZ Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=0</code></td>
+      <td>Jump if last operation resulted in non zero</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00100</td>
+      <td><code>JNE Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=0</code></td>
+      <td>Jump if Op1 != Op2 after CMP</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00101</td>
+      <td><code>JN Addr</code></td>
+      <td><code>PC := Addr</code> when <code>N=1</code></td>
+      <td>Jump if last operation resulted in negative</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00101</td>
+      <td><code>JLT Addr</code></td>
+      <td><code>PC := Addr</code> when <code>N=1</code></td>
+      <td>Jump if Op1 < Op2 after CMP</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00110</td>
+      <td><code>JP Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=0</code> and <code>N=0</code></td>
+      <td>Jump if last operation resulted in positive</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00110</td>
+      <td><code>JGT Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=0</code> and <code>N=0</code></td>
+      <td>Jump if Op1 > Op2 after CMP</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">00111</td>
+      <td><code>JGE Addr</code></td>
+      <td><code>PC := Addr</code> when <code>N=0</code></td>
+      <td>Jump if Op1 >= Op2 after CMP</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">01000</td>
+      <td><code>JLE Addr</code></td>
+      <td><code>PC := Addr</code> when <code>Z=1</code> or <code>N=1</code></td>
+      <td>Jump if Op1 <= Op2 after CMP</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">01001</td>
+      <td><code>JV Addr</code></td>
+      <td><code>PC := Addr</code> when <code>V=1</code></td>
+      <td>Jump if last operation resulted in overflow</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">01010</td>
+      <td><code>JT Addr</code></td>
+      <td><code>PC := Addr</code> when <code>T=1</code></td>
+      <td>Jump if last operation resulted in transport</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">01011</td>
+      <td><code>JMP Addr</code></td>
+      <td><code>PC := Addr</code></td>
+      <td>Unconditional jump</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">01100</td>
+      <td><code>SHR Op, Quant</code></td>
+      <td><code>Op := Op >> Quant</code></td>
+      <td>Bitwise right shift</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">01101</td>
+      <td><code>SHL Op, Quant</code></td>
+      <td><code>Op := Op << Quant</code></td>
+      <td>Bitwise left shift</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10000</td>
+      <td><code>ADD Dest, Src</code></td>
+      <td><code>Dest := Dest + Src</code></td>
+      <td>Sum</td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10001</td>
+      <td><code>INC Op</code></td>
+      <td><code>Op := Op + 1</code></td>
+      <td>Increment</td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10010</td>
+      <td><code>DEC Op</code></td>
+      <td><code>Op := Op – 1</code></td>
+      <td>Decrement</td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10011</td>
+      <td><code>SUB Dest, Src</code></td>
+      <td><code>Dest := Dest – Src</code></td>
+      <td>Subtraction</td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10100</td>
+      <td><code>MUL Dest, Src</code></td>
+      <td><code>Dest := Dest * Src</code></td>
+      <td>Multiplication</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td class="opcode">10100</td>
+      <td><code>IMUL Dest, Src</code></td>
+      <td><code>Dest := Dest * Src</code></td>
+      <td>Signed multiplication</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10101</td>
+      <td><code>OR Dest, Src</code></td>
+      <td><code>Dest := Dest | Src</code></td>
+      <td>Bitwise OR</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10110</td>
+      <td><code>AND Dest, Src</code></td>
+      <td><code>Dest := Dest & Src</code></td>
+      <td>Bitwise AND</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">10111</td>
+      <td><code>NOT Op</code></td>
+      <td><code>Op := ~Op</code></td>
+      <td>One's complement - invert each bit</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11000</td>
+      <td><code>XOR Dest, Src</code></td>
+      <td><code>Dest := Dest ^ Src</code></td>
+      <td>Bitwise exclusive OR</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11001</td>
+      <td><code>DIV Dest, Src</code></td>
+      <td><code>Dest := Dest DIV Src</code></td>
+      <td>Quotient</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11001</td>
+      <td><code>IDIV Dest, Src</code></td>
+      <td><code>Dest := Dest DIV Src</code></td>
+      <td>Signed quotient</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11010</td>
+      <td><code>MOD Dest, Src</code></td>
+      <td><code>Dest := Dest MOD Src</code></td>
+      <td>Division remainder</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11010</td>
+      <td><code>IMOD Dest, Src</code></td>
+      <td><code>Dest := Dest MOD Src</code></td>
+      <td>Signed division remainder</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11011</td>
+      <td><code>CMP Op1, Op2</code></td>
+      <td>Comparison</td>
+      <td>Compare and set the flags N and Z</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="opcode">11011</td>
+      <td><code>ICMP Op1, Op2</code></td>
+      <td>Signed comparison</td>
+      <td>Compare considering the sign</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>

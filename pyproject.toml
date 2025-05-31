@@ -33,8 +33,10 @@ mypy = "^1.15.0"
 [tool.poetry.group.docs]
 optional = true
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.1"
-pymdown-extensions = "^10.15"
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocs-git-revision-date-localized-plugin = "*"
+pymdown-extensions = "*"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
