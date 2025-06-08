@@ -25,9 +25,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.1531607"
-     inkscape:cx="442.69632"
-     inkscape:cy="93.655637"
+     inkscape:zoom="1.1387194"
+     inkscape:cx="452.70151"
+     inkscape:cy="96.599741"
      inkscape:window-width="1920"
      inkscape:window-height="1007"
      inkscape:window-x="0"
@@ -44,6 +44,8 @@
      id="defs1372">
     <style
        id="style30406"><![CDATA[
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Condensed&display=swap&text=%28%29CMaOdefinoprst');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap&text=01');
 svg {
    background-color: #fff;
 }
@@ -55,7 +57,6 @@ path.note-bits {
 text.note-bits {
    fill:#3465a4;
    font-size:6.35px;
-   font-family:sans-serif;
    text-align:center;
    text-anchor:middle;
    stroke-width:0;
@@ -366,9 +367,9 @@ text.note-bits {
        id="text-bits"
        y="119.07017"
        x="-42.16872"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.5974px;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';text-align:center;letter-spacing:5.72274px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.38312"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;line-height:0%;text-align:center;letter-spacing:5.55625001px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.38312"
        xml:space="preserve"><tspan
-         style="font-size:13.7546px;line-height:1.5;text-align:start;text-anchor:start;stroke-width:1.38312"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;line-height:1.5;font-family:'Ubuntu Mono';-inkscape-font-specification:'Ubuntu Mono';text-align:start;text-anchor:start;stroke-width:1.38312"
          y="119.07017"
          x="-42.16872"
          id="tspan14294"
@@ -378,9 +379,9 @@ text.note-bits {
        id="text-bits-index"
        y="128.7923"
        x="-40.077934"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.19512px;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';text-align:center;letter-spacing:0px;word-spacing:7.30563px;writing-mode:lr-tb;text-anchor:middle;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1.38312"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:0%;text-align:center;letter-spacing:0px;word-spacing:9.18104168px;writing-mode:lr-tb;text-anchor:middle;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1.38312"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.19512px;line-height:1.5;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';text-align:start;text-anchor:start;fill:#666666;stroke-width:1.38312"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.5;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, ';text-align:start;text-anchor:start;fill:#666666;stroke-width:1.38312"
          y="128.7923"
          x="-40.077934"
          id="tspan32318"
@@ -395,11 +396,13 @@ text.note-bits {
          sodipodi:role="line"
          id="tspan47390"
          x="37.408081"
-         y="39.924568">Operation</tspan><tspan
+         y="39.924568"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, '">Operation</tspan><tspan
          sodipodi:role="line"
          x="37.408081"
-         y="47.862068"
-         id="tspan52967">Code</tspan></text>
+         y="48.165131"
+         id="tspan52967"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, '">Code</tspan></text>
     <text
        xml:space="preserve"
        x="96.93264"
@@ -409,16 +412,18 @@ text.note-bits {
          sodipodi:role="line"
          x="96.93264"
          y="43.893318"
-         id="tspan53377">Modifiers</tspan></text>
+         id="tspan53377"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, '">Modifiers</tspan></text>
     <text
        xml:space="preserve"
-       x="177.72484"
+       x="177.69377"
        y="43.277851"
        id="text-operands"
        class="note-bits"><tspan
          sodipodi:role="line"
-         x="177.72484"
+         x="177.69377"
          y="43.277851"
-         id="tspan65341">Operand(s)</tspan></text>
+         id="tspan65341"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Ubuntu Condensed';-inkscape-font-specification:'Ubuntu Condensed, '">Operand(s)</tspan></text>
   </g>
 </svg>
