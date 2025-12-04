@@ -33,6 +33,10 @@ plugins:
   - git-revision-date-localized:
       type: timeago
       enable_creation_date: true
+  - macros:
+      module_name: docs/macros
+      render_by_default: false
+      include_dir: .
 
 markdown_extensions:
   - abbr
