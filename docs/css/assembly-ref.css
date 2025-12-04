@@ -1,0 +1,17 @@
+.assembly-ref {
+    border-style: dotted;
+}
+
+.assembly-ref th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.assembly-ref th,
+.assembly-ref td {
+    border: solid 1px;
+}
+
+.assembly-ref .opcode {
+    text-align: center;
+}

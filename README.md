@@ -8,10 +8,10 @@ open source under GPL v3 license.
 
 This software is developed with Python 3 and Qt UI toolkit. You can see how it looks like [here][docs-screenshot].
 
-<!-- The assembly language documentation can be found [here][docs-assembly]. -->
+The CPU reference documentation can be found [here][docs-cpu].
 
 [docs-screenshot]: https://austrosim.readthedocs.io/en/latest/screenshot/
-<!-- [docs-assembly]: #https://austrosim.readthedocs.io/assembly-language -->
+[docs-cpu]: https://austrosim.readthedocs.io/en/latest/cpu/
 
 ## How to install
 
